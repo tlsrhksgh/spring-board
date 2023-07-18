@@ -1,6 +1,7 @@
 package com.single.springboard.domain.posts;
 
 import com.single.springboard.domain.BaseTimeEntity;
+import com.single.springboard.web.dto.PostUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,9 @@ public class Posts extends BaseTimeEntity {
     private String content;
 
     private String author;
+
+    public void updatePost(PostUpdateRequest updateDto) {
+        this.title = updateDto.title();
+        this.content = updateDto.content();
+    }
 }
