@@ -99,16 +99,11 @@ class PostsControllerTest {
 
         //when
         //then
-        MvcResult result = mockMvc.perform(put("/api/v1/posts/" + postId)
+        mockMvc.perform(put("/api/v1/posts/" + postId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                         .andExpect(status().isBadRequest())
-                        .andReturn();
-
-        MockHttpServletResponse response = result.getResponse();
-        String errorMessage = response.getErrorMessage();
-
-        assertThat(errorMessage).isEqualTo("Invalid request content.");
+                        .andExpect(jsonPath("$.message").value("제목은 1 ~ 500자 이여야 합니다."));
     }
 
     @Test
