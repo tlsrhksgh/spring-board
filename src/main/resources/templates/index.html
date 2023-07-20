@@ -17,7 +17,12 @@
                 Logged in as: <span id="user" th:text="${userName}"></span>
                 <a href="/logout" class="btn btn-info active" role="button">Logout</a>
             </p>
-            <a href="/oauth2/authorization/naver" class="btn btn-secondary active" role="button">Naver Login</a>
+            <div th:if="${userName == null}">
+                <a href="/oauth2/authorization/naver" class="btn btn-secondary active" role="button">Naver Login</a>
+                <a href="/oauth2/authorization/kakao" role="button">
+                    <img src="/images/kakao_login.png" />
+                </a>
+            </div>
         </div>
     </div>
     <br>
