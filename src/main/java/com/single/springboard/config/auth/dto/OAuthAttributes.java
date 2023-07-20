@@ -17,14 +17,27 @@ public class OAuthAttributes {
     private final String picture;
 
     public static OAuthAttributes of(String registrationId,
-                                     String userNameAttributeName,
                                      Map<String, Object> attributes) {
 
         if(registrationId.equals("naver")) {
             return ofNaver("id", attributes);
         }
 
-        return null;
+
+        return ofKakao("id", attributes);
+    }
+
+    private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
+        Map<String, Object> kakaoAccount = (Map<String, Object>)attributes.get("kakao_account");
+        Map<String, Object> kakaoProfile = (Map<String, Object>)kakaoAccount.get("profile");
+
+        return OAuthAttributes.builder()
+                .name((String) kakaoProfile.get("nickname"))
+                .email((String) kakaoAccount.get("email"))
+                .picture((String) kakaoProfile.get("profile_image_url"))
+                .attributes(attributes)
+                .nameAttributeKey(userNameAttributeName)
+                .build();
     }
 
     private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
