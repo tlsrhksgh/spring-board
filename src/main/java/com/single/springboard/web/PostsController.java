@@ -4,10 +4,13 @@ import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.PostResponse;
 import com.single.springboard.web.dto.PostSaveRequest;
 import com.single.springboard.web.dto.PostUpdateRequest;
+import com.single.springboard.web.dto.PostsListResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -16,7 +19,7 @@ public class PostsController {
 
     private final PostsService postsService;
 
-    @PostMapping("/save")
+    @PostMapping
     public Long savePost(@RequestBody @Valid PostSaveRequest requestDto) {
         return postsService.savePost(requestDto);
     }
@@ -24,6 +27,11 @@ public class PostsController {
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> findPostById(@PathVariable Long id) {
         return ResponseEntity.ok(postsService.findPostById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PostsListResponse>> findAllPosts() {
+        return ResponseEntity.ok(postsService.findAllDesc());
     }
 
     @PutMapping("/{id}")
