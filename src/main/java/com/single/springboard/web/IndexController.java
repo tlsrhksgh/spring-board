@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.security.Principal;
+
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
@@ -22,14 +24,15 @@ public class IndexController {
         model.addAttribute("posts", postsService.findAllDesc());
 
         if(user != null) {
-            model.addAttribute("userName", user.getName());
+            model.addAttribute("userName", user.name());
         }
 
         return "index";
     }
 
     @GetMapping("/posts/save")
-    public String postSave() {
+    public String postSave(Model model, @LoginUser SessionUser user) {
+        model.addAttribute("user", user);
 
         return "post-save";
     }
@@ -44,10 +47,10 @@ public class IndexController {
     }
 
     @GetMapping("/posts/find/{id}")
-    public String postFind(@PathVariable Long id, Model model) {
-
+    public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostResponse post = postsService.findPostById(id);
         model.addAttribute("post", post);
+        model.addAttribute("user", user);
 
         return "post-find";
     }

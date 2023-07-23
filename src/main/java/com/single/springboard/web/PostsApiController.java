@@ -1,5 +1,7 @@
 package com.single.springboard.web;
 
+import com.single.springboard.config.auth.LoginUser;
+import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.PostResponse;
 import com.single.springboard.web.dto.PostSaveRequest;
@@ -20,7 +22,9 @@ public class PostsApiController {
     private final PostsService postsService;
 
     @PostMapping
-    public Long savePost(@RequestBody @Valid PostSaveRequest requestDto) {
+    public Long savePost(@RequestBody @Valid PostSaveRequest requestDto,
+                         @LoginUser SessionUser user) {
+
         return postsService.savePost(requestDto);
     }
 
