@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ExceptionController {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ExceptionForm> requestException(final CustomException exception) {
-        log.warn("posts api exception: {}", exception.getErrorCode());
+        log.warn("api exception: {}", exception.getErrorCode());
         return ResponseEntity.badRequest().body(
                 new ExceptionForm(exception.getMessage(), exception.getErrorCode().getHttpStatus().value())
         );
