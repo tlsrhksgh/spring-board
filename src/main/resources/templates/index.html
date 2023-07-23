@@ -38,11 +38,11 @@
         <tbody>
         <tr th:each="x : ${posts}">
             <td>
-                <a th:href="${'/posts/update/' + x.id}" th:text="${x.title}"></a>
+                <a th:href="${'/posts/update/' + x.id}" th:text="${x.id()}"></a>
             </td>
-            <td th:text="${x.getTitle()}"></td>
-            <td th:text="${x.getAuthor()}"></td>
-            <td th:text="${x.getModifiedDate()}"></td>
+            <td th:text="${x.title()}"></td>
+            <td th:text="${x.author()}"></td>
+            <td th:text="${x.modifiedDate()}"></td>
         </tr>
         </tbody>
     </table>
