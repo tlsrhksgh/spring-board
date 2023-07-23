@@ -37,10 +37,10 @@
         </thead>
         <tbody>
         <tr th:each="x : ${posts}">
+            <td th:text="${x.id()}"></td>
             <td>
-                <a th:href="${'/posts/update/' + x.id}" th:text="${x.id()}"></a>
+                <a th:href="${'/posts/find/' + x.id}" th:text="${x.title()}"></a>
             </td>
-            <td th:text="${x.title()}"></td>
             <td th:text="${x.author()}"></td>
             <td th:text="${x.modifiedDate()}"></td>
         </tr>

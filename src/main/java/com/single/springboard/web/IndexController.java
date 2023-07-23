@@ -31,15 +31,24 @@ public class IndexController {
     @GetMapping("/posts/save")
     public String postSave() {
 
-        return "posts-save";
+        return "post-save";
     }
 
     @GetMapping("/posts/update/{id}")
-    public String postsUpdate(@PathVariable Long id, Model model) {
+    public String postUpdate(@PathVariable Long id, Model model) {
 
         PostResponse posts = postsService.findPostById(id);
         model.addAttribute("posts", posts);
 
-        return "posts-update";
+        return "post-update";
+    }
+
+    @GetMapping("/posts/find/{id}")
+    public String postFind(@PathVariable Long id, Model model) {
+
+        PostResponse post = postsService.findPostById(id);
+        model.addAttribute("post", post);
+
+        return "post-find";
     }
 }
