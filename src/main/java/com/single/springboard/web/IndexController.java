@@ -3,15 +3,13 @@ package com.single.springboard.web;
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.service.posts.PostsService;
-import com.single.springboard.web.dto.PostResponse;
+import com.single.springboard.web.dto.posts.PostResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller
@@ -51,6 +49,12 @@ public class IndexController {
         PostResponse post = postsService.findPostById(id);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
+        model.addAttribute("comments", post.comments());
+
+        if(post.comments().size() >= 1) {
+            System.out.println(post.comments().get(0).author());
+            System.out.println(post.comments().get(0).content());
+        }
 
         return "post-find";
     }

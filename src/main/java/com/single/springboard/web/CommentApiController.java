@@ -7,10 +7,7 @@ import com.single.springboard.web.dto.comments.CommentSaveRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
@@ -23,5 +20,10 @@ public class CommentApiController {
     public ResponseEntity<Long> commentSave(@RequestBody @Valid CommentSaveRequest requestDto,
                                             @LoginUser SessionUser user) {
         return ResponseEntity.ok(commentsService.commentSave(requestDto, user.email()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Long> commentDelete(@PathVariable Long id) {
+        return ResponseEntity.ok(commentsService.deleteComment(id));
     }
 }

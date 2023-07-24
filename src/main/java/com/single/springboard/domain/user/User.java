@@ -1,10 +1,13 @@
 package com.single.springboard.domain.user;
 
+import com.single.springboard.domain.comments.Comments;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Builder
@@ -29,6 +32,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "posts", cascade = CascadeType.ALL)
+    private List<Comments> comments;
 
     public User update(String name, String picture) {
         this.name = name;
