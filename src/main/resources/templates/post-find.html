@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <title th:text="${post.title}"></title>
     <meta http-equiv="content-type" content="text/html" charset="UTF-8">
@@ -22,10 +22,33 @@
             <p id="content" th:text="${post.content()}"></p>
         </div>
     </div>
-    <div class="col-md-5">
-        <div class="form-group">
-            <span th:text="${user.email()}"></span>
+    </br>
+    <form>
+        <div class="mb-3 form-group">
+            <label for="comment-author" class="form-label">댓글 작성자</label>
+            <span id="comment-author" type="text" class="form-control" th:text="${post.author()}"></span>
         </div>
+        <div class="mb-3 form-group">
+            <label for="comment-content" class="form-label">댓글 작성</label>
+            <textarea class="form-control" id="comment-content" rows="3" placeholder="댓글을 입력해주세요"></textarea>
+        </div>
+        <input type="submit" value="등록" id="btn-save"/>
+    </form>
+    <div class="col-md-4" id="post-comments">
+        <ul>
+            <li th:each="comment : ${comments}" th:attr="dataset-id=${comment.id()}">
+                <div th:if="${comment.author().equals(user.name())}">
+                    <span th:text="${comment.author()}"></span>
+                    <p th:text="${comment.content()}"></p>
+                    <button type="button" class="del-btn">❌</button>
+                </div>
+                <div th:if="${!comment.author().equals(user.name())}">
+                    <span th:text="${user.name()}"></span>
+                    <p th:text="${comment.content()}"></p>
+                </div>
+            </li>
+            <hr>
+        </ul>
     </div>
 </div>
 
@@ -34,5 +57,29 @@
         integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
         crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="/js/app/comments.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".del-btn").click(function () {
+            let parentDiv = $(this).parent();
+            let parentLi = parentDiv.parent("li")[0];
+
+            let datasetId = $(parentLi).attr('dataset-id');
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/v1/comments/'+ datasetId,
+                dataType: 'json',
+                contentType:'application/json; charset=utf-8',
+            }).done(function () {
+                parentLi.remove();
+                alert("댓글이 삭제되었습니다.");
+            }).fail(function(error) {
+                console.log(error);
+                alert(JSON.stringify("삭제가 실패되었습니다."));
+            })
+        });
+    });
+</script>
 </body>
 </html>
