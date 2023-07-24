@@ -51,11 +51,6 @@ public class IndexController {
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
 
-        if(post.comments().size() >= 1) {
-            System.out.println(post.comments().get(0).author());
-            System.out.println(post.comments().get(0).content());
-        }
-
         return "post-find";
     }
 }
