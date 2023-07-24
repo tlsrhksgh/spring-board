@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(indexes = @Index(name = "i_comments", columnList = "posts_id"))
 @Entity
 public class Comments extends BaseTimeEntity {
 

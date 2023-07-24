@@ -8,12 +8,9 @@ import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.web.dto.comments.CommentSaveRequest;
-import com.single.springboard.web.dto.comments.CommentsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
