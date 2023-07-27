@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface CommentsRepository extends JpaRepository<Comments, Long> {
-    @Query("select c from Comments c where c.posts.id = :postId order by c.id desc")
+    @Query("select c from Comments c where c.posts.id = :postId order by c.id desc, c.createdDate asc ")
     List<Comments> findAllByPostsId(@Param("postId") Long postId);
 
     @Modifying

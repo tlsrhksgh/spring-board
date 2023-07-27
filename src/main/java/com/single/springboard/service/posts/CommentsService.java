@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 
@@ -29,14 +31,41 @@ public class CommentsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-        Comments comment = Comments.builder()
-                .user(user)
-                .content(requestDto.content())
-                .password(requestDto.password())
-                .posts(post)
-                .build();
+        Comments parentComment = findParentComment(requestDto);
+
+        Comments comment;
+
+        if(parentComment == null) {
+            comment = Comments.builder()
+                    .user(user)
+                    .content(requestDto.content())
+                    .secret(requestDto.secret())
+                    .posts(post)
+                    .parentId(post.getId())
+                    .replyLevel(1)
+                    .build();
+        } else {
+            comment = Comments.builder()
+                    .user(user)
+                    .content(requestDto.content())
+                    .secret(requestDto.secret())
+                    .posts(post)
+                    .parentId(requestDto.parentId())
+                    .replyLevel(parentComment.getReplyLevel() + 1)
+                    .build();
+        }
 
         return commentsRepository.save(comment).getId();
+    }
+
+    private Comments findParentComment(CommentSaveRequest requestDto) {
+        List<Comments> comments = commentsRepository.findAllByPostsId(requestDto.postId());
+        Comments parentComment = comments.stream().filter(
+                comment -> comment.getId() == requestDto.parentId())
+                .findAny()
+                .orElse(null);
+
+        return parentComment;
     }
 
     public Long deleteComment(Long commentId) {
