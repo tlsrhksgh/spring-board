@@ -33,6 +33,8 @@ public class Posts extends BaseTimeEntity {
     @OneToMany(mappedBy = "posts", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private List<Comments> comments;
 
+    private int commentCount;
+
     public void updatePost(PostUpdateRequest updateDto) {
         this.title = updateDto.title();
         this.content = updateDto.content();

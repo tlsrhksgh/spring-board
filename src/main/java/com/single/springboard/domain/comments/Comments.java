@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -29,6 +32,9 @@ public class Comments extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String password;
     private String content;
+    private boolean secret;
+
+    private int replyLevel;
+    private Long parentId;
 }

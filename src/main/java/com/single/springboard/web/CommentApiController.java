@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/comments")
 @RestController
 public class CommentApiController {
 
@@ -19,6 +19,7 @@ public class CommentApiController {
     @PostMapping
     public ResponseEntity<Long> commentSave(@RequestBody @Valid CommentSaveRequest requestDto,
                                             @LoginUser SessionUser user) {
+        System.out.println("hello");
         return ResponseEntity.ok(commentsService.commentSave(requestDto, user.email()));
     }
 
