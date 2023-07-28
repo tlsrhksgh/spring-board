@@ -38,7 +38,7 @@ public class IndexController {
     @GetMapping("/posts/update/{id}")
     public String postUpdate(@PathVariable Long id, Model model) {
 
-        PostResponse posts = postsService.findPostById(id);
+        PostResponse posts = postsService.findPostByIdAndComments(id);
         model.addAttribute("posts", posts);
 
         return "post-update";
@@ -46,7 +46,7 @@ public class IndexController {
 
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        PostResponse post = postsService.findPostById(id);
+        PostResponse post = postsService.findPostByIdAndComments(id);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());

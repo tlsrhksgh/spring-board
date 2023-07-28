@@ -32,9 +32,9 @@ var main = {
         });
     },
     replyCommentSave: function (e) {
-        const saveBtn = e.target;
-        const ancestorLiId = $(saveBtn).closest("li").attr('dataset-id');
-        const content = $(saveBtn).parent("div").children().first().val();
+        const saveBtn = e.target.parentElement;
+        const ancestorLiId = $(saveBtn).parent("li").attr('dataset-id');
+        const content = $(saveBtn).children().first().val();
 
         let data = {
             postId: window.location.href.split("/").pop().substring(0, 1),
@@ -61,10 +61,9 @@ var main = {
     },
     createCommentForm: function (e) {
         const parent = e.target.parentElement;
-        const div = document.createElement("div");
+        const li = document.createElement("li");
         const textarea = document.createElement("textarea");
         const button = document.createElement("button");
-        div.className = "mb-3 form-group";
         textarea.className = "comment-content";
         button.type = "button";
         button.className = "reply-comment_btn";
@@ -74,9 +73,9 @@ var main = {
             _this.replyCommentSave(e);
         })
 
-        div.appendChild(textarea);
-        div.appendChild(button);
-        parent.appendChild(div);
+        li.appendChild(textarea);
+        li.appendChild(button);
+        parent.appendChild(li);
     },
     deleteComment: function () {
         $(".del-btn").click(function () {
