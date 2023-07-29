@@ -11,8 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface CommentsRepository extends JpaRepository<Comments, Long> {
-    @Query("select c from Comments c where c.posts.id = :postId order by c.id desc, c.createdDate asc ")
-    List<Comments> findAllByPostsId(@Param("postId") Long postId);
+
+    @Query("select c from Comments c where c.posts.id = :postId order by c.id desc")
+    List<Comments> findAllByComments(@Param("postId") Long postId);
 
     @Query("select c from Comments c where c.posts.id = :postId and c.id = :parentId")
     Optional<Comments> findByPostIdAndParentId(@Param("postId") Long postId, @Param("parentId") Long parentId);
