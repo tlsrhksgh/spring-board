@@ -97,6 +97,11 @@ var main = {
                 alert(JSON.stringify("삭제가 실패되었습니다."));
             })
         });
+    },
+    childCommentAppend: function () {
+        let parentElem = $(document).dataset.attr("dataset-id");
+
+        $.ajax()
     }
 };
 
