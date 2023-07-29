@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CommentsRepository extends JpaRepository<Comments, Long> {
 
-    @Query("select c from Comments c where c.posts.id = :postId order by c.id desc")
+    @Query("select c from Comments c where c.posts.id = :postId order by c.parentId asc, c.id desc")
     List<Comments> findAllByComments(@Param("postId") Long postId);
 
     @Query("select c from Comments c where c.posts.id = :postId and c.id = :parentId")
