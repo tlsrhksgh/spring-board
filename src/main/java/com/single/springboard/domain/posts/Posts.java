@@ -30,7 +30,7 @@ public class Posts extends BaseTimeEntity {
 
     private String author;
 
-    @OneToMany(mappedBy = "posts", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<Comments> comments;
 
     private int commentCount;

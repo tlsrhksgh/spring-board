@@ -42,7 +42,7 @@ public class CommentsService {
                     .content(requestDto.content())
                     .secret(requestDto.secret())
                     .posts(post)
-                    .parentId(post.getId())
+                    .parentId(0L)
                     .commentLevel(1)
                     .build();
         } else {

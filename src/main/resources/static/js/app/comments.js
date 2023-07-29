@@ -33,7 +33,7 @@ var main = {
     },
     replyCommentSave: function (e) {
         const saveBtn = e.target.parentElement;
-        const ancestorLiId = $(saveBtn).parent("li").attr('dataset-id');
+        const ancestorLiId = $(saveBtn).parent().attr('dataset-id');
         const content = $(saveBtn).children().first().val();
 
         let data = {
