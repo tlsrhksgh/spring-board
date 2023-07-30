@@ -1,12 +1,9 @@
 package com.single.springboard.web;
 
-import com.single.springboard.config.auth.LoginUser;
-import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.service.posts.PostsService;
-import com.single.springboard.web.dto.PostResponse;
-import com.single.springboard.web.dto.PostSaveRequest;
-import com.single.springboard.web.dto.PostUpdateRequest;
-import com.single.springboard.web.dto.PostsListResponse;
+import com.single.springboard.web.dto.posts.PostSaveRequest;
+import com.single.springboard.web.dto.posts.PostUpdateRequest;
+import com.single.springboard.web.dto.posts.PostsResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,19 +19,13 @@ public class PostsApiController {
     private final PostsService postsService;
 
     @PostMapping
-    public Long savePost(@RequestBody @Valid PostSaveRequest requestDto,
-                         @LoginUser SessionUser user) {
+    public Long savePost(@RequestBody @Valid PostSaveRequest requestDto) {
 
         return postsService.savePost(requestDto);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> findPostById(@PathVariable Long id) {
-        return ResponseEntity.ok(postsService.findPostById(id));
-    }
-
     @GetMapping
-    public ResponseEntity<List<PostsListResponse>> findAllPosts() {
+    public ResponseEntity<List<PostsResponse>> findAllPosts() {
         return ResponseEntity.ok(postsService.findAllDesc());
     }
 
@@ -44,9 +35,9 @@ public class PostsApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+    public ResponseEntity<Long> deletePost(@PathVariable Long id) {
         boolean result = postsService.deletePost(id);
 
-        return result ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        return result ? ResponseEntity.ok(id) : ResponseEntity.badRequest().build();
     }
 }
