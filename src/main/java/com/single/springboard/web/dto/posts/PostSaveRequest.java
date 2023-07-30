@@ -1,4 +1,4 @@
-package com.single.springboard.web.dto;
+package com.single.springboard.web.dto.posts;
 
 import com.single.springboard.domain.posts.Posts;
 import jakarta.validation.constraints.NotBlank;

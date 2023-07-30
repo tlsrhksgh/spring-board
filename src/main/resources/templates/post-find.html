@@ -36,15 +36,15 @@
     </form>
     <div class="col-md-4" id="post-comments">
         <ul>
-            <li th:each="comment : ${comments}" th:attr="dataset-id=${comment.id()}">
-                <div th:if="${comment.commentLevel() == 1}">
+            <li th:each="comment : ${comments}">
+                <div th:if="${comment.commentLevel() == 1}" th:attr="dataset-id=${comment.id()}, parent-id=${comment.parentId()}">
                     <span th:text="${comment.author()}"></span>
                     <p th:text="${comment.content()}"></p>
                     <button type="button" class="create-comment_form">답글</button>
                     <button type="button" class="del-comment" th:if="${comment.author().equals(user.name())}">❌</button>
                 </div>
 
-                <div th:if="${comment.commentLevel() > 1}" th:attr="style='margin-left: ' + (${comment.commentLevel()} * 10) + 'px'">
+                <div th:if="${comment.commentLevel() > 1}" th:attr="dataset-id=${comment.id()}, parent-id=${comment.parentId()}, style='margin-left: ' + (${comment.commentLevel()} * 15) + 'px'">
                     <span th:utext="|${'└ '}|" th:if="${comment.commentLevel() > 1}"></span>
                     <span th:text="${comment.author()}"></span>
                     <p th:text="${comment.content()}"></p>

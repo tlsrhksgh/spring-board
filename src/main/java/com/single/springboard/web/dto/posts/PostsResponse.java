@@ -1,9 +1,9 @@
-package com.single.springboard.web.dto;
+package com.single.springboard.web.dto.posts;
 
 
 import java.time.LocalDateTime;
 
-public record PostsListResponse(
+public record PostsResponse(
         Long id,
         String title,
         String author,

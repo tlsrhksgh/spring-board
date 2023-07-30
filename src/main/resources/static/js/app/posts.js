@@ -9,8 +9,8 @@ var main = {
             _this.update();
         })
 
-        $('#btn-delete').on('click', () => {
-            _this.delete();
+        $('.del-comment').on('click', (e) => {
+            _this.delete(e);
         })
     },
     save : function() {
@@ -56,12 +56,12 @@ var main = {
         })
     },
 
-    delete : function () {
-        let id = $('#id').val();
+    delete : function (e) {
+        const postId = e.target.parentNode.childNodes.item(1).textContent;
 
         $.ajax({
             type: 'DELETE',
-            url: '/api/v1/posts/'+id,
+            url: '/api/v1/posts/'+postId,
             dataType: 'json',
             contentType:'application/json; charset=utf-8',
         }).done(function () {

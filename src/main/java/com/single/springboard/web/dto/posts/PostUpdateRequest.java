@@ -1,4 +1,4 @@
-package com.single.springboard.web.dto;
+package com.single.springboard.web.dto.posts;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
