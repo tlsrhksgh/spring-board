@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/comments")
 @RestController
@@ -23,7 +25,7 @@ public class CommentApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> commentDelete(@PathVariable Long id) {
-        return ResponseEntity.ok(commentsService.deleteComment(id));
+    public ResponseEntity<Long> commentDelete(@PathVariable Long id, List<Long> commentsIds) {
+        return ResponseEntity.ok(commentsService.deleteComment(id, commentsIds));
     }
 }
