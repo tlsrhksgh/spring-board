@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -59,8 +60,10 @@ public class CommentsService {
         return commentsRepository.save(comment).getId();
     }
 
-    public Long deleteComment(Long commentId) {
-        commentsRepository.deleteById(commentId);
-        return commentId;
+    public Long deleteComment(Long postId, List<Long> commentsIds) {
+        Posts post = postsRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+        return postId;
     }
 }
