@@ -4,7 +4,6 @@ import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.posts.PostResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class IndexController {
     private final PostsService postsService;
-    private final HttpSession httpSession;
 
     @GetMapping("/")
     public String index(Model model, @LoginUser SessionUser user) {
@@ -36,9 +34,9 @@ public class IndexController {
     }
 
     @GetMapping("/posts/update/{id}")
-    public String postUpdate(@PathVariable Long id, Model model) {
+    public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
 
-        PostResponse posts = postsService.findPostByIdAndComments(id);
+        PostResponse posts = postsService.findPostByIdAndComments(id, user);
         model.addAttribute("posts", posts);
 
         return "post-update";
@@ -46,10 +44,11 @@ public class IndexController {
 
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        PostResponse post = postsService.findPostByIdAndComments(id);
+        PostResponse post = postsService.findPostByIdAndComments(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
+
 
         return "post-find";
     }

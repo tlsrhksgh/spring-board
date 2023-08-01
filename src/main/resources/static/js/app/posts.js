@@ -9,7 +9,7 @@ var main = {
             _this.update();
         })
 
-        $('.del-comment').on('click', (e) => {
+        $('.post-del_btn').on('click', (e) => {
             _this.delete(e);
         })
     },

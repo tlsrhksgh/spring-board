@@ -30,13 +30,17 @@ public class Posts extends BaseTimeEntity {
 
     private String author;
 
-    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comments> comments;
 
-    private int commentCount;
+    private long viewCount;
 
     public void updatePost(PostUpdateRequest updateDto) {
         this.title = updateDto.title();
         this.content = updateDto.content();
+    }
+
+    public void updateViewCount() {
+        this.viewCount += 1;
     }
 }
