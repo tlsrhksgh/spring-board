@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -43,7 +42,7 @@ public class CommentsService {
                     .content(requestDto.content())
                     .secret(requestDto.secret())
                     .posts(post)
-                    .parentId(0L)
+                    .parentComment(null)
                     .commentLevel(1)
                     .build();
         } else {
@@ -52,7 +51,7 @@ public class CommentsService {
                     .content(requestDto.content())
                     .secret(requestDto.secret())
                     .posts(post)
-                    .parentId(requestDto.parentId())
+                    .parentComment(parentComment.get())
                     .commentLevel(parentComment.get().getCommentLevel() + 1)
                     .build();
         }
@@ -60,10 +59,10 @@ public class CommentsService {
         return commentsRepository.save(comment).getId();
     }
 
-    public Long deleteComment(Long postId, List<Long> commentsIds) {
-        Posts post = postsRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+    @Transactional
+    public Long deleteComment(Long commentId) {
+        commentsRepository.delComments(commentId);
 
-        return postId;
+        return commentId;
     }
 }
