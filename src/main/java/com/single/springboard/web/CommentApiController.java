@@ -2,15 +2,12 @@ package com.single.springboard.web;
 
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
-import com.single.springboard.domain.comments.Comments;
 import com.single.springboard.service.posts.CommentsService;
 import com.single.springboard.web.dto.comments.CommentSaveRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/comments")

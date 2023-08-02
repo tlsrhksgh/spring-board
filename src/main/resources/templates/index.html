@@ -52,6 +52,28 @@
     </table>
 </div>
 
+<div th:if="${posts.totalPages > 1}">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${posts.first ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/(page=${posts.number - 1}, size=${posts.size})}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">이전</span>
+                </a>
+            </li>
+            <li th:each="pageNumber : ${#numbers.sequence(0, posts.totalPages - 1)}" th:classappend="${posts.number == pageNumber ? 'active' : ''}">
+                <a class="page-link" th:href="@{/(page=${pageNumber}, size=${posts.size})}" th:text="${pageNumber + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${posts.last ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/(page=${posts.number + 1}, size=${posts.size})}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">다음</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
 <script
         src="https://code.jquery.com/jquery-3.6.3.min.js"
         integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="

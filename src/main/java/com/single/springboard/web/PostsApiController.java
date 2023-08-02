@@ -6,10 +6,10 @@ import com.single.springboard.web.dto.posts.PostUpdateRequest;
 import com.single.springboard.web.dto.posts.PostsResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -21,12 +21,13 @@ public class PostsApiController {
     @PostMapping
     public Long savePost(@RequestBody @Valid PostSaveRequest requestDto) {
 
+
         return postsService.savePost(requestDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<PostsResponse>> findAllPosts() {
-        return ResponseEntity.ok(postsService.findAllDesc());
+    public ResponseEntity<Page<PostsResponse>> findAllPosts(Pageable pageable) {
+        return ResponseEntity.ok(postsService.findAllDesc(pageable));
     }
 
     @PutMapping("/{id}")
