@@ -13,6 +13,8 @@ import com.single.springboard.web.dto.posts.PostSaveRequest;
 import com.single.springboard.web.dto.posts.PostUpdateRequest;
 import com.single.springboard.web.dto.posts.PostsResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,16 +119,16 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsResponse> findAllDesc() {
-        return postsRepository.findAllPostsDesc().stream()
+    public Page<PostsResponse> findAllDesc(Pageable pageable) {
+        return postsRepository.findAllPostsDesc(pageable)
                 .map(post -> PostsResponse.builder()
                         .id(post.getId())
                         .author(post.getAuthor())
                         .title(post.getTitle())
                         .modifiedDate(post.getModifiedDate())
                         .viewCount(post.getViewCount())
-                        .build())
-                .collect(Collectors.toList());
+                        .commentsCount(commentsRepository.countCommentsByPostsId(post.getId()))
+                        .build());
     }
 
     @Transactional
