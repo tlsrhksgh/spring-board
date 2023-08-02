@@ -13,7 +13,7 @@ var main = {
     },
     save : function () {
         let data = {
-            postId: window.location.href.split("/").pop().substring(0, 1),
+            postId: parsePostId(window.location.href.split("/").pop()),
             nickname: $('#comment-author').text(),
             content: $('#comment-content').val()
         };
@@ -37,7 +37,7 @@ var main = {
         const content = $(parentDiv).children().first().val();
 
         let data = {
-            postId: window.location.href.split("/").pop().substring(0, 1),
+            postId: parsePostId(window.location.href.split("/").pop()),
             parentId: ancestorLiId,
             nickname: $('#comment-author').text(),
             secret: false,
@@ -80,7 +80,7 @@ var main = {
     deleteComment: function (e) {
         let parentDiv = e.target.parentElement;
         let datasetId = $(parentDiv).attr('dataset-id');
-        const postId = window.location.href.split("/").pop().substring(0, 1);
+        const postId = parsePostId(window.location.href.split("/").pop());
 
         $.ajax({
             type: 'DELETE',
@@ -96,6 +96,11 @@ var main = {
         })
     }
 };
+
+function parsePostId(postId) {
+    const regex = /[^0-9]/g;
+    return postId.replace(regex, "");
+}
 
 
 main.init();
