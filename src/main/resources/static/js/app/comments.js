@@ -7,8 +7,8 @@ var main = {
         $('.create-comment_form').on('click', (e) => {
            _this.createCommentForm(e);
         });
-        $('.del-comment').on('click', () => {
-            _this.deleteComment();
+        $('.del-comment').on('click', (e) => {
+            _this.deleteComment(e);
         });
     },
     save : function () {
@@ -32,9 +32,9 @@ var main = {
         });
     },
     replyCommentSave: function (e) {
-        const saveBtn = e.target.parentElement;
-        const ancestorLiId = $(saveBtn).parent().attr('dataset-id');
-        const content = $(saveBtn).children().first().val();
+        const parentDiv = e.target.parentElement;
+        const ancestorLiId = $(parentDiv).parent().attr('dataset-id');
+        const content = $(parentDiv).children().first().val();
 
         let data = {
             postId: window.location.href.split("/").pop().substring(0, 1),
@@ -77,26 +77,23 @@ var main = {
         li.appendChild(button);
         parent.appendChild(li);
     },
-    deleteComment: function () {
-        $(".del-btn").click(function () {
-            let parentDiv = $(this).parent();
-            let parentLi = parentDiv.parent("li")[0];
+    deleteComment: function (e) {
+        let parentDiv = e.target.parentElement;
+        let datasetId = $(parentDiv).attr('dataset-id');
+        const postId = window.location.href.split("/").pop().substring(0, 1);
 
-            let datasetId = $(parentLi).attr('dataset-id');
-
-            $.ajax({
-                type: 'DELETE',
-                url: '/api/v1/comments/'+ datasetId,
-                dataType: 'json',
-                contentType:'application/json; charset=utf-8',
-            }).done(function () {
-                parentLi.remove();
-                alert("댓글이 삭제되었습니다.");
-            }).fail(function(error) {
-                console.log(error);
-                alert(JSON.stringify("삭제가 실패되었습니다."));
-            })
-        });
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/v1/comments/'+ datasetId,
+            dataType: 'json',
+            contentType:'application/json; charset=utf-8',
+        }).done(function () {
+            alert("댓글이 삭제되었습니다.");
+            window.location.href = "/posts/find/" + postId
+        }).fail(function(error) {
+            console.log(error);
+            alert(JSON.stringify("삭제가 실패되었습니다."));
+        })
     }
 };
 

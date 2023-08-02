@@ -50,10 +50,9 @@ public class PostsService {
             redisTemplate.opsForSet().add(userViewKey, postId);
             post.updateViewCount();
         }
-
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public PostResponse findPostByIdAndComments(Long id, @LoginUser SessionUser user) {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
@@ -67,7 +66,7 @@ public class PostsService {
                 .map(comment -> CommentsResponse.builder()
                         .id(comment.getId())
                         .commentLevel(comment.getCommentLevel())
-                        .parentId(comment.getParentId())
+                        .parentId(comment.getParentComment())
                         .content(comment.getContent())
                         .author(comment.getUser().getName())
                         .build())
@@ -85,7 +84,7 @@ public class PostsService {
         List<Comments> sortedComments = new ArrayList<>();
 
         for(Comments comment : comments) {
-            if(comment.getParentId() == 0) {
+            if(comment.getParentComment() == null) {
                 sortedComments.add(comment);
                 sortCommentsByLevelRecursive(comment, comments, sortedComments);
             }
@@ -107,7 +106,7 @@ public class PostsService {
     private List<Comments> findChildren(Long id, List<Comments> comments) {
         List<Comments> children = new ArrayList<>();
         for(Comments comment : comments) {
-            if(Objects.equals(comment.getParentId(), id)) {
+            if(comment.getParentComment() != null && Objects.equals(comment.getParentComment().getId(), id)) {
                 children.add(comment);
             }
         }
@@ -126,7 +125,6 @@ public class PostsService {
                         .title(post.getTitle())
                         .modifiedDate(post.getModifiedDate())
                         .viewCount(post.getViewCount())
-                        .commentsCount(commentsRepository.countAllByPostsId(post.getId()))
                         .build())
                 .collect(Collectors.toList());
     }
