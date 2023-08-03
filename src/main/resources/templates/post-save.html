@@ -24,10 +24,18 @@
                 <input type="text" class="form-control" id="content" placeholder="내용을 입력하세요"/>
             </div>
         </form>
+        <div>
+            <h4>파일 업로드</h4>
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="file" id="file-input" name="file" style="display: none;" />
+            </form>
+            <div id="drop-zone" style="border: 2px dashed #aaa; padding: 30px; text-align: center;">
+                <p>여기를 클릭하거나 파일을 드래그앤드랍 하세요</p>
+            </div>
+        </div>
 
         <a href="/static" role="button" class="btn btn-secondary">취소</a>
         <button type="button" class="btn btn-primary" id="btn-save">등록</button>
-
     </div>
 </div>
 

@@ -10,6 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -19,8 +22,9 @@ public class PostsApiController {
     private final PostsService postsService;
 
     @PostMapping
-    public Long savePost(@RequestBody @Valid PostSaveRequest requestDto) {
-
+    public Long savePost(
+             @RequestBody @Valid PostSaveRequest requestDto,
+             @RequestParam("imageFiles") List<MultipartFile> imageFiles) {
 
         return postsService.savePost(requestDto);
     }

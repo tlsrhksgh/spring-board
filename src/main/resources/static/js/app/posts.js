@@ -1,3 +1,4 @@
+let fileLst = [];
 var main = {
     init : function() {
         var _this = this;
@@ -7,17 +8,75 @@ var main = {
 
         $('#btn-update').on('click', () => {
             _this.update();
-        })
+        });
 
         $('.post-del_btn').on('click', (e) => {
             _this.delete(e);
+        });
+
+        $('#drop-zone').on('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).css("background-color", "#FFD8D8");
+        }).on('click', () => {
+            const fileInput = document.getElementById("file-input");
+            fileInput.click();
+        }).on('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let dropZone = $("#drop-zone");
+            dropZone.css('background-color', '#FFFFFF');
+
+        }).on('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let dropZone = $("#drop-zone");
+            dropZone.css('background-color', '#E3F2FC');
+
+        }).on('drop', (e) => {
+            e.preventDefault();
+
+            let files = e.originalEvent.dataTransfer.files;
+            if(files != null && files != undefined) {
+                let tag = "";
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    fileLst.push(file);
+                    let fileName = file.name;
+                    let fileSize = file.size / 1024 / 1024;
+                    fileSize =  fileSize < 1 ? fileSize.toFixed(3) : fileSize.toFixed(1);
+                    tag +=
+                        "<div class='fileList'>" +
+                        "<span class='fileName'>"+fileName+"</span>" +
+                        "<span class='fileSize'>"+fileSize+" MB</span>" +
+                        "<span class='clear'></span>" +
+                        "</div>";
+                }
+                $(this).append(tag);
+            }
+        });
+
+        $('#file-input').on('change', (e) => {
+            let files = e.target.files;
+            let formData = new FormData();
+            formData.append("file", files[0]);
+            _this.save(formData);
         })
     },
     save : function() {
+
+        const form = $('#uploadForm');
+        const formData = new FormData(form);
+        for(let i = 0; i < uploadFileList.length; i++){
+            formData.append('files', fileList[uploadFileList[i]]);
+        }
+
         let data = {
             title: $('#title').val(),
             author: $('#author').text(),
-            content: $('#content').val()
+            content: $('#content').val(),
         };
 
         $.ajax({
@@ -71,7 +130,6 @@ var main = {
             alert(JSON.stringify(error));
         })
     }
-
 };
 
 main.init();
