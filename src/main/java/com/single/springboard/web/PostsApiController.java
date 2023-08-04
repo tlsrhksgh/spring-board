@@ -19,10 +19,8 @@ public class PostsApiController {
     private final PostsService postsService;
 
     @PostMapping
-    public Long savePost(@RequestBody @Valid PostSaveRequest requestDto) {
-
-
-        return postsService.savePost(requestDto);
+    public Long savePost(@ModelAttribute @Valid PostSaveRequest requestDto) {
+        return postsService.savePostAndFiles(requestDto);
     }
 
     @GetMapping

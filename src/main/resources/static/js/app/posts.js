@@ -1,3 +1,4 @@
+let fileArr = [];
 var main = {
     init : function() {
         var _this = this;
@@ -7,25 +8,79 @@ var main = {
 
         $('#btn-update').on('click', () => {
             _this.update();
-        })
+        });
 
         $('.post-del_btn').on('click', (e) => {
             _this.delete(e);
-        })
+        });
+
+        $('#drop-zone').on('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const dropZone = $("#drop-zone");
+            dropZone.css("background-color", "#D8D9DA");
+        }).on('click', () => {
+            const fileInput = document.getElementById("file-input");
+            fileInput.click();
+        }).on('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const dropZone = $("#drop-zone");
+            dropZone.css('background-color', '#FFFFFF');
+
+        }).on('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const dropZone = $("#drop-zone");
+            dropZone.css('background-color', '#D8D9DA');
+
+        }).on('drop', (e) => {
+            e.preventDefault();
+
+            $("#drop-zone p").remove();
+
+            let files = e.originalEvent.dataTransfer.files;
+            if(files != null && files != undefined) {
+                let tag = "";
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    fileArr.push(file);
+                    let fileName = file.name;
+                    let fileSize = file.size / 1024 / 1024;
+                    fileSize =  fileSize < 1 ? fileSize.toFixed(3) : fileSize.toFixed(1);
+                    tag +=
+                        "<div class='fileList'>" +
+                        "<span class='fileName'>"+fileName+"</span>" +
+                        "<span class='fileSize'>"+fileSize+" MB</span>" +
+                        "</div>";
+                }
+
+                const dropZone = $("#drop-zone");
+                dropZone.append(tag);
+            }
+        });
     },
     save : function() {
-        let data = {
-            title: $('#title').val(),
-            author: $('#author').text(),
-            content: $('#content').val()
-        };
+        let formData = new FormData();
+        formData.append('title', $('#title').val());
+        formData.append('author', $('#author').text());
+        formData.append('content', $('#content').val());
+        fileArr.forEach(file => {
+            formData.append('files', file)
+        });
+
+        console.log(formData);
 
         $.ajax({
             type: 'POST',
             url: '/api/v1/posts',
-            dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(data)
+            processData: false,
+            contentType: false,
+            cache: false,
+            data: formData
         }).done(() => {
             alert("글이 등록되었습니다.");
             window.location.href = '/';
@@ -71,7 +126,6 @@ var main = {
             alert(JSON.stringify(error));
         })
     }
-
 };
 
 main.init();

@@ -7,6 +7,7 @@ import com.single.springboard.domain.comments.CommentsRepository;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.exception.CustomException;
+import com.single.springboard.service.files.FilesService;
 import com.single.springboard.web.dto.comments.CommentsResponse;
 import com.single.springboard.web.dto.posts.PostResponse;
 import com.single.springboard.web.dto.posts.PostSaveRequest;
@@ -30,12 +31,20 @@ public class PostsService {
     private final PostsRepository postsRepository;
     private final CommentsRepository commentsRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final FilesService filesService;
 
     private static final String REDIS_POST_VIEW_KEY_PREFIX = "post:view:postId:";
     private static final String REDIS_POST_VIEW_USER_KEY_PREFIX = "post:view:user:";
 
-    public Long savePost(PostSaveRequest requestDto) {
-        return postsRepository.save(requestDto.toEntity()).getId();
+    @Transactional
+    public Long savePostAndFiles(PostSaveRequest requestDto) {
+        Long postId = postsRepository.save(requestDto.toEntity()).getId();
+
+        if(!requestDto.files().isEmpty()) {
+            filesService.translateFileAndSave(postId, requestDto.files());
+        }
+
+        return postId;
     }
 
     public void increasePostViewCount(String postId, String userId) {
