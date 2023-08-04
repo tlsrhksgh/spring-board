@@ -25,7 +25,7 @@ public class PostsApiController {
 
     @GetMapping
     public ResponseEntity<Page<PostsResponse>> findAllPosts(Pageable pageable) {
-        return ResponseEntity.ok(postsService.findAllDesc(pageable));
+        return ResponseEntity.ok(postsService.findAllPostsDesc(pageable));
     }
 
     @PutMapping("/{id}")

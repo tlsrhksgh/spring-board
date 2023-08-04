@@ -24,8 +24,8 @@ public class FilesService {
     private final FilesUtils filesUtils;
 
     @Transactional
-    public void translateFileAndSave(Long postId, List<MultipartFile> filesList) {
-        List<FileSaveRequest> files = filesUtils.uploadFiles(filesList);
+    public void translateFileAndSave(Long postId, List<MultipartFile> multipartFiles) {
+        List<FileSaveRequest> files = filesUtils.uploadFiles(multipartFiles);
         saveFiles(postId, files);
     }
 
