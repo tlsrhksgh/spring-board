@@ -85,7 +85,8 @@ var main = {
             alert("글이 등록되었습니다.");
             window.location.href = '/';
         }).fail((error) => {
-            alert("권한이 없습니다.");
+            alert(error.responseJSON.message);
+            return false;
         });
     },
 
