@@ -1,4 +1,4 @@
-package com.single.springboard.domain.impl;
+package com.single.springboard.domain.comments.impl;
 
 import com.single.springboard.domain.comments.Comments;
 import com.single.springboard.domain.comments.CommentsRepositoryCustom;

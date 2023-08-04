@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.apache.tika:tika-core:2.8.0'
 
     //QueryDSL 추가
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
