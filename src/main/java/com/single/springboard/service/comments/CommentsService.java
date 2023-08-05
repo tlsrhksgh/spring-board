@@ -59,9 +59,8 @@ public class CommentsService {
         return commentsRepository.save(comment).getId();
     }
 
-    @Transactional
-    public Long deleteComment(Long commentId) {
-        commentsRepository.delComments(commentId);
+    public Long deleteOneComment(Long commentId) {
+        commentsRepository.deleteById(commentId);
 
         return commentId;
     }

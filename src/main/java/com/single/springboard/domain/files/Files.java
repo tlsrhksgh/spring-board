@@ -30,6 +30,4 @@ public class Files {
 
     @CreatedDate
     private LocalDateTime createdDate;
-
-    private LocalDateTime deletedDate;
 }

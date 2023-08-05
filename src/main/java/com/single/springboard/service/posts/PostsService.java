@@ -120,6 +120,7 @@ public class PostsService {
         boolean isExistPost = postsRepository.existsById(id);
 
         if (isExistPost) {
+            filesService.deleteChildFiles(id);
             postsRepository.deleteById(id);
             return true;
         }
