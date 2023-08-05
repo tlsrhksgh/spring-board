@@ -2,6 +2,7 @@ package com.single.springboard.service.files;
 
 import com.single.springboard.web.dto.files.FileSaveRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.Tika;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +24,10 @@ public class FilesUtils {
     public List<FileSaveRequest> uploadFiles(final List<MultipartFile> multipartFiles) {
         List<FileSaveRequest> files = new ArrayList<>();
         for(MultipartFile multipartFile : multipartFiles) {
+            String mimeType = getMimeType(multipartFile);
+            if(!validImageMimeType(mimeType)) {
+                throw new RuntimeException("이미지 파일만 업로드 가능합니다.");
+            }
             files.add(uploadFile(multipartFile));
         }
         return files;
@@ -53,6 +58,19 @@ public class FilesUtils {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String extension = StringUtils.getFilenameExtension(fileName);
         return uuid + "." + extension;
+    }
+
+    private String getMimeType(MultipartFile multipartFile) {
+        Tika tika = new Tika();
+        try {
+            return tika.detect(multipartFile.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean validImageMimeType(String mimeType) {
+        return mimeType != null && mimeType.startsWith("image/");
     }
 
     private String getUploadPath(final String addPath) {

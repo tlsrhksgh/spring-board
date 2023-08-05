@@ -4,10 +4,7 @@ import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;

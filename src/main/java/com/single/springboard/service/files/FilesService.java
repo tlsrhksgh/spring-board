@@ -6,6 +6,7 @@ import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.web.dto.files.FileSaveRequest;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,14 +23,13 @@ public class FilesService {
     private final FilesRepository filesRepository;
     private final PostsRepository postsRepository;
     private final FilesUtils filesUtils;
+    private final EntityManager em;
 
-    @Transactional
-    public void translateFileAndSave(Long postId, List<MultipartFile> filesList) {
-        List<FileSaveRequest> files = filesUtils.uploadFiles(filesList);
+    public void translateFileAndSave(Long postId, List<MultipartFile> multipartFiles) {
+        List<FileSaveRequest> files = filesUtils.uploadFiles(multipartFiles);
         saveFiles(postId, files);
     }
 
-    @Transactional
     public void saveFiles(final Long postId, final List<FileSaveRequest> files) {
         if(files.isEmpty()) return;
 
@@ -43,5 +43,11 @@ public class FilesService {
         }
 
         filesRepository.saveAll(filesEntities);
+    }
+
+    public void deleteChildFiles(Long postId) {
+        em.createQuery("delete Files f where f.posts.id = :postId")
+                .setParameter("postId", postId)
+                .executeUpdate();
     }
 }

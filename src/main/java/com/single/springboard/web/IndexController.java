@@ -18,7 +18,7 @@ public class IndexController {
 
     @GetMapping("/")
     public String index(Model model, @LoginUser SessionUser user, Pageable pageable) {
-        model.addAttribute("posts", postsService.findAllDesc(pageable));
+        model.addAttribute("posts", postsService.findAllPostsDesc(pageable));
 
         if(user != null) {
             model.addAttribute("userName", user.name());

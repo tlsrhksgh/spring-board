@@ -14,6 +14,11 @@ var main = {
             _this.delete(e);
         });
 
+        $('#file-input').on('change', () => {
+            let files = $('#file-input')[0].files;
+            _this.displayFileInfo(files);
+        })
+
         $('#drop-zone').on('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -40,28 +45,13 @@ var main = {
         }).on('drop', (e) => {
             e.preventDefault();
 
-            $("#drop-zone p").remove();
-
             let files = e.originalEvent.dataTransfer.files;
-            if(files != null && files != undefined) {
-                let tag = "";
-                for (let i = 0; i < files.length; i++) {
-                    let file = files[i];
-                    fileArr.push(file);
-                    let fileName = file.name;
-                    let fileSize = file.size / 1024 / 1024;
-                    fileSize =  fileSize < 1 ? fileSize.toFixed(3) : fileSize.toFixed(1);
-                    tag +=
-                        "<div class='fileList'>" +
-                        "<span class='fileName'>"+fileName+"</span>" +
-                        "<span class='fileSize'>"+fileSize+" MB</span>" +
-                        "</div>";
-                }
-
-                const dropZone = $("#drop-zone");
-                dropZone.append(tag);
+            if(files.length !== 0) {
+                _this.displayFileInfo(files);
             }
         });
+
+
     },
     save : function() {
         let formData = new FormData();
@@ -71,8 +61,6 @@ var main = {
         fileArr.forEach(file => {
             formData.append('files', file)
         });
-
-        console.log(formData);
 
         $.ajax({
             type: 'POST',
@@ -85,7 +73,8 @@ var main = {
             alert("글이 등록되었습니다.");
             window.location.href = '/';
         }).fail((error) => {
-            alert("권한이 없습니다.");
+            alert(error.responseJSON.message);
+            return false;
         });
     },
 
@@ -125,6 +114,26 @@ var main = {
         }).fail(function(error) {
             alert(JSON.stringify(error));
         })
+    },
+
+    displayFileInfo : function (files) {
+        $("#drop-zone p").remove();
+        let tag = "";
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            fileArr.push(file);
+            const fileName = file.name;
+            let fileSize = file.size / 1024 / 1024;
+            fileSize = fileSize < 1 ? fileSize.toFixed(3) : fileSize.toFixed(1);
+            tag +=
+                "<div class='fileList'>" +
+                "<span class='fileName'>"+fileName+"</span>" +
+                "<span class='fileSize'>"+fileSize+" MB</span>" +
+                "</div>";
+        }
+
+        const dropZone = $("#drop-zone");
+        dropZone.append(tag);
     }
 };
 

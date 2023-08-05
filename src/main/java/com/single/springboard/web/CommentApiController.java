@@ -2,7 +2,7 @@ package com.single.springboard.web;
 
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
-import com.single.springboard.service.posts.CommentsService;
+import com.single.springboard.service.comments.CommentsService;
 import com.single.springboard.web.dto.comments.CommentSaveRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +24,6 @@ public class CommentApiController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Long> commentDelete(@PathVariable Long id) {
-        return ResponseEntity.ok(commentsService.deleteComment(id));
+        return ResponseEntity.ok(commentsService.deleteOneComment(id));
     }
 }

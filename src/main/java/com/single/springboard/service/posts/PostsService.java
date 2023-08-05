@@ -7,6 +7,7 @@ import com.single.springboard.domain.comments.CommentsRepository;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.exception.CustomException;
+import com.single.springboard.service.comments.CommentsUtils;
 import com.single.springboard.service.files.FilesService;
 import com.single.springboard.web.dto.comments.CommentsResponse;
 import com.single.springboard.web.dto.posts.PostResponse;
@@ -32,6 +33,7 @@ public class PostsService {
     private final CommentsRepository commentsRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private final FilesService filesService;
+    private final CommentsUtils commentsUtils;
 
     private static final String REDIS_POST_VIEW_KEY_PREFIX = "post:view:postId:";
     private static final String REDIS_POST_VIEW_USER_KEY_PREFIX = "post:view:user:";
@@ -40,7 +42,7 @@ public class PostsService {
     public Long savePostAndFiles(PostSaveRequest requestDto) {
         Long postId = postsRepository.save(requestDto.toEntity()).getId();
 
-        if(!requestDto.files().isEmpty()) {
+        if(requestDto.files() != null) {
             filesService.translateFileAndSave(postId, requestDto.files());
         }
 
@@ -71,7 +73,7 @@ public class PostsService {
         increasePostViewCount(String.valueOf(id), user.email());
 
         List<Comments> comments = commentsRepository.findAllByComments(post.getId());
-        List<Comments> sortedComments = commentsSort(comments);
+        List<Comments> sortedComments = commentsUtils.commentsSort(comments);
 
         List<CommentsResponse> commentsResponses = sortedComments.stream()
                 .map(comment -> CommentsResponse.builder()
@@ -91,44 +93,8 @@ public class PostsService {
                 .build();
     }
 
-    private List<Comments> commentsSort(List<Comments> comments) {
-        List<Comments> sortedComments = new ArrayList<>();
-
-        for(Comments comment : comments) {
-            if(comment.getParentComment() == null) {
-                sortedComments.add(comment);
-                sortCommentsByLevelRecursive(comment, comments, sortedComments);
-            }
-        }
-
-        return sortedComments;
-    }
-
-    private void sortCommentsByLevelRecursive(Comments parent, List<Comments> comments, List<Comments> sortedComments) {
-        List<Comments> children = findChildren(parent.getId(), comments);
-        if (!children.isEmpty()) {
-            for (Comments child : children) {
-                sortedComments.add(child);
-                sortCommentsByLevelRecursive(child, comments, sortedComments);
-            }
-        }
-    }
-
-    private List<Comments> findChildren(Long id, List<Comments> comments) {
-        List<Comments> children = new ArrayList<>();
-        for(Comments comment : comments) {
-            if(comment.getParentComment() != null && Objects.equals(comment.getParentComment().getId(), id)) {
-                children.add(comment);
-            }
-        }
-
-        Collections.sort(children, Comparator.comparingLong(Comments::getId));
-
-        return children;
-    }
-
     @Transactional(readOnly = true)
-    public Page<PostsResponse> findAllDesc(Pageable pageable) {
+    public Page<PostsResponse> findAllPostsDesc(Pageable pageable) {
         return postsRepository.findAllPostsDesc(pageable)
                 .map(post -> PostsResponse.builder()
                         .id(post.getId())
@@ -154,6 +120,7 @@ public class PostsService {
         boolean isExistPost = postsRepository.existsById(id);
 
         if (isExistPost) {
+            filesService.deleteChildFiles(id);
             postsRepository.deleteById(id);
             return true;
         }
