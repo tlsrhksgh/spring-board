@@ -25,7 +25,7 @@ public class PostsApiController {
         return postsService.savePostAndFiles(requestDto);
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_GUEST') or hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<Page<PostsResponse>> findAllPosts(Pageable pageable) {
         return ResponseEntity.ok(postsService.findAllPostsDesc(pageable));
