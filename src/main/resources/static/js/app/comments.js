@@ -28,7 +28,8 @@ var main = {
         }).done(function () {
             alert("댓글이 등록되었습니다.");
         }).fail(function (error) {
-            alert("권한이 없습니다.");
+            alert(error.responseJSON.message);
+            return false;
         });
     },
     replyCommentSave: function (e) {
@@ -55,8 +56,8 @@ var main = {
             alert("답글이 등록 되었습니다.");
             window.location.href = '/posts/find/' + data.postId;
         }).fail(function (error) {
-            console.log(error);
-            alert("답글 등록에 실패 하였습니다. 다시 시도 해주세요");
+            alert(error.responseJSON.message);
+            return false;
         })
     },
     createCommentForm: function (e) {
@@ -91,8 +92,8 @@ var main = {
             alert("댓글이 삭제되었습니다.");
             window.location.href = "/posts/find/" + postId
         }).fail(function(error) {
-            console.log(error);
-            alert(JSON.stringify("삭제가 실패되었습니다."));
+            alert(error.responseJSON.message);
+            return false;
         })
     }
 };

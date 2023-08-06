@@ -6,6 +6,7 @@ import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.posts.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +17,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class IndexController {
     private final PostsService postsService;
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_GUEST') or hasRole('ROLE_USER')")
     @GetMapping("/")
-    public String index(Model model, @LoginUser SessionUser user, Pageable pageable) {
+    public String index(Model model,
+                        @LoginUser SessionUser user,
+                        Pageable pageable) {
         model.addAttribute("posts", postsService.findAllPostsDesc(pageable));
+
 
         if(user != null) {
             model.addAttribute("userName", user.name());
@@ -27,6 +32,7 @@ public class IndexController {
         return "index";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/save")
     public String postSave(Model model, @LoginUser SessionUser user) {
         model.addAttribute("user", user);
@@ -34,6 +40,7 @@ public class IndexController {
         return "post-save";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/update/{id}")
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
 
@@ -43,6 +50,7 @@ public class IndexController {
         return "post-update";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_GUEST') or hasRole('ROLE_USER')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostResponse post = postsService.findPostByIdAndComments(id, user);

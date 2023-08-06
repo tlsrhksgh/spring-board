@@ -17,11 +17,10 @@ import com.single.springboard.web.dto.posts.PostsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -31,12 +30,9 @@ import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
 public class PostsService {
     private final PostsRepository postsRepository;
     private final CommentsRepository commentsRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
     private final FilesService filesService;
     private final CommentsUtils commentsUtils;
-
-    private static final String REDIS_POST_VIEW_KEY_PREFIX = "post:view:postId:";
-    private static final String REDIS_POST_VIEW_USER_KEY_PREFIX = "post:view:user:";
+    private final PostsUtils postsUtils;
 
     @Transactional
     public Long savePostAndFiles(PostSaveRequest requestDto) {
@@ -49,28 +45,14 @@ public class PostsService {
         return postId;
     }
 
-    public void increasePostViewCount(String postId, String userId) {
-        String postViewKey = REDIS_POST_VIEW_KEY_PREFIX + postId;
-        String userViewKey = REDIS_POST_VIEW_USER_KEY_PREFIX + userId;
-
-        boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
-
-        if(!hasViewed) {
-            Posts post = postsRepository.findById(Long.valueOf(postId))
-                            .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
-
-            redisTemplate.opsForHash().increment(postViewKey, "viewCount", 1L);
-            redisTemplate.opsForSet().add(userViewKey, postId);
-            post.updateViewCount();
-        }
-    }
-
     @Transactional(readOnly = true)
     public PostResponse findPostByIdAndComments(Long id, @LoginUser SessionUser user) {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
-        increasePostViewCount(String.valueOf(id), user.email());
+        if(user != null) {
+            postsUtils.increasePostViewCount(String.valueOf(id), user.email());
+        }
 
         List<Comments> comments = commentsRepository.findAllByComments(post.getId());
         List<Comments> sortedComments = commentsUtils.commentsSort(comments);

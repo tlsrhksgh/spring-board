@@ -9,13 +9,12 @@ import com.single.springboard.web.dto.files.FileSaveRequest;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.single.springboard.exception.ErrorCode.*;
+import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
 
 @Service
 @RequiredArgsConstructor
