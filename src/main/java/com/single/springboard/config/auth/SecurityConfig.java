@@ -1,11 +1,13 @@
 package com.single.springboard.config.auth;
 
 import com.single.springboard.domain.user.Role;
+import com.single.springboard.exception.auth.CustomAuthEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomAuthEntryPoint customAuthEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -25,16 +28,34 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/css/**", "/images/**",
-                                "/js/**", "/h2-console/**").permitAll()
+                                "/js/**", "/h2-console/**", "/posts/find/**")
+                        .permitAll()
                         .requestMatchers("/api/v1/**")
                         .hasRole(Role.USER.name())
                         .anyRequest().authenticated())
+                .anonymous(anonymous -> {
+                    anonymous.principal("guestUser")
+                            .authorities(Role.GUEST.getKey())
+                            .key(Role.GUEST.getKey());
+                })
                 .logout(logoutConfigurer ->
-                        logoutConfigurer.logoutSuccessUrl("/"))
+                        logoutConfigurer
+                                .logoutSuccessUrl("/")
+                                .invalidateHttpSession(true)
+                )
                 .oauth2Login(oAuth -> {
                     oAuth.defaultSuccessUrl("/");
                     oAuth.userInfoEndpoint(config -> config.userService(customOAuth2UserService));
+                })
+                .exceptionHandling(exception -> {
+                    exception.authenticationEntryPoint(customAuthEntryPoint);
                 });
+
+        http.sessionManagement(management -> {
+            management.maximumSessions(1) // 최대 허용 가능한 세션 수
+                    .maxSessionsPreventsLogin(true) // 동시 로그인 차단
+                    .expiredUrl("/");
+        });
 
         return http.build();
     }

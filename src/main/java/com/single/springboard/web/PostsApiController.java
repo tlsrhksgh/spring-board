@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -18,21 +19,25 @@ public class PostsApiController {
 
     private final PostsService postsService;
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PostMapping
     public Long savePost(@ModelAttribute @Valid PostSaveRequest requestDto) {
         return postsService.savePostAndFiles(requestDto);
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_GUEST') or hasRole('ROLE_USER')")
     @GetMapping
     public ResponseEntity<Page<PostsResponse>> findAllPosts(Pageable pageable) {
         return ResponseEntity.ok(postsService.findAllPostsDesc(pageable));
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PutMapping("/{id}")
     public Long updatePost(@PathVariable Long id, @RequestBody @Valid PostUpdateRequest updateDto) {
         return postsService.updatePost(id, updateDto);
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Long> deletePost(@PathVariable Long id) {
         boolean result = postsService.deletePost(id);
