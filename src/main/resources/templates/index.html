@@ -28,26 +28,26 @@
     <br>
     <table class="table table-horizontal table-bordered">
         <thead class="thead-strong">
-        <tr>
-            <th>게시글 번호</th>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>조회수</th>
-            <th>최종수정일</th>
-        </tr>
+            <tr>
+                <th>게시글 번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>조회수</th>
+                <th>최종수정일</th>
+            </tr>
         </thead>
         <tbody>
-        <tr th:each="x : ${posts}">
-            <td th:text="${x.id()}"></td>
-            <td>
-                <a th:href="${'/posts/find/' + x.id}" th:text="${x.title()}"></a>
-                <span th:text="'[' + ${x.commentsCount()} + ']'"></span>
-            </td>
-            <td th:text="${x.author()}"></td>
-            <td th:text="${x.viewCount()}"></td>
-            <td th:text="${x.modifiedDate()}"></td>
-            <td class="post-del_btn" style="cursor: pointer">❌</td>
-        </tr>
+            <tr th:each="x : ${posts}">
+                <td th:text="${x.id()}"></td>
+                <td>
+                    <a th:href="${'/posts/find/' + x.id}" th:text="${x.title()}"></a>
+                    <span th:text="'[' + ${x.commentsCount()} + ']'"></span>
+                </td>
+                <td th:text="${x.author()}"></td>
+                <td th:text="${x.viewCount()}"></td>
+                <td th:text="${x.modifiedDate()}"></td>
+                <td class="post-del_btn" style="cursor: pointer">❌</td>
+            </tr>
         </tbody>
     </table>
 </div>

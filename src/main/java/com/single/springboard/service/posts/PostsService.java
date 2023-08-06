@@ -6,6 +6,8 @@ import com.single.springboard.domain.comments.Comments;
 import com.single.springboard.domain.comments.CommentsRepository;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
+import com.single.springboard.domain.user.User;
+import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.comments.CommentsUtils;
 import com.single.springboard.service.files.FilesService;
@@ -24,19 +26,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
+import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 
 @Service
 @RequiredArgsConstructor
 public class PostsService {
     private final PostsRepository postsRepository;
     private final CommentsRepository commentsRepository;
+    private final UserRepository userRepository;
     private final FilesService filesService;
     private final CommentsUtils commentsUtils;
     private final PostsUtils postsUtils;
 
     @Transactional
-    public Long savePostAndFiles(PostSaveRequest requestDto) {
-        Long postId = postsRepository.save(requestDto.toEntity()).getId();
+    public Long savePostAndFiles(PostSaveRequest requestDto, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+        Long postId = postsRepository.save(requestDto.toEntity(user)).getId();
 
         if(requestDto.files() != null) {
             filesService.translateFileAndSave(postId, requestDto.files());
@@ -68,7 +75,7 @@ public class PostsService {
                 .collect(Collectors.toList());
 
         return PostResponse.builder()
-                .author(post.getAuthor())
+                .author(post.getUser().getName())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .comments(commentsResponses)
@@ -80,7 +87,7 @@ public class PostsService {
         return postsRepository.findAllPostsDesc(pageable)
                 .map(post -> PostsResponse.builder()
                         .id(post.getId())
-                        .author(post.getAuthor())
+                        .author(post.getUser().getName())
                         .title(post.getTitle())
                         .modifiedDate(post.getModifiedDate())
                         .viewCount(post.getViewCount())

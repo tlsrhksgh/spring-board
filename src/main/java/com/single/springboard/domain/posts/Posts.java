@@ -3,6 +3,7 @@ package com.single.springboard.domain.posts;
 import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.comments.Comments;
 import com.single.springboard.domain.files.Files;
+import com.single.springboard.domain.user.User;
 import com.single.springboard.web.dto.posts.PostUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,13 +30,15 @@ public class Posts extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    private String author;
-
-    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Files> files;
 
     @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comments> comments;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private long viewCount;
 

@@ -21,7 +21,6 @@ public class CommentApiController {
     @PostMapping
     public ResponseEntity<Long> commentSave(@RequestBody @Valid CommentSaveRequest requestDto,
                                             @LoginUser SessionUser user) {
-        System.out.println(user);
         return ResponseEntity.ok(commentsService.commentSave(requestDto, user.email()));
     }
 
