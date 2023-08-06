@@ -1,6 +1,7 @@
 package com.single.springboard.exception.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.single.springboard.exception.ExceptionForm;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,14 +18,19 @@ import static org.springframework.http.MediaType.*;
 @Configuration
 @RequiredArgsConstructor
 public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
 
+        ExceptionForm exceptionForm = new ExceptionForm(
+                UNAUTHORIZED_USER.getContent(),
+                UNAUTHORIZED_USER.getHttpStatus().value());
+
         response.setContentType(APPLICATION_JSON_UTF8_VALUE);
         response.setStatus(UNAUTHORIZED_USER.getHttpStatus().value());
-        response.getWriter().write(UNAUTHORIZED_USER.getContent());
+        response.getWriter().write(objectMapper.writeValueAsString(exceptionForm));
     }
 }

@@ -29,7 +29,7 @@ public class Comments extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parent_comment_id", referencedColumnName = "id", updatable = false)
     private Comments parentComment;
 

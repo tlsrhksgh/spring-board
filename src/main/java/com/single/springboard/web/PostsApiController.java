@@ -1,5 +1,7 @@
 package com.single.springboard.web;
 
+import com.single.springboard.config.auth.LoginUser;
+import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.posts.PostSaveRequest;
 import com.single.springboard.web.dto.posts.PostUpdateRequest;
@@ -21,11 +23,13 @@ public class PostsApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PostMapping
-    public Long savePost(@ModelAttribute @Valid PostSaveRequest requestDto) {
-        return postsService.savePostAndFiles(requestDto);
+    public Long savePost(
+            @ModelAttribute @Valid PostSaveRequest requestDto,
+            @LoginUser SessionUser user) {
+        return postsService.savePostAndFiles(requestDto, user.email());
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_GUEST') or hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<Page<PostsResponse>> findAllPosts(Pageable pageable) {
         return ResponseEntity.ok(postsService.findAllPostsDesc(pageable));

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class IndexController {
     private final PostsService postsService;
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_GUEST') or hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
@@ -50,7 +50,7 @@ public class IndexController {
         return "post-update";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_GUEST') or hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostResponse post = postsService.findPostByIdAndComments(id, user);
