@@ -46,7 +46,7 @@
                 <td th:text="${x.author()}"></td>
                 <td th:text="${x.viewCount()}"></td>
                 <td th:text="${x.modifiedDate()}"></td>
-                <td class="post-del_btn" style="cursor: pointer">❌</td>
+                <td th:if="${userName != null && userName.equals(x.author())}" class="post-del_btn" style="cursor: pointer">❌</td>
             </tr>
         </tbody>
     </table>
@@ -56,18 +56,30 @@
     <nav aria-label="Page navigation">
         <ul class="pagination">
             <li class="page-item" th:classappend="${posts.first ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=${posts.number - 1}, size=${posts.size})}" aria-label="Previous">
+                <a class="page-link" th:href="@{/(page=${posts.first}, size=${posts.size})}" aria-label="First">
                     <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">처음으로</span>
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${posts.first ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/(page=${posts.number - 1}, size=${posts.size})}" aria-label="Previous">
+                    <span aria-hidden="true"><</span>
                     <span class="sr-only">이전</span>
                 </a>
             </li>
-            <li th:each="pageNumber : ${#numbers.sequence(0, posts.totalPages - 1)}" th:classappend="${posts.number == pageNumber ? 'active' : ''}">
+            <li th:each="pageNumber : ${#numbers.sequence((posts.number / 10) * 10, (posts.number / 10 == posts.totalPages / 10 ? posts.totalPages - 1 : ((posts.number / 10) * 10) + 9))}" th:classappend="${posts.number == pageNumber ? 'active' : ''}">
                 <a class="page-link" th:href="@{/(page=${pageNumber}, size=${posts.size})}" th:text="${pageNumber + 1}"></a>
             </li>
             <li class="page-item" th:classappend="${posts.last ? 'disabled' : ''}">
                 <a class="page-link" th:href="@{/(page=${posts.number + 1}, size=${posts.size})}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
                     <span class="sr-only">다음</span>
+                    <span aria-hidden="true">></span>
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${posts.last ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/(page=${posts.totalPages - 1}, size=${posts.size})}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">마지막으로</span>
                 </a>
             </li>
         </ul>
