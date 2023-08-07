@@ -5,6 +5,7 @@ import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.posts.PostResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
@@ -22,8 +24,10 @@ public class IndexController {
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
+        long start = System.currentTimeMillis();
         model.addAttribute("posts", postsService.findAllPostsDesc(pageable));
-
+        long end = System.currentTimeMillis();
+        log.info("조회 시간: " + (end - start) + "ms");
 
         if(user != null) {
             model.addAttribute("userName", user.name());

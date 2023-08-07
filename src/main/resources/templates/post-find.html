@@ -23,7 +23,7 @@
         </div>
     </div>
     </br>
-    <form th:if="${user != null}">
+    <form th:if="${user != null}" id="comment-form">
         <div class="mb-3 form-group">
             <label for="comment-author" class="form-label">댓글 작성자</label>
             <span id="comment-author" type="text" class="form-control" th:text="${user.name()}"></span>
@@ -31,6 +31,8 @@
         <div class="mb-3 form-group">
             <label for="comment-content" class="form-label">댓글 작성</label>
             <textarea class="form-control" id="comment-content" rows="3" placeholder="댓글을 입력해주세요"></textarea>
+            <span>비밀 댓글</span>
+            <input type="checkbox" name="secret" class="comment-secretYn">
         </div>
         <input type="submit" value="등록" id="btn-save"/>
     </form>

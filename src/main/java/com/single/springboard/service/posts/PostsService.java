@@ -69,7 +69,7 @@ public class PostsService {
                         .id(comment.getId())
                         .commentLevel(comment.getCommentLevel())
                         .parentId(comment.getParentComment())
-                        .content(comment.getContent())
+                        .content(comment.isSecret() ? "비밀 댓글 입니다." : comment.getContent())
                         .author(comment.getUser().getName())
                         .build())
                 .collect(Collectors.toList());
