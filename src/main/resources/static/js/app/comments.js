@@ -12,10 +12,14 @@ var main = {
         });
     },
     save : function () {
+        const secretCheckBox = document.getElementsByClassName('comment-secretYn');
+        const checked = $(secretCheckBox).is(':checked');
+
         let data = {
             postId: window.location.href.split("/").pop().substring(0, 1),
             nickname: $('#comment-author').text(),
-            content: $('#comment-content').val()
+            content: $('#comment-content').val(),
+            secret: checked
         };
 
         $.ajax({
@@ -41,8 +45,6 @@ var main = {
             postId: window.location.href.split("/").pop().substring(0, 1),
             parentId: ancestorLiId,
             nickname: $('#comment-author').text(),
-            secret: false,
-            async: true,
             content
         };
 
@@ -65,6 +67,10 @@ var main = {
         const li = document.createElement("li");
         const textarea = document.createElement("textarea");
         const button = document.createElement("button");
+        const input = document.createElement("input");
+        input.type="checkbox";
+        input.name="secret";
+        input.id=""
         textarea.className = "comment-content";
         button.type = "button";
         button.className = "reply-comment_btn";
