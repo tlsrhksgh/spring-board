@@ -69,7 +69,9 @@ public class PostsService {
                         .id(comment.getId())
                         .commentLevel(comment.getCommentLevel())
                         .parentId(comment.getParentComment())
-                        .content(comment.isSecret() ? "비밀 댓글 입니다." : comment.getContent())
+                        .content(user != null && commentsUtils.enableSecretCommentView(post.getUser().getName(),
+                                user.name(), comment.getUser().getName()) ?
+                                 comment.getContent() : "비밀 댓글 입니다.")
                         .author(comment.getUser().getName())
                         .build())
                 .collect(Collectors.toList());
