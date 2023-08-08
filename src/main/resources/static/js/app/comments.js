@@ -40,12 +40,15 @@ var main = {
         const parentDiv = e.target.parentElement;
         const ancestorLiId = $(parentDiv).parent().attr('dataset-id');
         const content = $(parentDiv).children().first().val();
+        const secretCheckBox = $(parentDiv).children().last();
+        const checked = $(secretCheckBox).is(':checked');
 
         let data = {
             postId: window.location.href.split("/").pop().substring(0, 1),
             parentId: ancestorLiId,
             nickname: $('#comment-author').text(),
-            content
+            content,
+            secret: checked
         };
 
         $.ajax({
@@ -68,8 +71,11 @@ var main = {
         const textarea = document.createElement("textarea");
         const button = document.createElement("button");
         const input = document.createElement("input");
+        const span = document.createElement("span");
+        span.innerText = "비밀 댓글";
         input.type="checkbox";
         input.name="secret";
+        input.className="comment-secretYn";
         input.id=""
         textarea.className = "comment-content";
         button.type = "button";
@@ -82,6 +88,8 @@ var main = {
 
         li.appendChild(textarea);
         li.appendChild(button);
+        li.appendChild(span);
+        li.appendChild(input);
         parent.appendChild(li);
     },
     deleteComment: function (e) {

@@ -51,7 +51,7 @@ public class SecurityConfig {
                 });
 
         http.sessionManagement(management -> {
-            management.maximumSessions(1) // 최대 허용 가능한 세션 수
+            management.maximumSessions(2) // 최대 허용 가능한 세션 수
                     .maxSessionsPreventsLogin(true) // 동시 로그인 차단
                     .expiredUrl("/");
         });

@@ -43,4 +43,8 @@ public class CommentsUtils {
 
         return children;
     }
+
+    public boolean enableSecretCommentView(String postAuthor, String currentUser, String commentAuthor) {
+        return postAuthor.equals(currentUser) || commentAuthor.equals(currentUser);
+    }
 }
