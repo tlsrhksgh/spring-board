@@ -23,7 +23,7 @@ public class IndexController {
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
-        model.addAttribute("posts", postsService.findAllPostsDesc(pageable));
+        model.addAttribute("posts", postsService.findAllPostsAndCommentsCountDesc(pageable));
 
         if(user != null) {
             model.addAttribute("userName", user.name());

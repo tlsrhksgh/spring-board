@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface PostsRepository extends JpaRepository<Posts, Long> {
-    @Query("SELECT p FROM Posts p ORDER BY p.id DESC")
-    Page<Posts> findAllPostsDesc(Pageable pageable);
+    @Query("SELECT p, COUNT(c) FROM Posts p LEFT JOIN Comments c ON p.id = c.posts.id GROUP BY p ORDER BY p.id DESC ")
+    Page<Object[]> findAllPostsWithCommentsCount(Pageable pageable);
 }
