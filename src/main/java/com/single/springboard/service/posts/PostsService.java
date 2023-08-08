@@ -22,7 +22,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -42,6 +45,10 @@ public class PostsService {
     public Long savePostAndFiles(PostSaveRequest requestDto, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+        for (int i = 0; i < 1000; i++) {
+            postsRepository.save(requestDto.toEntity(user));
+        }
 
         Long postId = postsRepository.save(requestDto.toEntity(user)).getId();
 
@@ -86,16 +93,21 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostsResponse> findAllPostsDesc(Pageable pageable) {
-        return postsRepository.findAllPostsDesc(pageable)
-                .map(post -> PostsResponse.builder()
-                        .id(post.getId())
-                        .author(post.getUser().getName())
-                        .title(post.getTitle())
-                        .modifiedDate(post.getModifiedDate())
-                        .viewCount(post.getViewCount())
-                        .commentsCount(commentsRepository.countCommentsByPostsId(post.getId()))
-                        .build());
+    public Page<PostsResponse> findAllPostsAndCommentsCountDesc(Pageable pageable) {
+        return postsRepository.findAllPostsWithCommentsCount(pageable)
+                .map(objects -> {
+                    Posts post = (Posts) objects[0];
+                    Long commentsCount = (Long) objects[1];
+
+                    return PostsResponse.builder()
+                            .id(post.getId())
+                            .author(post.getUser().getName())
+                            .title(post.getTitle())
+                            .modifiedDate(post.getModifiedDate())
+                            .viewCount(post.getViewCount())
+                            .commentsCount(commentsCount)
+                            .build();
+                });
     }
 
     @Transactional

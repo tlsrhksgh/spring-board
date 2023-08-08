@@ -35,7 +35,7 @@ public class PostsApiController {
     @GetMapping
     public ResponseEntity<Page<PostsResponse>> findAllPosts(Pageable pageable) {
 
-        Page<PostsResponse> posts = postsService.findAllPostsDesc(pageable);
+        Page<PostsResponse> posts = postsService.findAllPostsAndCommentsCountDesc(pageable);
         return ResponseEntity.ok(posts);
     }
 
