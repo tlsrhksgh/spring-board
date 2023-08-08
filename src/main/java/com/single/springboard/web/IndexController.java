@@ -19,15 +19,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class IndexController {
     private final PostsService postsService;
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
-        long start = System.currentTimeMillis();
         model.addAttribute("posts", postsService.findAllPostsDesc(pageable));
-        long end = System.currentTimeMillis();
-        log.info("조회 시간: " + (end - start) + "ms");
 
         if(user != null) {
             model.addAttribute("userName", user.name());
