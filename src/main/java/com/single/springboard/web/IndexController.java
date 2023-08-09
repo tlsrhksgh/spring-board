@@ -2,7 +2,9 @@ package com.single.springboard.web;
 
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
+import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.service.posts.PostsService;
+import com.single.springboard.service.search.SearchService;
 import com.single.springboard.web.dto.posts.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +14,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
     private final PostsService postsService;
+    private final SearchService searchService;
 
     @GetMapping("/")
     public String index(Model model,
@@ -60,5 +66,12 @@ public class IndexController {
 
 
         return "post-find";
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam("query") String query, Model model) {
+        model.addAttribute("posts", searchService.findAllPostsByKeyword(query));
+
+        return "search";
     }
 }
