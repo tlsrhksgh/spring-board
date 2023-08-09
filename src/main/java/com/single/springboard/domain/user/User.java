@@ -1,6 +1,7 @@
 package com.single.springboard.domain.user;
 
 import com.single.springboard.domain.comments.Comments;
+import com.single.springboard.domain.posts.Posts;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +34,11 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE,orphanRemoval = true)
     private List<Comments> comments;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Posts> posts;
 
     public User update(String name, String picture) {
         this.name = name;

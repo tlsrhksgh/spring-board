@@ -14,9 +14,11 @@ var main = {
     save : function () {
         const secretCheckBox = document.getElementsByClassName('comment-secretYn');
         const checked = $(secretCheckBox).is(':checked');
+        const url = window.location.href;
+        const match = url.match(/\/(\d+)(?:\?|$)/);
 
         let data = {
-            postId: window.location.href.split("/").pop().substring(0, 1),
+            postId: match[1],
             nickname: $('#comment-author').text(),
             content: $('#comment-content').val(),
             secret: checked
@@ -42,9 +44,11 @@ var main = {
         const content = $(parentDiv).children().first().val();
         const secretCheckBox = $(parentDiv).children().last();
         const checked = $(secretCheckBox).is(':checked');
+        const url = window.location.href;
+        const match = url.match(/\/(\d+)(?:\?|$)/);
 
         let data = {
-            postId: window.location.href.split("/").pop().substring(0, 1),
+            postId: match[1],
             parentId: ancestorLiId,
             nickname: $('#comment-author').text(),
             content,

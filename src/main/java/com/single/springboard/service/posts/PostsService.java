@@ -68,7 +68,7 @@ public class PostsService {
             postsUtils.increasePostViewCount(String.valueOf(id), user.email());
         }
 
-        List<Comments> comments = commentsRepository.findAllByComments(post.getId());
+        List<Comments> comments = post.getComments();
         List<Comments> sortedComments = commentsUtils.commentsSort(comments);
 
         List<CommentsResponse> commentsResponses = sortedComments.stream()
