@@ -11,6 +11,11 @@ public class CommentsUtils {
     public List<Comments> commentsSort(List<Comments> comments) {
         List<Comments> sortedComments = new ArrayList<>();
 
+        Collections.sort(comments, (Comments c1, Comments c2) -> {
+            if(c1.getId() < c2.getId()) return 1;
+            else return -1;
+        });
+
         for(Comments comment : comments) {
             if(comment.getParentComment() == null) {
                 sortedComments.add(comment);

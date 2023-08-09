@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.Objects;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
@@ -33,10 +33,7 @@ public class CommentsService {
 
         Comments comment;
 
-        Optional<Comments> parentComment = commentsRepository.findByPostIdAndParentId(
-                requestDto.postId(), requestDto.parentId());
-
-        if(parentComment.isEmpty()) {
+        if(requestDto.parentId() == null) {
             comment = Comments.builder()
                     .user(user)
                     .content(requestDto.content())
@@ -46,13 +43,17 @@ public class CommentsService {
                     .commentLevel(1)
                     .build();
         } else {
+            Comments parent = post.getComments().stream()
+                    .filter(c -> Objects.equals(c.getId(), requestDto.parentId()))
+                    .findFirst().get();
+
             comment = Comments.builder()
                     .user(user)
                     .content(requestDto.content())
                     .secret(requestDto.secret())
                     .posts(post)
-                    .parentComment(parentComment.get())
-                    .commentLevel(parentComment.get().getCommentLevel() + 1)
+                    .parentComment(parent)
+                    .commentLevel(parent.getCommentLevel() + 1)
                     .build();
         }
 
