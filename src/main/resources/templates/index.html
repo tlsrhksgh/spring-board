@@ -17,11 +17,19 @@
                 Logged in as: <span id="user" th:text="${userName}"></span>
                 <a href="/logout" class="btn btn-info active" role="button">Logout</a>
             </p>
-            <div th:if="${userName == null}">
+        </div>
+        <div style="display: flex; justify-content: space-between">
+            <div th:if="${userName == null}" style="display: inline-block">
                 <a href="/oauth2/authorization/naver" class="btn btn-secondary active" role="button">Naver Login</a>
                 <a href="/oauth2/authorization/kakao" role="button">
                     <img src="/images/kakao_login.png" />
                 </a>
+            </div>
+            <div style="display: inline-block" >
+                <form method="get" action="/search">
+                    <input type="text" name="query" placeholder="검색어를 입력해 주세요" />
+                    <input type="submit" value="검색" />
+                </form>
             </div>
         </div>
     </div>

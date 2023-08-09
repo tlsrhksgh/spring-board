@@ -22,10 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -35,7 +32,6 @@ import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 @RequiredArgsConstructor
 public class PostsService {
     private final PostsRepository postsRepository;
-    private final CommentsRepository commentsRepository;
     private final UserRepository userRepository;
     private final FilesService filesService;
     private final CommentsUtils commentsUtils;
