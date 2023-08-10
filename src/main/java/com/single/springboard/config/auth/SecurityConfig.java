@@ -27,7 +27,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/css/**", "/images/**",
-                                "/js/**", "/posts/find/**")
+                                "/js/**", "/posts/find/**", "/search/**")
                         .permitAll()
                         .requestMatchers("/api/v1/comments/**")
                         .hasRole(Role.USER.name())

@@ -20,7 +20,7 @@ public class PostsCustomRepositoryImpl implements PostsCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<Posts> findAll(String keyword) {
+    public List<Posts> findAllByKeyword(String keyword) {
         return query.select(posts)
                 .from(posts)
                 .where(likePostTitleAndContent(keyword))
