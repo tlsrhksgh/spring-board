@@ -1,4 +1,4 @@
-package com.single.springboard.service.comments;
+package com.single.springboard.util;
 
 import com.single.springboard.domain.comments.Comments;
 import org.springframework.stereotype.Component;

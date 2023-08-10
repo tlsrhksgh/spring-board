@@ -3,14 +3,15 @@ package com.single.springboard.service.posts;
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.domain.comments.Comments;
-import com.single.springboard.domain.comments.CommentsRepository;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.service.comments.CommentsUtils;
+import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.service.files.FilesService;
+import com.single.springboard.util.DateUtils;
+import com.single.springboard.util.PostsUtils;
 import com.single.springboard.web.dto.comments.CommentsResponse;
 import com.single.springboard.web.dto.posts.PostResponse;
 import com.single.springboard.web.dto.posts.PostSaveRequest;
@@ -77,6 +78,7 @@ public class PostsService {
                                 user.name(), comment.getUser().getName()) ?
                                 comment.getContent() : "비밀 댓글 입니다.") : comment.getContent())
                         .author(comment.getUser().getName())
+                        .createdDate(DateUtils.formatDate(comment.getCreatedDate()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -99,7 +101,7 @@ public class PostsService {
                             .id(post.getId())
                             .author(post.getUser().getName())
                             .title(post.getTitle())
-                            .modifiedDate(post.getModifiedDate())
+                            .modifiedDate(DateUtils.formatDate(post.getModifiedDate()))
                             .viewCount(post.getViewCount())
                             .commentsCount(commentsCount)
                             .build();

@@ -1,4 +1,4 @@
-package com.single.springboard.service.posts;
+package com.single.springboard.util;
 
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;

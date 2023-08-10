@@ -45,6 +45,7 @@
                 <div th:if="${comment.commentLevel() == 1}" th:attr="dataset-id=${comment.id()}, parent-id=0">
                     <span th:text="${comment.author()}"></span>
                     <p th:text="${comment.content()}"></p>
+                    <p th:text="${comment.createdDate()}" style="opacity: 0.6"></p>
                     <button type="button" class="create-comment_form" th:if="${user != null}">답글</button>
                     <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.name())}">❌</button>
                 </div>
@@ -53,6 +54,7 @@
                     <span th:utext="|${'└ '}|" th:if="${comment.commentLevel() > 1}"></span>
                     <span th:text="${comment.author()}"></span>
                     <p th:text="${comment.content()}"></p>
+                    <p th:text="${comment.createdDate()}" style="opacity: 0.6"></p>
                     <button type="button" class="create-comment_form" th:if="${user != null}">답글</button>
                     <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.name())}">❌</button>
                 </div>

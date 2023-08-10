@@ -12,7 +12,7 @@ public record PostsResponse(
         String author,
         long commentsCount,
         long viewCount,
-        LocalDateTime modifiedDate
+        String modifiedDate
 ) {
 
 }
