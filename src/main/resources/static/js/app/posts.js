@@ -74,6 +74,7 @@ var main = {
             window.location.href = '/';
         }).fail((error) => {
             alert(error.responseJSON.message);
+
             return false;
         });
     },

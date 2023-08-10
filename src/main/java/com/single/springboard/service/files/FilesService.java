@@ -5,6 +5,7 @@ import com.single.springboard.domain.files.FilesRepository;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.exception.CustomException;
+import com.single.springboard.util.FilesUtils;
 import com.single.springboard.web.dto.files.FileSaveRequest;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

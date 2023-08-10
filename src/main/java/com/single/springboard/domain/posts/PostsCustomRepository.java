@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface PostsCustomRepository {
 
-    List<Posts> findAll(String keyword);
+    List<Posts> findAllByKeyword(String keyword);
 }

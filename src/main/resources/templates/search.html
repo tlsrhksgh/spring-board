@@ -9,10 +9,12 @@
   <h2>검색 결과</h2>
 
   <div class="result-cards" th:each="p : ${posts}">
+    <p th:text="${p.author()}"}></p>
+    <p th:text="${p.modifiedDate()}" style="opacity: 0.6"></p>
     <h4>
-      <a th:href="${'/posts/find/' + p.id}" th:text="${p.getTitle()}"></a>
+      <a th:href="${'/posts/find/' + p.id()}" th:text="${p.title()}"></a>
     </h4>
-    <span th:text="${p.getContent()}"></span>
+    <span th:text="${p.content()}"></span>
     <hr>
   </div>
 </body>

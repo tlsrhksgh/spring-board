@@ -9,6 +9,7 @@ public record CommentsResponse(
         String author,
         String content,
         Comments parentId,
-        int commentLevel
+        int commentLevel,
+        String createdDate
 ) {
 }

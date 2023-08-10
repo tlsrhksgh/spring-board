@@ -1,4 +1,4 @@
-package com.single.springboard.service.files;
+package com.single.springboard.util;
 
 import com.single.springboard.web.dto.files.FileSaveRequest;
 import lombok.extern.slf4j.Slf4j;

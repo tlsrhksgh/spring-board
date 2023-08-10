@@ -2,23 +2,21 @@ package com.single.springboard.web;
 
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
-import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.web.dto.posts.PostResponse;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
-@Slf4j
+@Validated
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
@@ -64,13 +62,14 @@ public class IndexController {
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
 
-
         return "post-find";
     }
 
+
     @GetMapping("/search")
-    public String search(@RequestParam("query") String query, Model model) {
-        model.addAttribute("posts", searchService.findAllPostsByKeyword(query));
+    public String search(@RequestParam("query") @NotBlank(message = "검색은 한 글자 이상 입력되어야 합니다.") String keyword,
+                         Model model) {
+        model.addAttribute("posts", searchService.findAllPostsByKeyword(keyword));
 
         return "search";
     }

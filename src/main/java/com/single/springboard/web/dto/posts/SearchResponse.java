@@ -1,18 +1,13 @@
 package com.single.springboard.web.dto.posts;
 
-
 import lombok.Builder;
 
-import java.time.LocalDateTime;
-
 @Builder
-public record PostsResponse(
+public record SearchResponse(
         Long id,
         String title,
+        String content,
         String author,
-        long commentsCount,
-        long viewCount,
         String modifiedDate
 ) {
-
 }

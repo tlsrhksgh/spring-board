@@ -1,5 +1,6 @@
 package com.single.springboard.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,18 @@ public class ExceptionController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionForm> methodArgumentNotValid(final MethodArgumentNotValidException ex) {
-        log.warn("validation field exception: {}", ex.getStatusCode());
-        for(FieldError error : ex.getBindingResult().getFieldErrors()) {
-            return ResponseEntity.badRequest().body(
-                    new ExceptionForm(error.getDefaultMessage(), HttpStatus.BAD_REQUEST.value())
-            );
-        }
+        log.warn("validation argument field exception: {}", ex.getMessage());
+        FieldError error = ex.getBindingResult().getFieldErrors().get(0);
 
-        return null;
+        return ResponseEntity.badRequest()
+                .body(new ExceptionForm(error.getDefaultMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ExceptionForm> handleConstraintViolationException(ConstraintViolationException ex) {
+        log.warn("constraint violation exception: {}", ex.getConstraintViolations());
+        return ResponseEntity.badRequest().body(
+                new ExceptionForm(ex.getMessage(), HttpStatus.BAD_REQUEST.value())
+        );
     }
 }
