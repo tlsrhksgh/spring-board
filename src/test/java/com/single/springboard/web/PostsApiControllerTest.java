@@ -40,7 +40,7 @@ class PostsApiControllerTest {
                 .title("hello")
                 .build();
         PostSaveRequest postDto = new PostSaveRequest("hello", "testcontent", "hello");
-        given(postsService.savePost(postDto))
+        given(postsService.savePostAndFiles(postDto))
                 .willReturn(post.getId());
 
         //when
@@ -57,7 +57,7 @@ class PostsApiControllerTest {
     void savePost_titleBlank_saveFailed() throws Exception {
         //given
         PostSaveRequest postDto = new PostSaveRequest("", "testcontent", "hello");
-        given(postsService.savePost(postDto))
+        given(postsService.savePostAndFiles(postDto))
                 .willReturn(null);
 
         //when
