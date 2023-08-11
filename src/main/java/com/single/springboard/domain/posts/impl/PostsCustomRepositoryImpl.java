@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsCustomRepository;
 import io.netty.util.internal.StringUtil;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostsCustomRepositoryImpl implements PostsCustomRepository {
     private final JPAQueryFactory query;
+    private final EntityManager em;
 
     @Override
     public List<Posts> findAllByKeyword(String keyword) {
@@ -26,6 +28,13 @@ public class PostsCustomRepositoryImpl implements PostsCustomRepository {
                 .where(likePostTitleAndContent(keyword))
                 .orderBy(posts.id.desc())
                 .fetch();
+    }
+
+    @Override
+    public void deleteFilesOfPost(Long postId) {
+        em.createQuery("delete Files f where f.posts.id = :postId")
+                .setParameter("postId", postId)
+                .executeUpdate();
     }
 
     private BooleanExpression likePostTitleAndContent(String keyword) {

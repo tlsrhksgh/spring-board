@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,31 +24,25 @@ public class FilesService {
     private final FilesRepository filesRepository;
     private final PostsRepository postsRepository;
     private final FilesUtils filesUtils;
-    private final EntityManager em;
+    private final AwsS3Upload s3Upload;
 
     public void translateFileAndSave(Long postId, List<MultipartFile> multipartFiles) {
-        List<FileSaveRequest> files = filesUtils.uploadFiles(multipartFiles);
+        List<MultipartFile> files = filesUtils.fileMimeTypeCheck(multipartFiles);
         saveFiles(postId, files);
     }
 
-    public void saveFiles(final Long postId, final List<FileSaveRequest> files) {
-        if(files.isEmpty()) return;
+    public void saveFiles(final Long postId, final List<MultipartFile> files) {
+        if (files.isEmpty()) return;
 
         Posts post = postsRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
-        List<Files> filesEntities = new ArrayList<>();
-
-        for(FileSaveRequest file : files) {
-            filesEntities.add(file.toEntity(post));
-        }
+        List<Files> filesEntities = s3Upload.uploadFile(files, post);
 
         filesRepository.saveAll(filesEntities);
     }
 
     public void deleteChildFiles(Long postId) {
-        em.createQuery("delete Files f where f.posts.id = :postId")
-                .setParameter("postId", postId)
-                .executeUpdate();
+        postsRepository.deleteFilesOfPost(postId);
     }
 }

@@ -40,7 +40,7 @@ class PostsServiceTest {
                 .willReturn(post);
 
         //when
-        Long postId = postsService.savePost(postDto);
+        Long postId = postsService.savePostAndFiles(postDto);
 
         //then
         verify(postsRepository, times(1)).save(any(Posts.class));
@@ -62,7 +62,7 @@ class PostsServiceTest {
                 .willReturn(post);
 
         //when
-        Long postId = postsService.savePost(postDto);
+        Long postId = postsService.savePostAndFiles(postDto);
 
         //then
         verify(postsRepository, times(1)).save(any(Posts.class));

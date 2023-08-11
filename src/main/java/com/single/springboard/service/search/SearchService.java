@@ -16,6 +16,7 @@ public class SearchService {
     public List<SearchResponse> findAllPostsByKeyword(String keyword) {
         return postsRepository.findAllByKeyword(keyword).stream()
                 .map(post -> SearchResponse.builder()
+                        .id(post.getId())
                         .title(post.getTitle())
                         .content(post.getContent())
                         .modifiedDate(DateUtils.formatDate(post.getModifiedDate()))
