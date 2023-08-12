@@ -5,6 +5,7 @@ import com.single.springboard.util.DateUtils;
 import com.single.springboard.web.dto.posts.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
 public class SearchService {
     private final PostsRepository postsRepository;
 
+    @Transactional(readOnly = true)
     public List<SearchResponse> findAllPostsByKeyword(String keyword) {
         return postsRepository.findAllByKeyword(keyword).stream()
                 .map(post -> SearchResponse.builder()
