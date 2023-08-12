@@ -3,13 +3,14 @@ package com.single.springboard.service.posts;
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.domain.comments.Comments;
+import com.single.springboard.domain.files.Files;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.service.files.FilesService;
+import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.util.DateUtils;
 import com.single.springboard.util.PostsUtils;
 import com.single.springboard.web.dto.comments.CommentsResponse;
@@ -56,7 +57,6 @@ public class PostsService {
         return postId;
     }
 
-    @Transactional(readOnly = true)
     public PostResponse findPostByIdAndComments(Long id, @LoginUser SessionUser user) {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
@@ -117,13 +117,15 @@ public class PostsService {
         return post.getId();
     }
 
-    @Transactional
-    public boolean deletePost(Long id) {
-        boolean isExistPost = postsRepository.existsById(id);
 
-        if (isExistPost) {
-            filesService.deleteChildFiles(id);
-            postsRepository.deleteById(id);
+    @Transactional
+    public boolean deletePostWithFiles(Long id) {
+        Posts post = postsRepository.findById(id)
+                .orElse(null);
+
+        if (post != null) {
+            filesService.deleteChildFiles(post);
+            postsRepository.deleteById(post.getId());
             return true;
         }
 

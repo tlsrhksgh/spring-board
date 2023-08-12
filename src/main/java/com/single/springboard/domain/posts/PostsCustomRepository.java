@@ -6,5 +6,4 @@ public interface PostsCustomRepository {
 
     List<Posts> findAllByKeyword(String keyword);
 
-    void deleteFilesOfPost(Long postId);
 }
