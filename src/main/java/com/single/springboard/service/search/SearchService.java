@@ -1,13 +1,13 @@
 package com.single.springboard.service.search;
 
 import com.single.springboard.domain.posts.PostsRepository;
-import com.single.springboard.util.DateUtils;
 import com.single.springboard.web.dto.posts.SearchResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,15 +15,9 @@ public class SearchService {
     private final PostsRepository postsRepository;
 
     @Transactional(readOnly = true)
-    public List<SearchResponse> findAllPostsByKeyword(String keyword) {
-        return postsRepository.findAllByKeyword(keyword).stream()
-                .map(post -> SearchResponse.builder()
-                        .id(post.getId())
-                        .title(post.getTitle())
-                        .content(post.getContent())
-                        .modifiedDate(DateUtils.formatDate(post.getModifiedDate()))
-                        .author(post.getUser().getName())
-                        .build())
-                .toList();
+    public Page<SearchResponse> findAllPostsByKeyword(String keyword, Pageable pageable) {
+        Page<SearchResponse> postsPage = postsRepository.findAllByKeyword(keyword, pageable);
+
+        return new PageImpl<>(postsPage.getContent(), pageable, postsPage.getTotalElements());
     }
 }

@@ -59,7 +59,7 @@ public class IndexController {
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostResponse post = postsService.findPostByIdAndComments(id, user);
         model.addAttribute("post", post);
-        model.addAttribute("user", user);
+        model.addAttribute("user" + "", user);
         model.addAttribute("comments", post.comments());
 
         return "post-find";
@@ -67,9 +67,12 @@ public class IndexController {
 
 
     @GetMapping("/search")
-    public String search(@RequestParam("query") @NotBlank(message = "검색은 한 글자 이상 입력되어야 합니다.") String keyword,
+    public String search(
+            @RequestParam("query") @NotBlank(message = "검색은 한 글자 이상 입력되어야 합니다.") String keyword,
+                         Pageable pageable,
                          Model model) {
-        model.addAttribute("posts", searchService.findAllPostsByKeyword(keyword));
+        model.addAttribute("posts", searchService.findAllPostsByKeyword(keyword, pageable));
+        model.addAttribute("keyword", keyword);
 
         return "search";
     }
