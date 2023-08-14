@@ -17,5 +17,27 @@
     <span th:text="${p.content()}"></span>
     <hr>
   </div>
+
+  <div th:if="${posts.totalPages > 1}" style="display: flex; justify-content: center">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <li class="page-item" th:classappend="${posts.first ? 'disabled' : ''}">
+          <a class="page-link" th:href="@{/search(query=${keyword}, page=${posts.number - 1}, size=${posts.size})}">
+            <span> < </span>
+            <span>이전</span>
+          </a>
+        </li>
+        <li th:each="pageNumber : ${#numbers.sequence((posts.number / 10) * 10, (posts.number / 10 == posts.totalPages / 10 ? posts.totalPages - 1 : ((posts.number / 10) * 10) + 9))}" th:classappend="${posts.number == pageNumber ? 'active' : ''}">
+          <a class="page-link" th:href="@{/search(query=${keyword}, page=${pageNumber}, size=${posts.size})}" th:text="${pageNumber + 1}"></a>
+        </li>
+        <li class="page-item" th:classappend="${posts.last ? 'disabled' : ''}">
+          <a class="page-link" th:href="@{/search(query=${keyword}, page=${posts.number + 1}, size=${posts.size})}">
+            <span>다음</span>
+            <span> > </span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </body>
 </html>
