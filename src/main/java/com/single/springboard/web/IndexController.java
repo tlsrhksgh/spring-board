@@ -61,6 +61,7 @@ public class IndexController {
         model.addAttribute("post", post);
         model.addAttribute("user" + "", user);
         model.addAttribute("comments", post.comments());
+        model.addAttribute("files", post.fileName());
 
         return "post-find";
     }

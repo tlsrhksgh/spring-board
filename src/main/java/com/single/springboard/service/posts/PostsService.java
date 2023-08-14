@@ -44,10 +44,6 @@ public class PostsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-        for (int i = 0; i < 1000; i++) {
-            postsRepository.save(requestDto.toEntity(user));
-        }
-
         Long postId = postsRepository.save(requestDto.toEntity(user)).getId();
 
         if(requestDto.files() != null) {
@@ -87,6 +83,9 @@ public class PostsService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .comments(commentsResponses)
+                .fileName(post.getFiles().stream().
+                        map(Files::getTranslateName)
+                        .collect(Collectors.toList()))
                 .build();
     }
 

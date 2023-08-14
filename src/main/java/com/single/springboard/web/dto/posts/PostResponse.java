@@ -11,6 +11,7 @@ public record PostResponse(
         String author,
         String content,
         String title,
-        List<CommentsResponse> comments
+        List<CommentsResponse> comments,
+        List<String> fileName
 ) {
 }
