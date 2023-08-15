@@ -28,6 +28,7 @@ public class IndexController {
                         @LoginUser SessionUser user,
                         Pageable pageable) {
         model.addAttribute("posts", postsService.findAllPostsAndCommentsCountDesc(pageable));
+        model.addAttribute("ranking", postsService.getPostsRanking());
 
         if(user != null) {
             model.addAttribute("userName", user.name());

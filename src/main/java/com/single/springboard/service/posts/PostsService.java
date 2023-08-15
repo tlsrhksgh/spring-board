@@ -10,9 +10,9 @@ import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.files.FilesService;
+import com.single.springboard.service.posts.dto.PostRankResponse;
 import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.util.DateUtils;
-import com.single.springboard.util.PostsUtils;
 import com.single.springboard.web.dto.comments.CommentsResponse;
 import com.single.springboard.web.dto.posts.PostResponse;
 import com.single.springboard.web.dto.posts.PostSaveRequest;
@@ -21,10 +21,14 @@ import com.single.springboard.web.dto.posts.PostsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -37,7 +41,46 @@ public class PostsService {
     private final UserRepository userRepository;
     private final FilesService filesService;
     private final CommentsUtils commentsUtils;
-    private final PostsUtils postsUtils;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public void increasePostViewCount(String postId, String userId) {
+        String userViewKey = "post:view:user:" + userId;
+
+        boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
+
+        if (!hasViewed) {
+            Posts post = postsRepository.findById(Long.valueOf(postId))
+                    .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+            redisTemplate.opsForZSet().incrementScore("ranking", post.getTitle() + ":" + postId, 1);
+            redisTemplate.opsForSet().add(userViewKey, postId);
+            post.updateViewCount();
+        }
+    }
+
+    public List<PostRankResponse> getPostsRanking() {
+        String key = "ranking";
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+        Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(key, 0, 4);
+
+        List<PostRankResponse> responses = new ArrayList<>();
+        if (!typedTuples.isEmpty()) {
+            List<PostRankResponse> list = typedTuples.stream()
+                    .map(tuple -> {
+                        String[] splitValue = tuple.getValue().split(":");
+                        return PostRankResponse.builder()
+                                .id(Long.parseLong(splitValue[splitValue.length - 1]))
+                                .title(splitValue[0])
+                                .score(tuple.getScore().longValue())
+                                .build();
+                    })
+                    .toList();
+
+            responses.addAll(list);
+        }
+
+        return responses;
+    }
 
     @Transactional
     public Long savePostAndFiles(PostSaveRequest requestDto, String email) {
@@ -46,7 +89,7 @@ public class PostsService {
 
         Long postId = postsRepository.save(requestDto.toEntity(user)).getId();
 
-        if(requestDto.files() != null) {
+        if (requestDto.files() != null) {
             filesService.translateFileAndSave(postId, requestDto.files());
         }
 
@@ -57,8 +100,8 @@ public class PostsService {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
-        if(user != null) {
-            postsUtils.increasePostViewCount(String.valueOf(id), user.email());
+        if (user != null) {
+            increasePostViewCount(String.valueOf(id), user.email());
         }
 
         List<Comments> comments = post.getComments();
@@ -71,8 +114,8 @@ public class PostsService {
                         .parentId(comment.getParentComment())
                         .content(comment.isSecret() ?
                                 (user != null && commentsUtils.enableSecretCommentView(post.getUser().getName(),
-                                user.name(), comment.getUser().getName()) ?
-                                comment.getContent() : "비밀 댓글 입니다.") : comment.getContent())
+                                        user.name(), comment.getUser().getName()) ?
+                                        comment.getContent() : "비밀 댓글 입니다.") : comment.getContent())
                         .author(comment.getUser().getName())
                         .createdDate(DateUtils.formatDate(comment.getCreatedDate()))
                         .build())
