@@ -18,7 +18,7 @@
                 <a href="/logout" class="btn btn-info active" role="button">Logout</a>
             </p>
         </div>
-        <div style="display: flex; justify-content: space-between">
+        <div style="display: flex; justify-content: space-around">
             <div th:if="${userName == null}" style="display: inline-block">
                 <a href="/oauth2/authorization/naver" class="btn btn-secondary active" role="button">Naver Login</a>
                 <a href="/oauth2/authorization/kakao" role="button">
@@ -30,6 +30,12 @@
                     <input type="text" name="query" placeholder="검색어를 입력해 주세요" />
                     <input type="submit" value="검색" />
                 </form>
+            </div>
+            <div style="display: inline-block">
+                <span th:if="${ranking.size() == 0}" style="opacity: 0.6">존재하는 게시물이 없습니다.</span>
+                <div th:if="${ranking.size > 0}" th:each="post : ${ranking}">
+                    <a th:href="${'/posts/find/' + post.id()}" th:text="${post.title()}"></a>
+                </div>
             </div>
         </div>
     </div>
