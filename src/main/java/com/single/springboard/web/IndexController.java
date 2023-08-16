@@ -2,6 +2,7 @@ package com.single.springboard.web;
 
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
+import com.single.springboard.scheduler.RankingScheduler;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.web.dto.posts.PostResponse;
@@ -22,13 +23,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class IndexController {
     private final PostsService postsService;
     private final SearchService searchService;
+    private final RankingScheduler rankingScheduler;
 
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
         model.addAttribute("posts", postsService.findAllPostsAndCommentsCountDesc(pageable));
-        model.addAttribute("ranking", postsService.getPostsRanking());
+        model.addAttribute("ranking", rankingScheduler.getPostsRanking());
 
         if(user != null) {
             model.addAttribute("userName", user.name());
@@ -58,11 +60,15 @@ public class IndexController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
+        long startTime = System.currentTimeMillis();
         PostResponse post = postsService.findPostByIdAndComments(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user" + "", user);
         model.addAttribute("comments", post.comments());
         model.addAttribute("files", post.fileName());
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("처리 시간: " + (endTime - startTime) + "ms");
 
         return "post-find";
     }

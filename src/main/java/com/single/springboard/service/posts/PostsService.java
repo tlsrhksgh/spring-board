@@ -10,7 +10,6 @@ import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.files.FilesService;
-import com.single.springboard.service.posts.dto.PostRankResponse;
 import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.util.DateUtils;
 import com.single.springboard.web.dto.comments.CommentsResponse;
@@ -22,13 +21,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -56,30 +52,6 @@ public class PostsService {
             redisTemplate.opsForSet().add(userViewKey, postId);
             post.updateViewCount();
         }
-    }
-
-    public List<PostRankResponse> getPostsRanking() {
-        String key = "ranking";
-        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-        Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(key, 0, 4);
-
-        List<PostRankResponse> responses = new ArrayList<>();
-        if (!typedTuples.isEmpty()) {
-            List<PostRankResponse> list = typedTuples.stream()
-                    .map(tuple -> {
-                        String[] splitValue = tuple.getValue().split(":");
-                        return PostRankResponse.builder()
-                                .id(Long.parseLong(splitValue[splitValue.length - 1]))
-                                .title(splitValue[0])
-                                .score(tuple.getScore().longValue())
-                                .build();
-                    })
-                    .toList();
-
-            responses.addAll(list);
-        }
-
-        return responses;
     }
 
     @Transactional
