@@ -2,9 +2,6 @@ package com.single.springboard.web;
 
 import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
-import com.single.springboard.domain.files.Files;
-import com.single.springboard.domain.files.FilesRepository;
-import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.posts.PostSaveRequest;
 import com.single.springboard.web.dto.posts.PostUpdateRequest;

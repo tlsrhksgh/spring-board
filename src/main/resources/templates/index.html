@@ -32,6 +32,7 @@
                 </form>
             </div>
             <div style="display: inline-block">
+                <h4>인기 게시글 순위 Top5</h4>
                 <span th:if="${ranking.size() == 0}" style="opacity: 0.6">존재하는 게시물이 없습니다.</span>
                 <div th:if="${ranking.size > 0}" th:each="post : ${ranking}">
                     <a th:href="${'/posts/find/' + post.id()}" th:text="${post.title()}"></a>
