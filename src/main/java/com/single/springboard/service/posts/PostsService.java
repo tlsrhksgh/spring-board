@@ -13,10 +13,7 @@ import com.single.springboard.service.files.FilesService;
 import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.util.DateUtils;
 import com.single.springboard.web.dto.comments.CommentsResponse;
-import com.single.springboard.web.dto.posts.PostResponse;
-import com.single.springboard.web.dto.posts.PostSaveRequest;
-import com.single.springboard.web.dto.posts.PostUpdateRequest;
-import com.single.springboard.web.dto.posts.PostsResponse;
+import com.single.springboard.web.dto.posts.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,7 +65,19 @@ public class PostsService {
         return postId;
     }
 
-    public PostResponse findPostByIdAndComments(Long id, @LoginUser SessionUser user) {
+    public PostResponse findPostById(Long postId) {
+        Posts post = postsRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+        return PostResponse.builder()
+                .id(postId)
+                .title(post.getTitle())
+                .content(post.getContent())
+                .author(post.getUser().getName())
+                .build();
+    }
+
+    public PostElementsResponse findPostAndElements(Long id, @LoginUser SessionUser user) {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
@@ -93,7 +102,7 @@ public class PostsService {
                         .build())
                 .collect(Collectors.toList());
 
-        return PostResponse.builder()
+        return PostElementsResponse.builder()
                 .author(post.getUser().getName())
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -137,8 +146,11 @@ public class PostsService {
         Posts post = postsRepository.findById(id)
                 .orElse(null);
 
-        if (post != null) {
+        if (post != null && post.getFiles().size() > 0) {
             filesService.deleteChildFiles(post);
+            postsRepository.deleteById(post.getId());
+            return true;
+        } else if (post != null){
             postsRepository.deleteById(post.getId());
             return true;
         }
