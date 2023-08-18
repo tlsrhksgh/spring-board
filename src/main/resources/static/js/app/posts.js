@@ -6,7 +6,7 @@ var main = {
             _this.save();
         });
 
-        $('#btn-update').on('click', () => {
+        $('.post-update_btn').on('click', () => {
             _this.update();
         });
 
@@ -80,15 +80,15 @@ var main = {
     },
 
     update : function () {
-        let data = {
+        const data = {
             title: $('#title').val(),
             content: $('#content').val()
         };
 
-        let id = $('#id').val();
+        const id = $('#id').text();
 
         $.ajax({
-            type: 'PUT',
+            type: 'PATCH',
             url: '/api/v1/posts/'+id,
             dataType: 'json',
             contentType:'application/json; charset=utf-8',
@@ -103,7 +103,8 @@ var main = {
     },
 
     delete : function (e) {
-        const postId = e.target.parentNode.childNodes.item(1).textContent;
+        const postId = e.target.parentNode.parentNode.childNodes.item(1).textContent;
+        console.log(postId);
 
         $.ajax({
             type: 'DELETE',

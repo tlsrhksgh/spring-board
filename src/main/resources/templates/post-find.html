@@ -21,7 +21,7 @@
             <label for="content">내용</label>
             <p id="content" th:text="${post.content()}"></p>
             <div th:each="file : ${files}">
-                <img th:src="'https://spring-board-file.s3.ap-northeast-2.amazonaws.com/' + ${file}" />
+                <img sizes="(max-width: 440px, 800px)" th:src="'https://spring-board-file.s3.ap-northeast-2.amazonaws.com/' + ${file}" />
             </div>
         </div>
     </div>

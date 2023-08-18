@@ -5,6 +5,7 @@ import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.scheduler.RankingScheduler;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.service.search.SearchService;
+import com.single.springboard.web.dto.posts.PostElementsResponse;
 import com.single.springboard.web.dto.posts.PostResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -50,9 +51,8 @@ public class IndexController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/update/{id}")
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-
-        PostResponse posts = postsService.findPostByIdAndComments(id, user);
-        model.addAttribute("posts", posts);
+        PostResponse post = postsService.findPostById(id);
+        model.addAttribute("post", post);
 
         return "post-update";
     }
@@ -61,7 +61,7 @@ public class IndexController {
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         long startTime = System.currentTimeMillis();
-        PostResponse post = postsService.findPostByIdAndComments(id, user);
+        PostElementsResponse post = postsService.findPostAndElements(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user" + "", user);
         model.addAttribute("comments", post.comments());

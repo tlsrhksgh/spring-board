@@ -15,8 +15,8 @@
   <h2 th:text="'검색결과: ' + ${posts.totalElements} +'건'"></h2>
 
   <div class="result-cards" th:each="p : ${posts}">
-    <p th:text="${p.author()}"}></p>
-    <p th:text="${p.modifiedDate()}" style="opacity: 0.6"></p>
+    <span th:text="${p.author()} + '    '"}></span>
+    <span th:text="${p.modifiedDate()}" style="opacity: 0.6"></span>
     <h4>
       <a th:href="${'/posts/find/' + p.id()}" th:text="${p.title()}"></a>
     </h4>
