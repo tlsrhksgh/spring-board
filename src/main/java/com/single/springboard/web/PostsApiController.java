@@ -41,7 +41,7 @@ public class PostsApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PatchMapping("/{id}")
-    public Long updatePost(@PathVariable Long id, @RequestBody @Valid PostUpdateRequest updateDto) {
+    public Long updatePost(@PathVariable Long id, @ModelAttribute @Valid PostUpdateRequest updateDto) {
         return postsService.updatePost(id, updateDto);
     }
 

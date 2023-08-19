@@ -85,7 +85,7 @@ var main = {
         button.type = "button";
         button.className = "reply-comment_btn";
         button.innerText = "등록";
-        var _this = this;
+        let _this = this;
         button.addEventListener('click', (e) => {
             _this.replyCommentSave(e);
         })

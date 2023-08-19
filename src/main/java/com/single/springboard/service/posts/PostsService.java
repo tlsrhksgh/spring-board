@@ -4,11 +4,13 @@ import com.single.springboard.config.auth.LoginUser;
 import com.single.springboard.config.auth.dto.SessionUser;
 import com.single.springboard.domain.comments.Comments;
 import com.single.springboard.domain.files.Files;
+import com.single.springboard.domain.files.FilesRepository;
 import com.single.springboard.domain.posts.Posts;
 import com.single.springboard.domain.posts.PostsRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
+import com.single.springboard.service.files.AwsS3Upload;
 import com.single.springboard.service.files.FilesService;
 import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.util.DateUtils;
@@ -32,7 +34,9 @@ import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 public class PostsService {
     private final PostsRepository postsRepository;
     private final UserRepository userRepository;
+    private final FilesRepository filesRepository;
     private final FilesService filesService;
+    private final AwsS3Upload awsS3Upload;
     private final CommentsUtils commentsUtils;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -71,6 +75,7 @@ public class PostsService {
 
         return PostResponse.builder()
                 .id(postId)
+                .files(post.getFiles())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .author(post.getUser().getName())
@@ -103,6 +108,7 @@ public class PostsService {
                 .collect(Collectors.toList());
 
         return PostElementsResponse.builder()
+                .id(post.getId())
                 .author(post.getUser().getName())
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -136,6 +142,15 @@ public class PostsService {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
         post.updatePost(updateDto);
+        List<Files> existFiles = filesRepository.findAllByPostsId(id);
+        if(existFiles.size() > 0) {
+            awsS3Upload.delete(existFiles);
+            filesRepository.deleteFiles(id);
+        }
+
+        if(updateDto.files() != null) {
+            filesService.translateFileAndSave(id, updateDto.files());
+        }
 
         return post.getId();
     }
