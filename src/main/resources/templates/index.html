@@ -62,9 +62,8 @@
                 <td th:text="${x.viewCount()}"></td>
                 <td th:text="${x.modifiedDate()}"></td>
                 <td th:if="${userName != null && userName.equals(x.author())}">
-                    <button class="btn btn-warning" style="cursor: pointer">
-                        <a style="text-decoration: none; color: white" th:href="${'/posts/update/' + x.id()}">수정</a>
-                    </button>
+                    <a th:href="${'posts/update/' + x.id()}" role="button" class="btn btn-warning"
+                       style="cursor: pointer; color: white">수정</a>
                     <button class="post-del_btn btn btn-danger" style="cursor: pointer">삭제</button>
                 </td>
             </tr>

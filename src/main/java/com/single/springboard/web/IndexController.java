@@ -53,6 +53,7 @@ public class IndexController {
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostResponse post = postsService.findPostById(id);
         model.addAttribute("post", post);
+        model.addAttribute("files", post.files());
 
         return "post-update";
     }
@@ -63,7 +64,7 @@ public class IndexController {
         long startTime = System.currentTimeMillis();
         PostElementsResponse post = postsService.findPostAndElements(id, user);
         model.addAttribute("post", post);
-        model.addAttribute("user" + "", user);
+        model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
         model.addAttribute("files", post.fileName());
 

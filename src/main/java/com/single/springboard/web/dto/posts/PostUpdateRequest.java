@@ -1,14 +1,23 @@
 package com.single.springboard.web.dto.posts;
 
+import com.single.springboard.domain.files.Files;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public record PostUpdateRequest(
-        @Size(min = 1, max = 500, message = "제목은 1 ~ 500자 이여야 합니다.")
+        @NotBlank(message = "제목은 1 ~ 500자 이여야 합니다.")
         String title,
 
+        @NotBlank
+        String author,
+
         @NotEmpty(message = "수정하실 게시글 내용을 입력 해주세요.")
-        String content
+        String content,
+
+        List<MultipartFile> files
 ) {
 
 }

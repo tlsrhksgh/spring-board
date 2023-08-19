@@ -2,7 +2,7 @@ let fileArr = [];
 var main = {
     init : function() {
         var _this = this;
-        $('#btn-save').on('click', () => {
+        $('.post-save_btn').on('click', () => {
             _this.save();
         });
 
@@ -17,6 +17,10 @@ var main = {
         $('#file-input').on('change', () => {
             let files = $('#file-input')[0].files;
             _this.displayFileInfo(files);
+        })
+
+        $('.del-image_btn').on('click', (e) => {
+            _this.deleteFile(e);
         })
 
         $('#drop-zone').on('dragover', (e) => {
@@ -54,13 +58,7 @@ var main = {
 
     },
     save : function() {
-        let formData = new FormData();
-        formData.append('title', $('#title').val());
-        formData.append('author', $('#author').text());
-        formData.append('content', $('#content').val());
-        fileArr.forEach(file => {
-            formData.append('files', file)
-        });
+        const formData = this.createFormData();
 
         $.ajax({
             type: 'POST',
@@ -80,22 +78,20 @@ var main = {
     },
 
     update : function () {
-        const data = {
-            title: $('#title').val(),
-            content: $('#content').val()
-        };
+        const formData = this.createFormData();
 
         const id = $('#id').text();
 
         $.ajax({
             type: 'PATCH',
             url: '/api/v1/posts/'+id,
-            dataType: 'json',
-            contentType:'application/json; charset=utf-8',
-            data: JSON.stringify(data)
+            processData: false,
+            contentType: false,
+            cache: false,
+            data: formData
         }).done(function () {
             alert("글이 수정되었습니다.");
-            window.location.href = '/';
+            window.location.href = '/posts/find/' + id;
         }).fail(function(error) {
             alert(error.responseJSON.message);
             return false;
@@ -104,7 +100,6 @@ var main = {
 
     delete : function (e) {
         const postId = e.target.parentNode.parentNode.childNodes.item(1).textContent;
-        console.log(postId);
 
         $.ajax({
             type: 'DELETE',
@@ -122,22 +117,62 @@ var main = {
 
     displayFileInfo : function (files) {
         $("#drop-zone p").remove();
-        let tag = "";
         for (let i = 0; i < files.length; i++) {
             let file = files[i];
             fileArr.push(file);
             const fileName = file.name;
             let fileSize = file.size / 1024 / 1024;
             fileSize = fileSize < 1 ? fileSize.toFixed(3) : fileSize.toFixed(1);
-            tag +=
-                "<div class='fileList'>" +
-                "<span class='fileName'>"+fileName+"</span>" +
-                "<span class='fileSize'>"+fileSize+" MB</span>" +
-                "</div>";
+            const div = document.createElement("div");
+            div.className = "file";
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            const fileNameSpan = document.createElement("span");
+            fileNameSpan.className = "fileName";
+            fileNameSpan.innerText = fileName;
+            const fileSizeSpan = document.createElement("span");
+            fileSizeSpan.className = "fileSize";
+            fileSizeSpan.innerText = fileSize + " MB";
+            const delBtn = document.createElement("button");
+            delBtn.className = "del-image_btn btn btn-danger";
+            delBtn.style.color = "while";
+            delBtn.innerText = "삭제";
+            let _this = this;
+            delBtn.addEventListener('click', (e) => {
+                _this.deleteFile(e);
+            })
+            div.appendChild(fileNameSpan);
+            div.appendChild(fileSizeSpan);
+            div.appendChild(delBtn);
+            const dropZone = $("#drop-zone");
+            dropZone.append(div);
+        }
+    },
+
+    deleteFile : function (e) {
+        e.stopPropagation();
+
+        const filename = e.target.parentNode.childNodes[0].outerText;
+
+        for (let i = 0; i < fileArr.length; i++) {
+            if(filename === fileArr[i].name) {
+                fileArr.splice(i);
+            }
         }
 
-        const dropZone = $("#drop-zone");
-        dropZone.append(tag);
+        const fileElement = e.target.parentNode;
+        fileElement.remove();
+    },
+
+    createFormData : function () {
+        let formData = new FormData();
+        formData.append('title', $('#title').val());
+        formData.append('author', $('#author').text());
+        formData.append('content', $('#content').val());
+        fileArr.forEach(file => {
+            formData.append('files', file)
+        });
+        return formData;
     }
 };
 

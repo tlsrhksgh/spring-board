@@ -21,7 +21,7 @@
             <label for="content">내용</label>
             <p id="content" th:text="${post.content()}"></p>
             <div th:each="file : ${files}">
-                <img sizes="(max-width: 440px, 800px)" th:src="'https://spring-board-file.s3.ap-northeast-2.amazonaws.com/' + ${file}" />
+                <img th:src="'https://spring-board-file.s3.ap-northeast-2.amazonaws.com/' + ${file}" />
             </div>
         </div>
     </div>
@@ -37,7 +37,11 @@
             <span>비밀 댓글</span>
             <input type="checkbox" name="secret" class="comment-secretYn">
         </div>
-        <input type="submit" value="등록" id="btn-save"/>
+        <a href="/" role="button" class="btn btn-secondary">취소</a>
+        <a th:if="${user.name().equals(post.author())}" role="button" class="btn btn-warning"
+           th:href="${'/posts/update/' + post.id()}", style="color: white">
+            수정
+        </a>
     </form>
     <div th:if="${user == null}">
         <textarea class="form-control" rows="3" placeholder="로그인 후 댓글 등록이 가능합니다." disabled></textarea>
@@ -72,5 +76,6 @@
         crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="/js/app/comments.js"></script>
+<script src="/js/app/posts.js"></script>
 </body>
 </html>
