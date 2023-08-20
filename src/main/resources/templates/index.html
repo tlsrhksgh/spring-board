@@ -11,16 +11,17 @@
 <div class="col-md-12">
     <div class="col-md-12">
         <div class="col-md-6">
-            <a href="/posts/save" role="button" class="btn btn-primary">글 등록</a>
-
-            <p th:if="${userName != null}">
+            <div th:if="${userName != null}">
+                <p>
+                    <a href="/posts/save" role="button" class="btn btn-primary">글 등록</a>
+                </p>
                 Logged in as: <span id="user" th:text="${userName}"></span>
                 <a href="/logout" class="btn btn-info active" role="button">Logout</a>
-            </p>
+            </div>
         </div>
-        <div style="display: flex; justify-content: space-around">
+        <div style="display: flex; justify-content: space-between">
             <div th:if="${userName == null}" style="display: inline-block">
-                <a href="/oauth2/authorization/naver" class="btn btn-secondary active" role="button">Naver Login</a>
+                <a href="/oauth2/authorization/naver" class="btn btn-success active" role="button">Naver Login</a>
                 <a href="/oauth2/authorization/kakao" role="button">
                     <img src="/images/kakao_login.png" />
                 </a>

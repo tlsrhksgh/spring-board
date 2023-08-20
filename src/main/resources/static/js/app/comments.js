@@ -1,7 +1,7 @@
 var main = {
     init : function () {
         var _this = this;
-        $('#btn-save').on('click', () => {
+        $('.btn-save').on('click', () => {
             _this.save();
         });
         $('.create-comment_form').on('click', (e) => {

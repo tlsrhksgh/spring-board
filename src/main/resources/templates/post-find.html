@@ -32,16 +32,12 @@
             <span id="comment-author" type="text" class="form-control" th:text="${user.name()}"></span>
         </div>
         <div class="mb-3 form-group">
-            <label for="comment-content" class="form-label">댓글 작성</label>
+            <label for="comment-content" class="form-label">댓글 내용</label>
             <textarea class="form-control" id="comment-content" rows="3" placeholder="댓글을 입력해주세요"></textarea>
             <span>비밀 댓글</span>
             <input type="checkbox" name="secret" class="comment-secretYn">
+            <button class="btn-save btn btn-primary">댓글 등록</button>
         </div>
-        <a href="/" role="button" class="btn btn-secondary">취소</a>
-        <a th:if="${user.name().equals(post.author())}" role="button" class="btn btn-warning"
-           th:href="${'/posts/update/' + post.id()}", style="color: white">
-            수정
-        </a>
     </form>
     <div th:if="${user == null}">
         <textarea class="form-control" rows="3" placeholder="로그인 후 댓글 등록이 가능합니다." disabled></textarea>
@@ -67,6 +63,13 @@
                 </div>
             </li>
         </ul>
+    </div>
+
+    <div th:if="${user != null && user.name().equals(post.author())}" id="post-status_container">
+        <a href="/" role="button" class="btn btn-secondary">취소</a>
+        <a role="button" class="btn btn-warning" th:href="${'/posts/update/' + post.id()}", style="color: white">
+            수정
+        </a>
     </div>
 </div>
 
