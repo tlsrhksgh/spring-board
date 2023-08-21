@@ -1,6 +1,5 @@
 package com.single.springboard.web.dto.posts;
 
-import com.single.springboard.domain.files.Files;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
