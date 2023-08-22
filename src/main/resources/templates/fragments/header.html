@@ -1,0 +1,27 @@
+<div xmlns:th="http://www.thymeleaf.org">
+    <div th:fragment="login-menu(user)" style="padding: 20px 30px">
+        <div style="margin-bottom: 15px">
+            <a href="/posts/save" role="button" class="btn btn-primary">글 등록</a>
+            <a th:href="${'/user/info/' + user.email()}" style="margin: 0px 20px">
+                <img th:src="${user.picture()}" width="30px" height="30px" style="border-radius: 15px" />
+            </a>
+            <a href="/logout" class="btn btn-info active" role="button">Logout</a>
+        </div>
+        <div>
+            <form method="get" action="/search">
+                <input type="text" name="query" placeholder="검색어를 입력해 주세요" />
+                <input type="submit" value="검색" />
+            </form>
+        </div>
+    </div>
+
+
+    <div th:fragment="logout-menu">
+        <div style="display: inline-block">
+            <a href="/oauth2/authorization/naver" class="btn btn-success active" role="button">Naver Login</a>
+            <a href="/oauth2/authorization/kakao" role="button">
+                <img src="/images/kakao_login.png" />
+            </a>
+        </div>
+    </div>
+</div>
