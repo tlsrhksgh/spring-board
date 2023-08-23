@@ -1,4 +1,3 @@
-let fileArr = [];
 var main = {
     init : function() {
         var _this = this;
@@ -8,22 +7,28 @@ var main = {
     },
 
     update : function () {
-        const formData = this.createFormData();
+        let formData = new FormData();
 
-        formData.append('email', $('email').text());
+        const email = $('#email').text();
+        const imageFile = $('#picture')[0];
+        console.log(imageFile.files);
+
+        formData.append('email',email);
         formData.append('name', $('#name').val());
-        formData.append('picture', fileArr[0]);
+        if(imageFile.files.length > 0) {
+            formData.append('picture', imageFile.files[0]);
+        }
 
         $.ajax({
             type: 'PATCH',
-            url: '/api/v1/posts/'+id,
+            url: '/api/v1/user',
             processData: false,
             contentType: false,
             cache: false,
             data: formData
         }).done(function () {
             alert("글이 수정되었습니다.");
-            window.location.href = '/posts/find/' + id;
+            window.location.href = '/user/info/' + email;
         }).fail(function(error) {
             alert(error.responseJSON.message);
             return false;

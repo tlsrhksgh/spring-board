@@ -29,7 +29,7 @@
     <form th:if="${user != null}" id="comment-form">
         <div class="mb-3 form-group">
             <label for="comment-author" class="form-label">댓글 작성자</label>
-            <span id="comment-author" type="text" class="form-control" th:text="${user.name()}"></span>
+            <span id="comment-author" type="text" class="form-control" th:text="${user.getName()}"></span>
         </div>
         <div class="mb-3 form-group">
             <label for="comment-content" class="form-label">댓글 내용</label>
@@ -50,7 +50,7 @@
                     <p th:text="${comment.content()}"></p>
                     <p th:text="${comment.createdDate()}" style="opacity: 0.6"></p>
                     <button type="button" class="create-comment_form" th:if="${user != null}">답글</button>
-                    <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.name())}">❌</button>
+                    <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.getName())}">❌</button>
                 </div>
 
                 <div th:if="${comment.commentLevel() > 1}" th:attr="dataset-id=${comment.id()}, parent-id=${comment.parentId().getId()}, style='margin-left: ' + (${comment.commentLevel()} * 15) + 'px'">
@@ -59,13 +59,13 @@
                     <p th:text="${comment.content()}"></p>
                     <p th:text="${comment.createdDate()}" style="opacity: 0.6"></p>
                     <button type="button" class="create-comment_form" th:if="${user != null}">답글</button>
-                    <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.name())}">❌</button>
+                    <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.getName())}">❌</button>
                 </div>
             </li>
         </ul>
     </div>
 
-    <div th:if="${user != null && user.name().equals(post.author())}" id="post-status_container">
+    <div th:if="${user != null && user.getName().equals(post.author())}" id="post-status_container">
         <a href="/" role="button" class="btn btn-secondary">취소</a>
         <a role="button" class="btn btn-warning" th:href="${'/posts/update/' + post.id()}", style="color: white">
             수정
