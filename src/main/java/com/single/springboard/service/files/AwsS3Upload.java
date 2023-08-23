@@ -30,7 +30,7 @@ public class AwsS3Upload {
     private String bucket;
 
     @Transactional
-    public List<Files> uploadFile(List<MultipartFile> files, Posts post) {
+    public List<Files> uploadFile(List<MultipartFile> files) {
         List<Files> fileEntities = new ArrayList<>();
         PutObjectRequest putObj;
 
@@ -52,7 +52,6 @@ public class AwsS3Upload {
                     .translateName(keyName)
                     .originalName(file.getOriginalFilename())
                     .createdDate(LocalDateTime.now())
-                    .posts(post)
                     .size(file.getSize())
                     .build());
         }

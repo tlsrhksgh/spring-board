@@ -30,4 +30,8 @@ public class Files {
 
     @CreatedDate
     private LocalDateTime createdDate;
+
+    public void setPost(Posts post) {
+        this.posts = post;
+    }
 }

@@ -1,4 +1,4 @@
-package com.single.springboard.config.auth.dto;
+package com.single.springboard.service.user.dto;
 
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;

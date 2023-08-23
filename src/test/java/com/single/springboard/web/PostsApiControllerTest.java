@@ -1,6 +1,6 @@
 package com.single.springboard.web;
 
-import com.single.springboard.config.auth.dto.SessionUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.service.posts.PostsService;

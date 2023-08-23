@@ -1,7 +1,7 @@
 package com.single.springboard.web;
 
-import com.single.springboard.config.auth.LoginUser;
-import com.single.springboard.config.auth.dto.SessionUser;
+import com.single.springboard.service.user.LoginUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.scheduler.RankingScheduler;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.service.search.SearchService;
@@ -32,10 +32,7 @@ public class IndexController {
                         Pageable pageable) {
         model.addAttribute("posts", postsService.findAllPostsAndCommentsCountDesc(pageable));
         model.addAttribute("ranking", rankingScheduler.getPostsRanking());
-
-        if(user != null) {
-            model.addAttribute("userName", user.name());
-        }
+        model.addAttribute("user", user);
 
         return "index";
     }
@@ -84,5 +81,14 @@ public class IndexController {
         model.addAttribute("keyword", keyword);
 
         return "search";
+    }
+
+    @GetMapping("/user/info/{email}")
+    public String userInfo(
+            @LoginUser SessionUser user,
+            Model model) {
+        model.addAttribute("user", user);
+
+        return "user-info";
     }
 }

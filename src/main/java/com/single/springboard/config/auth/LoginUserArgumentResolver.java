@@ -1,6 +1,7 @@
 package com.single.springboard.config.auth;
 
-import com.single.springboard.config.auth.dto.SessionUser;
+import com.single.springboard.service.user.LoginUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;

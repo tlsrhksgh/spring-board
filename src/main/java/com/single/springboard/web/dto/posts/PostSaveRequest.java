@@ -20,11 +20,11 @@ public record PostSaveRequest(
         String author,
         List<MultipartFile> files
 ) {
-    public Posts toEntity(User user) {
-        return Posts.builder()
-                .title(title)
-                .content(content)
-                .user(user)
-                .build();
-    }
+        public Posts toEntity(User user) {
+                return Posts.builder()
+                        .title(title)
+                        .content(content)
+                        .user(user)
+                        .build();
+        }
 }
