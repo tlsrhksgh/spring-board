@@ -2,8 +2,8 @@
     <div th:fragment="login-menu(user)" style="padding: 20px 30px">
         <div style="margin-bottom: 15px">
             <a href="/posts/save" role="button" class="btn btn-primary">글 등록</a>
-            <a th:href="${'/user/info/' + user.email()}" style="margin: 0px 20px">
-                <img th:src="${user.picture()}" width="30px" height="30px" style="border-radius: 15px" />
+            <a th:href="${'/user/info/' + user.getEmail()}" style="margin: 0px 20px">
+                <img th:src="${user.getPicture()}" width="30px" height="30px" style="border-radius: 15px" />
             </a>
             <a href="/logout" class="btn btn-info active" role="button">Logout</a>
         </div>
