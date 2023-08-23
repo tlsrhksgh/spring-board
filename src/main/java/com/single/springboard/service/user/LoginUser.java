@@ -1,4 +1,4 @@
-package com.single.springboard.config.auth;
+package com.single.springboard.service.user;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

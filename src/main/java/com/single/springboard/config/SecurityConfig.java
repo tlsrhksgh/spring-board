@@ -1,6 +1,6 @@
 package com.single.springboard.config;
 
-import com.single.springboard.config.auth.CustomOAuth2UserService;
+import com.single.springboard.service.user.CustomOAuth2UserService;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.exception.auth.CustomAuthEntryPoint;
 import lombok.RequiredArgsConstructor;

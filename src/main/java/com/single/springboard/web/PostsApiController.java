@@ -1,7 +1,7 @@
 package com.single.springboard.web;
 
-import com.single.springboard.config.auth.LoginUser;
-import com.single.springboard.config.auth.dto.SessionUser;
+import com.single.springboard.service.user.LoginUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.service.posts.PostsService;
 import com.single.springboard.web.dto.posts.PostSaveRequest;
 import com.single.springboard.web.dto.posts.PostUpdateRequest;
@@ -25,7 +25,7 @@ public class PostsApiController {
     public Long savePost(
             @ModelAttribute @Valid PostSaveRequest requestDto,
             @LoginUser SessionUser user) {
-        return postsService.savePostAndFiles(requestDto, user.email());
+        return postsService.savePostAndFiles(requestDto, user.getEmail());
     }
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")

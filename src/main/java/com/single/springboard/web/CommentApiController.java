@@ -1,7 +1,7 @@
 package com.single.springboard.web;
 
-import com.single.springboard.config.auth.LoginUser;
-import com.single.springboard.config.auth.dto.SessionUser;
+import com.single.springboard.service.user.LoginUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.service.comments.CommentsService;
 import com.single.springboard.web.dto.comments.CommentSaveRequest;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ public class CommentApiController {
     @PostMapping
     public ResponseEntity<Long> commentSave(@RequestBody @Valid CommentSaveRequest requestDto,
                                             @LoginUser SessionUser user) {
-        return ResponseEntity.ok(commentsService.commentSave(requestDto, user.email()));
+        return ResponseEntity.ok(commentsService.commentSave(requestDto, user.getEmail()));
     }
 
     @DeleteMapping("/{id}")

@@ -3,8 +3,9 @@ package com.single.springboard.service.files;
 import com.single.springboard.domain.files.Files;
 import com.single.springboard.domain.files.FilesRepository;
 import com.single.springboard.domain.posts.Posts;
-import com.single.springboard.domain.posts.PostsRepository;
-import com.single.springboard.exception.CustomException;
+import com.single.springboard.domain.user.User;
+import com.single.springboard.service.user.LoginUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.FilesUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,30 +14,38 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
-
 @Service
 @RequiredArgsConstructor
 public class FilesService {
     private final FilesRepository filesRepository;
-    private final PostsRepository postsRepository;
     private final FilesUtils filesUtils;
     private final AwsS3Upload s3Upload;
 
     @Transactional
-    public void translateFileAndSave(Long postId, List<MultipartFile> multipartFiles) {
+    public List<Files> postFilesSave(Posts post, List<MultipartFile> multipartFiles) {
         List<MultipartFile> files = filesUtils.fileMimeTypeCheck(multipartFiles);
 
-        Posts post = postsRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+        List<Files> filesEntities = s3Upload.uploadFile(files);
+        for(Files file : filesEntities) {
+            file.setPost(post);
+        }
 
-        List<Files> filesEntities = s3Upload.uploadFile(files, post);
-
-        filesRepository.saveAll(filesEntities);
+        return filesRepository.saveAll(filesEntities);
     }
 
     @Transactional
-    public void deleteChildFiles(Posts post) {
+    public String profileImageUpdate(List<MultipartFile> multipartFile) {
+        List<MultipartFile> file = filesUtils.fileMimeTypeCheck(multipartFile);
+
+        List<Files> fileEntity = s3Upload.uploadFile(file);
+
+        filesRepository.save(fileEntity.get(0));
+
+        return fileEntity.get(0).getTranslateName();
+    }
+
+    @Transactional
+    public void deletePostChildFiles(Posts post) {
         s3Upload.delete(post.getFiles());
         filesRepository.deleteFiles(post.getId());
     }
