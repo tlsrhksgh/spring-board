@@ -1,4 +1,4 @@
-package com.single.springboard.web.dto.posts;
+package com.single.springboard.web.dto.post;
 
 import com.single.springboard.domain.file.File;
 import lombok.Builder;

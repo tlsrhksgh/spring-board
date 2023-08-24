@@ -1,4 +1,4 @@
-package com.single.springboard.web.dto.comments;
+package com.single.springboard.web.dto.comment;
 
 import com.single.springboard.domain.comment.Comment;
 import lombok.Builder;

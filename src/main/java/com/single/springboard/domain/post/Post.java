@@ -4,7 +4,7 @@ import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.user.User;
-import com.single.springboard.web.dto.posts.PostUpdateRequest;
+import com.single.springboard.web.dto.post.PostUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
