@@ -1,6 +1,6 @@
 package com.single.springboard.util;
 
-import com.single.springboard.domain.comments.Comments;
+import com.single.springboard.domain.comment.Comment;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -8,15 +8,15 @@ import java.util.*;
 @Component
 public class CommentsUtils {
 
-    public List<Comments> commentsSort(List<Comments> comments) {
-        List<Comments> sortedComments = new ArrayList<>();
+    public List<Comment> commentsSort(List<Comment> comments) {
+        List<Comment> sortedComments = new ArrayList<>();
 
-        Collections.sort(comments, (Comments c1, Comments c2) -> {
+        Collections.sort(comments, (Comment c1, Comment c2) -> {
             if(c1.getId() < c2.getId()) return 1;
             else return -1;
         });
 
-        for(Comments comment : comments) {
+        for(Comment comment : comments) {
             if(comment.getParentComment() == null) {
                 sortedComments.add(comment);
                 sortCommentsByLevelRecursive(comment, comments, sortedComments);
@@ -26,25 +26,25 @@ public class CommentsUtils {
         return sortedComments;
     }
 
-    private void sortCommentsByLevelRecursive(Comments parent, List<Comments> comments, List<Comments> sortedComments) {
-        List<Comments> children = findChildren(parent.getId(), comments);
+    private void sortCommentsByLevelRecursive(Comment parent, List<Comment> comments, List<Comment> sortedComments) {
+        List<Comment> children = findChildren(parent.getId(), comments);
         if (!children.isEmpty()) {
-            for (Comments child : children) {
+            for (Comment child : children) {
                 sortedComments.add(child);
                 sortCommentsByLevelRecursive(child, comments, sortedComments);
             }
         }
     }
 
-    private List<Comments> findChildren(Long id, List<Comments> comments) {
-        List<Comments> children = new ArrayList<>();
-        for(Comments comment : comments) {
+    private List<Comment> findChildren(Long id, List<Comment> comments) {
+        List<Comment> children = new ArrayList<>();
+        for(Comment comment : comments) {
             if(comment.getParentComment() != null && Objects.equals(comment.getParentComment().getId(), id)) {
                 children.add(comment);
             }
         }
 
-        Collections.sort(children, Comparator.comparingLong(Comments::getId));
+        Collections.sort(children, Comparator.comparingLong(Comment::getId));
 
         return children;
     }

@@ -1,9 +1,9 @@
-package com.single.springboard.service.comments;
+package com.single.springboard.service.comment;
 
-import com.single.springboard.domain.comments.Comments;
-import com.single.springboard.domain.comments.CommentsRepository;
-import com.single.springboard.domain.posts.Posts;
-import com.single.springboard.domain.posts.PostsRepository;
+import com.single.springboard.domain.comment.Comment;
+import com.single.springboard.domain.comment.CommentRepository;
+import com.single.springboard.domain.post.Post;
+import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -19,49 +19,49 @@ import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 
 @RequiredArgsConstructor
 @Service
-public class CommentsService {
-    private final PostsRepository postsRepository;
-    private final CommentsRepository commentsRepository;
+public class CommentService {
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
     @Transactional
     public Long commentSave(CommentSaveRequest requestDto, String email) {
-        Posts post = postsRepository.findById(requestDto.postId())
+        Post post = postRepository.findById(requestDto.postId())
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-        Comments comment;
+        Comment comment;
 
         if(requestDto.parentId() == null) {
-            comment = Comments.builder()
+            comment = Comment.builder()
                     .user(user)
                     .content(requestDto.content())
                     .secret(requestDto.secret())
-                    .posts(post)
+                    .post(post)
                     .parentComment(null)
                     .commentLevel(1)
                     .build();
         } else {
-            Comments parent = post.getComments().stream()
+            Comment parent = post.getComments().stream()
                     .filter(c -> Objects.equals(c.getId(), requestDto.parentId()))
                     .findFirst().get();
 
-            comment = Comments.builder()
+            comment = Comment.builder()
                     .user(user)
                     .content(requestDto.content())
                     .secret(requestDto.secret())
-                    .posts(post)
+                    .post(post)
                     .parentComment(parent)
                     .commentLevel(parent.getCommentLevel() + 1)
                     .build();
         }
 
-        return commentsRepository.save(comment).getId();
+        return commentRepository.save(comment).getId();
     }
 
     public Long deleteOneComment(Long commentId) {
-        commentsRepository.deleteById(commentId);
+        commentRepository.deleteById(commentId);
 
         return commentId;
     }

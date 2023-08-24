@@ -1,6 +1,6 @@
 package com.single.springboard.web.dto.comments;
 
-import com.single.springboard.domain.comments.Comments;
+import com.single.springboard.domain.comment.Comment;
 import lombok.Builder;
 
 @Builder
@@ -8,7 +8,7 @@ public record CommentsResponse(
         Long id,
         String author,
         String content,
-        Comments parentId,
+        Comment parentId,
         int commentLevel,
         String createdDate
 ) {

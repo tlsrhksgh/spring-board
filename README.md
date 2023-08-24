@@ -95,8 +95,8 @@
       |          ├── 📂 images
       |          ├── 📂 js
       |              ├── 📂 app
-      |                    └── 📄 comments.js
-      |                    └── 📄 posts.js
+      |                    └── 📄 comment.js
+      |                    └── 📄 post.js
       |     ├── 📂 templates
       |          └── 📄 index.html
       |          └── 📄 post-find.html

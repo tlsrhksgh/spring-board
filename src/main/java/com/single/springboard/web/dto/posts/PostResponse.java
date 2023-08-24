@@ -1,6 +1,6 @@
 package com.single.springboard.web.dto.posts;
 
-import com.single.springboard.domain.files.Files;
+import com.single.springboard.domain.file.File;
 import lombok.Builder;
 
 import java.util.List;
@@ -11,6 +11,6 @@ public record PostResponse(
         String title,
         String author,
         String content,
-        List<Files> files
+        List<File> files
 ) {
 }

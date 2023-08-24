@@ -1,7 +1,7 @@
 package com.single.springboard.web.dto.files;
 
-import com.single.springboard.domain.files.Files;
-import com.single.springboard.domain.posts.Posts;
+import com.single.springboard.domain.file.File;
+import com.single.springboard.domain.post.Post;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
@@ -15,12 +15,12 @@ public record FileSaveRequest(
         Long postId,
         long size
 ) {
-        public Files toEntity(Posts post) {
-                return Files.builder()
+        public File toEntity(Post post) {
+                return File.builder()
                         .originalName(originalName)
                         .translateName(translateName)
                         .size(size)
-                        .posts(post)
+                        .post(post)
                         .createdDate(LocalDateTime.now())
                         .build();
         }

@@ -1,17 +1,17 @@
-package com.single.springboard.service.posts;
+package com.single.springboard.service.post;
 
-import com.single.springboard.service.files.FilesService;
+import com.single.springboard.domain.comment.Comment;
+import com.single.springboard.domain.post.Post;
+import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.domain.comments.Comments;
-import com.single.springboard.domain.files.Files;
-import com.single.springboard.domain.files.FilesRepository;
-import com.single.springboard.domain.posts.Posts;
-import com.single.springboard.domain.posts.PostsRepository;
+import com.single.springboard.domain.file.File;
+import com.single.springboard.domain.file.FileRepository;
+import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.service.files.AwsS3Upload;
+import com.single.springboard.service.file.AwsS3Upload;
 import com.single.springboard.util.CommentsUtils;
 import com.single.springboard.util.DateUtils;
 import com.single.springboard.web.dto.comments.CommentsResponse;
@@ -32,11 +32,11 @@ import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 
 @Service
 @RequiredArgsConstructor
-public class PostsService {
-    private final PostsRepository postsRepository;
+public class PostService {
+    private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final FilesRepository filesRepository;
-    private final FilesService filesService;
+    private final FileRepository fileRepository;
+    private final FileService fileService;
     private final AwsS3Upload awsS3Upload;
     private final CommentsUtils commentsUtils;
     private final RedisTemplate<String, String> redisTemplate;
@@ -46,19 +46,19 @@ public class PostsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-        Posts post = postsRepository.save(requestDto.toEntity(user));
+        Post post = postRepository.save(requestDto.toEntity(user));
 
-        List<Files> files = new ArrayList<>();
+        List<File> files = new ArrayList<>();
 
         if (requestDto.files() != null) {
-            files.addAll(filesService.postFilesSave(post, requestDto.files()));
+            files.addAll(fileService.postFilesSave(post, requestDto.files()));
         }
 
         return post.getId();
     }
 
     public PostResponse findPostById(Long postId) {
-        Posts post = postsRepository.findById(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
         return PostResponse.builder()
@@ -71,15 +71,15 @@ public class PostsService {
     }
 
     public PostElementsResponse findPostAndElements(Long id, @LoginUser SessionUser user) {
-        Posts post = postsRepository.findById(id)
+        Post post = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
         if (user != null) {
             increasePostViewCount(String.valueOf(id), user.getEmail());
         }
 
-        List<Comments> comments = post.getComments();
-        List<Comments> sortedComments = commentsUtils.commentsSort(comments);
+        List<Comment> comments = post.getComments();
+        List<Comment> sortedComments = commentsUtils.commentsSort(comments);
 
         List<CommentsResponse> commentsResponses = sortedComments.stream()
                 .map(comment -> CommentsResponse.builder()
@@ -102,16 +102,16 @@ public class PostsService {
                 .content(post.getContent())
                 .comments(commentsResponses)
                 .fileName(post.getFiles().stream().
-                        map(Files::getTranslateName)
+                        map(File::getTranslateName)
                         .collect(Collectors.toList()))
                 .build();
     }
 
     @Transactional(readOnly = true)
     public Page<PostsResponse> findAllPostsAndCommentsCountDesc(Pageable pageable) {
-        return postsRepository.findAllPostsWithCommentsCount(pageable)
+        return postRepository.findAllPostsWithCommentsCount(pageable)
                 .map(objects -> {
-                    Posts post = (Posts) objects[0];
+                    Post post = (Post) objects[0];
                     Long commentsCount = (Long) objects[1];
 
                     return PostsResponse.builder()
@@ -127,17 +127,17 @@ public class PostsService {
 
     @Transactional
     public Long updatePost(Long id, PostUpdateRequest updateDto) {
-        Posts post = postsRepository.findById(id)
+        Post post = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
         post.updatePost(updateDto);
-        List<Files> existFiles = filesRepository.findAllByPostsId(id);
+        List<File> existFiles = fileRepository.findAllByPostId(id);
         if(existFiles.size() > 0) {
             awsS3Upload.delete(existFiles);
-            filesRepository.deleteFiles(id);
+            fileRepository.deleteFiles(id);
         }
 
         if(updateDto.files() != null) {
-            filesService.postFilesSave(post, updateDto.files());
+            fileService.postFilesSave(post, updateDto.files());
         }
 
         return post.getId();
@@ -146,15 +146,15 @@ public class PostsService {
 
     @Transactional
     public boolean deletePostWithFiles(Long id) {
-        Posts post = postsRepository.findById(id)
+        Post post = postRepository.findById(id)
                 .orElse(null);
 
         if (post != null && post.getFiles().size() > 0) {
-            filesService.deletePostChildFiles(post);
-            postsRepository.deleteById(post.getId());
+            fileService.deletePostChildFiles(post);
+            postRepository.deleteById(post.getId());
             return true;
         } else if (post != null){
-            postsRepository.deleteById(post.getId());
+            postRepository.deleteById(post.getId());
             return true;
         }
 
@@ -167,7 +167,7 @@ public class PostsService {
         boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
 
         if (!hasViewed) {
-            Posts post = postsRepository.findById(Long.valueOf(postId))
+            Post post = postRepository.findById(Long.valueOf(postId))
                     .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
             redisTemplate.opsForZSet().incrementScore("ranking", post.getTitle() + ":" + postId, 1);

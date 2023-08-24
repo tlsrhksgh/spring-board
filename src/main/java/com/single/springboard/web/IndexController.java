@@ -3,7 +3,7 @@ package com.single.springboard.web;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.scheduler.RankingScheduler;
-import com.single.springboard.service.posts.PostsService;
+import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.web.dto.posts.PostElementsResponse;
 import com.single.springboard.web.dto.posts.PostResponse;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
-    private final PostsService postsService;
+    private final PostService postService;
     private final SearchService searchService;
     private final RankingScheduler rankingScheduler;
 
@@ -30,7 +30,7 @@ public class IndexController {
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
-        model.addAttribute("posts", postsService.findAllPostsAndCommentsCountDesc(pageable));
+        model.addAttribute("posts", postService.findAllPostsAndCommentsCountDesc(pageable));
         model.addAttribute("ranking", rankingScheduler.getPostsRanking());
         model.addAttribute("user", user);
 
@@ -48,7 +48,7 @@ public class IndexController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/update/{id}")
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        PostResponse post = postsService.findPostById(id);
+        PostResponse post = postService.findPostById(id);
         model.addAttribute("post", post);
         model.addAttribute("files", post.files());
 
@@ -59,7 +59,7 @@ public class IndexController {
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         long startTime = System.currentTimeMillis();
-        PostElementsResponse post = postsService.findPostAndElements(id, user);
+        PostElementsResponse post = postService.findPostAndElements(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());

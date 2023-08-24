@@ -1,10 +1,13 @@
-package com.single.springboard.domain.comments;
+package com.single.springboard.domain.comment;
 
 import com.single.springboard.domain.BaseTimeEntity;
-import com.single.springboard.domain.posts.Posts;
+import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.user.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +16,17 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(indexes = @Index(name = "i_comments", columnList = "posts_id"))
+@Table(indexes = @Index(name = "i_comments", columnList = "post_id"))
 @Entity
-public class Comments extends BaseTimeEntity {
+public class Comment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "posts_id")
-    private Posts posts;
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -31,10 +34,10 @@ public class Comments extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "parent_comment_id", referencedColumnName = "id", updatable = false)
-    private Comments parentComment;
+    private Comment parentComment;
 
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Comments> children = new ArrayList<>();
+    private List<Comment> children = new ArrayList<>();
 
     private String content;
     private boolean secret;
