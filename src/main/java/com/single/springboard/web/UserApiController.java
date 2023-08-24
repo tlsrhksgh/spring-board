@@ -1,6 +1,8 @@
 package com.single.springboard.web;
 
 import com.single.springboard.service.user.CustomOAuth2UserService;
+import com.single.springboard.service.user.LoginUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.user.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,9 @@ public class UserApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PatchMapping
-    public ResponseEntity<Void> userInfoUpdate(@ModelAttribute UserUpdateRequest requestDto) {
-        boolean result = oAuth2UserService.updateUser(requestDto);
+    public ResponseEntity<Void> userInfoUpdate(@ModelAttribute UserUpdateRequest requestDto,
+                                               @LoginUser SessionUser currentUser) {
+        boolean result = oAuth2UserService.updateUser(requestDto, currentUser);
 
         return result ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }

@@ -39,8 +39,6 @@ public class FilesService {
 
         List<Files> fileEntity = s3Upload.uploadFile(file);
 
-        filesRepository.save(fileEntity.get(0));
-
         return fileEntity.get(0).getTranslateName();
     }
 

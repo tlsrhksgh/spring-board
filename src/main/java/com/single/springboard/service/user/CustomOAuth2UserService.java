@@ -10,12 +10,12 @@ import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.user.UserUpdateRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -45,7 +45,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuthAttributes attributes = OAuthAttributes
                 .of(registrationId, oAuth2User.getAttributes());
 
-        User user = saveOrUpdate(attributes);
+        User user = saveOrLoadUser(attributes);
 
         httpSession.setAttribute("user", new SessionUser(user));
 
@@ -55,32 +55,30 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 attributes.getNameAttributeKey());
     }
 
-    private User saveOrUpdate(OAuthAttributes attributes) {
+    private User saveOrLoadUser(OAuthAttributes attributes) {
         User user = userRepository.findByEmail(attributes.getEmail())
-                .map(entity -> entity.update(attributes.getName(), attributes.getPicture()))
                 .orElse(attributes.toEntity());
 
         return userRepository.save(user);
     }
 
     @Transactional
-    public boolean updateUser(UserUpdateRequest requestDto) {
+    public boolean updateUser(UserUpdateRequest requestDto, @LoginUser SessionUser currentUser) {
         User user = userRepository.findByEmail(requestDto.email())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.getPrincipal() instanceof DefaultOAuth2User) {
-            if(requestDto.picture().size() > 0) {
+        if(currentUser.getEmail().equals(user.getEmail())) {
+            if(requestDto.picture() != null && requestDto.picture().size() > 0) {
                 String translateFileName = filesService.profileImageUpdate(requestDto.picture());
-                String uploadUrl = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/" + translateFileName;
-                user.update(requestDto.name(), uploadUrl);
+                String imageUrl = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/" + translateFileName;
+                user.update(requestDto.name(), imageUrl);
             } else {
                 user.update(requestDto.name());
             }
+            httpSession.setAttribute("user", new SessionUser(user));
             return true;
         }
 
-        return false;
+        return true;
     }
 }
