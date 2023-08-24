@@ -1,6 +1,6 @@
-package com.single.springboard.domain.files;
+package com.single.springboard.domain.file;
 
-import com.single.springboard.domain.posts.Posts;
+import com.single.springboard.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Files {
+public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "posts_id")
-    private Posts posts;
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     private String originalName;
     private String translateName;
@@ -31,7 +31,7 @@ public class Files {
     @CreatedDate
     private LocalDateTime createdDate;
 
-    public void setPost(Posts post) {
-        this.posts = post;
+    public void setPost(Post post) {
+        this.post = post;
     }
 }

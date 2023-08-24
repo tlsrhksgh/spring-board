@@ -1,6 +1,6 @@
 package com.single.springboard.scheduler;
 
-import com.single.springboard.service.posts.dto.PostRankResponse;
+import com.single.springboard.service.post.dto.PostRankResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

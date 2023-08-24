@@ -4,7 +4,7 @@ import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.exception.ErrorCode;
-import com.single.springboard.service.files.FilesService;
+import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.user.dto.OAuthAttributes;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.user.UserUpdateRequest;
@@ -27,7 +27,7 @@ import java.util.Collections;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
     private final HttpSession httpSession;
-    private final FilesService filesService;
+    private final FileService fileService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -64,7 +64,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         if(currentUser.getEmail().equals(user.getEmail())) {
             if(requestDto.picture() != null && requestDto.picture().size() > 0) {
-                String translateFileName = filesService.profileImageUpdate(requestDto.picture());
+                String translateFileName = fileService.profileImageUpdate(requestDto.picture());
                 String imageUrl = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/" + translateFileName;
                 user.update(requestDto.name(), imageUrl);
             } else {

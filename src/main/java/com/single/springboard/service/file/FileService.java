@@ -1,8 +1,8 @@
-package com.single.springboard.service.files;
+package com.single.springboard.service.file;
 
-import com.single.springboard.domain.files.Files;
-import com.single.springboard.domain.files.FilesRepository;
-import com.single.springboard.domain.posts.Posts;
+import com.single.springboard.domain.file.File;
+import com.single.springboard.domain.file.FileRepository;
+import com.single.springboard.domain.post.Post;
 import com.single.springboard.util.FilesUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,35 +13,35 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class FilesService {
-    private final FilesRepository filesRepository;
+public class FileService {
+    private final FileRepository fileRepository;
     private final FilesUtils filesUtils;
     private final AwsS3Upload s3Upload;
 
     @Transactional
-    public List<Files> postFilesSave(Posts post, List<MultipartFile> multipartFiles) {
+    public List<File> postFilesSave(Post post, List<MultipartFile> multipartFiles) {
         List<MultipartFile> files = filesUtils.fileMimeTypeCheck(multipartFiles);
 
-        List<Files> filesEntities = s3Upload.uploadFile(files);
-        for(Files file : filesEntities) {
+        List<File> fileEntities = s3Upload.uploadFile(files);
+        for(File file : fileEntities) {
             file.setPost(post);
         }
 
-        return filesRepository.saveAll(filesEntities);
+        return fileRepository.saveAll(fileEntities);
     }
 
     @Transactional
     public String profileImageUpdate(List<MultipartFile> multipartFile) {
         List<MultipartFile> file = filesUtils.fileMimeTypeCheck(multipartFile);
 
-        List<Files> fileEntity = s3Upload.uploadFile(file);
+        List<File> fileEntity = s3Upload.uploadFile(file);
 
         return fileEntity.get(0).getTranslateName();
     }
 
     @Transactional
-    public void deletePostChildFiles(Posts post) {
+    public void deletePostChildFiles(Post post) {
         s3Upload.delete(post.getFiles());
-        filesRepository.deleteFiles(post.getId());
+        fileRepository.deleteFiles(post.getId());
     }
 }

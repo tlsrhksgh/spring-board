@@ -1,6 +1,6 @@
-package com.single.springboard.service.files;
+package com.single.springboard.service.file;
 
-import com.single.springboard.domain.files.Files;
+import com.single.springboard.domain.file.File;
 import com.single.springboard.util.FilesUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +29,8 @@ public class AwsS3Upload {
     private String bucket;
 
     @Transactional
-    public List<Files> uploadFile(List<MultipartFile> files) {
-        List<Files> fileEntities = new ArrayList<>();
+    public List<File> uploadFile(List<MultipartFile> files) {
+        List<File> fileEntities = new ArrayList<>();
         PutObjectRequest putObj;
 
         for (MultipartFile file : files) {
@@ -47,7 +47,7 @@ public class AwsS3Upload {
                 throw new RuntimeException(e);
             }
 
-            fileEntities.add(Files.builder()
+            fileEntities.add(File.builder()
                     .translateName(keyName)
                     .originalName(file.getOriginalFilename())
                     .createdDate(LocalDateTime.now())
@@ -60,9 +60,9 @@ public class AwsS3Upload {
 
     @Transactional
     // one request
-    public void delete(List<Files> files) {
+    public void delete(List<File> files) {
         ArrayList<ObjectIdentifier> keys = new ArrayList<>();
-        for (Files file : files) {
+        for (File file : files) {
             keys.add(ObjectIdentifier.builder()
                     .key(file.getTranslateName())
                     .build());

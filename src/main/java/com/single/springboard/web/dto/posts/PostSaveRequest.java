@@ -1,6 +1,6 @@
 package com.single.springboard.web.dto.posts;
 
-import com.single.springboard.domain.posts.Posts;
+import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -20,8 +20,8 @@ public record PostSaveRequest(
         String author,
         List<MultipartFile> files
 ) {
-        public Posts toEntity(User user) {
-                return Posts.builder()
+        public Post toEntity(User user) {
+                return Post.builder()
                         .title(title)
                         .content(content)
                         .user(user)

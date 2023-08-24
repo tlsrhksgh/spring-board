@@ -1,4 +1,4 @@
-package com.single.springboard.domain.files;
+package com.single.springboard.domain.file;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface FilesRepository extends JpaRepository<Files, Long> {
+public interface FileRepository extends JpaRepository<File, Long> {
     @Modifying(clearAutomatically = true)
-    @Query("delete from Files f where f.posts.id = :postId")
+    @Query("delete from File f where f.post.id = :postId")
     void deleteFiles(Long postId);
 
-    List<Files> findAllByPostsId(Long postId);
+    List<File> findAllByPostId(Long postId);
 }

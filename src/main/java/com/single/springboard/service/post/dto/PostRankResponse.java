@@ -1,4 +1,4 @@
-package com.single.springboard.service.posts.dto;
+package com.single.springboard.service.post.dto;
 
 import lombok.Builder;
 

@@ -1,4 +1,4 @@
-package com.single.springboard.domain.posts.impl;
+package com.single.springboard.domain.post.impl;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
@@ -8,7 +8,7 @@ import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.single.springboard.domain.posts.PostsCustomRepository;
+import com.single.springboard.domain.post.PostCustomRepository;
 import com.single.springboard.web.dto.posts.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,30 +19,30 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.single.springboard.domain.posts.QPosts.posts;
+import static com.single.springboard.domain.post.QPost.post;
 
 @RequiredArgsConstructor
-public class PostsCustomRepositoryImpl implements PostsCustomRepository {
+public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
     public Page<SearchResponse> findAllByKeyword(String keyword, Pageable pageable) {
         List<SearchResponse> content = query.select(Projections.constructor(SearchResponse.class,
-                        posts.id,
-                        posts.title,
-                        posts.content,
-                        posts.user.name,
-                        formattedModifiedDate(posts.modifiedDate)
+                        post.id,
+                        post.title,
+                        post.content,
+                        post.user.name,
+                        formattedModifiedDate(post.modifiedDate)
                 ))
-                .from(posts)
+                .from(post)
                 .where(likePostTitleAndContent(keyword))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(posts.id.desc())
+                .orderBy(post.id.desc())
                 .fetch();
 
-        JPAQuery<Long> count = query.select(posts.count())
-                .from(posts)
+        JPAQuery<Long> count = query.select(post.count())
+                .from(post)
                 .where(likePostTitleAndContent(keyword));
 
         return PageableExecutionUtils.getPage(content, pageable, count::fetchOne);
@@ -51,8 +51,8 @@ public class PostsCustomRepositoryImpl implements PostsCustomRepository {
     private BooleanExpression likePostTitleAndContent(String keyword) {
         if (StringUtils.hasText(keyword)) {
 
-            return posts.title.likeIgnoreCase("%" + keyword + "%")
-                    .or(posts.content.likeIgnoreCase("%" + keyword + "%"));
+            return post.title.likeIgnoreCase("%" + keyword + "%")
+                    .or(post.content.likeIgnoreCase("%" + keyword + "%"));
         }
         return null;
     }

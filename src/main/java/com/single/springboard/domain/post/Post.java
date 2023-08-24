@@ -1,8 +1,8 @@
-package com.single.springboard.domain.posts;
+package com.single.springboard.domain.post;
 
 import com.single.springboard.domain.BaseTimeEntity;
-import com.single.springboard.domain.comments.Comments;
-import com.single.springboard.domain.files.Files;
+import com.single.springboard.domain.comment.Comment;
+import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.web.dto.posts.PostUpdateRequest;
 import jakarta.persistence.*;
@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Posts extends BaseTimeEntity {
+public class Post extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +30,11 @@ public class Posts extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<Files> files;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<File> files;
 
-    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Comments> comments;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Comment> comments;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

@@ -3,7 +3,7 @@ package com.single.springboard.web;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;
-import com.single.springboard.service.posts.PostsService;
+import com.single.springboard.service.post.PostService;
 import com.single.springboard.web.dto.posts.PostSaveRequest;
 import com.single.springboard.web.dto.posts.PostUpdateRequest;
 import org.junit.jupiter.api.Test;
@@ -25,14 +25,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(PostsApiController.class)
-class PostsApiControllerTest {
+@WebMvcTest(PostApiController.class)
+class PostApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private PostsService postsService;
+    private PostService postService;
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
@@ -56,7 +56,7 @@ class PostsApiControllerTest {
         mockHttpSession.setAttribute("user", new SessionUser(user));
 
         PostSaveRequest requestDto = new PostSaveRequest("title", "content", "author", null);
-        given(postsService.savePostAndFiles(requestDto, user.getEmail()))
+        given(postService.savePostAndFiles(requestDto, user.getEmail()))
                 .willReturn(1L);
 
         // when
@@ -74,7 +74,7 @@ class PostsApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
-        verify(postsService, times(1)).savePostAndFiles(requestDto, user.getEmail());
+        verify(postService, times(1)).savePostAndFiles(requestDto, user.getEmail());
     }
 
     @Test
@@ -116,7 +116,7 @@ class PostsApiControllerTest {
                 .andExpect(jsonPath("$.message").value("제목은 띄어쓰기만 있을 수 없습니다. 한 글자 이상 입력해 주세요."))
                 .andExpect(jsonPath("$.errorCode").value(400));
 
-        verify(postsService, times(0)).savePostAndFiles(requestDto, user.getEmail());
+        verify(postService, times(0)).savePostAndFiles(requestDto, user.getEmail());
     }
 
     @Test
@@ -145,7 +145,7 @@ class PostsApiControllerTest {
                 .andDo(print())
                 .andExpect(status().is3xxRedirection());
 
-        verify(postsService, times(0)).savePostAndFiles(requestDto, null);
+        verify(postService, times(0)).savePostAndFiles(requestDto, null);
     }
 
     @Test
@@ -165,7 +165,7 @@ class PostsApiControllerTest {
 
         MockHttpSession mockHttpSession = new MockHttpSession();
         mockHttpSession.setAttribute("user", new SessionUser(user));
-        given(postsService.updatePost(postId, updateDto))
+        given(postService.updatePost(postId, updateDto))
                 .willReturn(1L);
 
         // when
@@ -181,7 +181,7 @@ class PostsApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
-        verify(postsService, times(1)).updatePost(1L, updateDto);
+        verify(postService, times(1)).updatePost(1L, updateDto);
     }
 
     @Test
@@ -200,7 +200,7 @@ class PostsApiControllerTest {
 
         MockHttpSession mockHttpSession = new MockHttpSession();
         mockHttpSession.setAttribute("user", new SessionUser(user));
-        given(postsService.deletePostWithFiles(postId))
+        given(postService.deletePostWithFiles(postId))
                 .willReturn(true);
 
         // when
@@ -213,6 +213,6 @@ class PostsApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
-        verify(postsService, times(1)).deletePostWithFiles(1L);
+        verify(postService, times(1)).deletePostWithFiles(1L);
     }
 }
