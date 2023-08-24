@@ -3,7 +3,7 @@ package com.single.springboard.web;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.service.comment.CommentService;
-import com.single.springboard.web.dto.comments.CommentSaveRequest;
+import com.single.springboard.web.dto.comment.CommentSaveRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

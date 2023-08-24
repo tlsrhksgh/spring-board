@@ -1,9 +1,7 @@
-package com.single.springboard.web.dto.posts;
+package com.single.springboard.web.dto.post;
 
 
 import lombok.Builder;
-
-import java.time.LocalDateTime;
 
 @Builder
 public record PostsResponse(

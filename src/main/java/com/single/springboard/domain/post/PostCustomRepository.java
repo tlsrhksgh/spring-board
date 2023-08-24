@@ -1,6 +1,6 @@
 package com.single.springboard.domain.post;
 
-import com.single.springboard.web.dto.posts.SearchResponse;
+import com.single.springboard.web.dto.post.SearchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

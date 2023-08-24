@@ -7,7 +7,7 @@ import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.web.dto.comments.CommentSaveRequest;
+import com.single.springboard.web.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

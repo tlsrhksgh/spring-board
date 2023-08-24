@@ -9,7 +9,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.post.PostCustomRepository;
-import com.single.springboard.web.dto.posts.SearchResponse;
+import com.single.springboard.web.dto.post.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

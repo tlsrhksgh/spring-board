@@ -1,6 +1,6 @@
-package com.single.springboard.web.dto.posts;
+package com.single.springboard.web.dto.post;
 
-import com.single.springboard.web.dto.comments.CommentsResponse;
+import com.single.springboard.web.dto.comment.CommentsResponse;
 import lombok.Builder;
 
 import java.util.List;

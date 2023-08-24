@@ -1,4 +1,4 @@
-package com.single.springboard.web.dto.files;
+package com.single.springboard.web.dto.file;
 
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;

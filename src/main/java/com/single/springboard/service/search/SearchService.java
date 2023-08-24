@@ -1,7 +1,7 @@
 package com.single.springboard.service.search;
 
 import com.single.springboard.domain.post.PostRepository;
-import com.single.springboard.web.dto.posts.SearchResponse;
+import com.single.springboard.web.dto.post.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
