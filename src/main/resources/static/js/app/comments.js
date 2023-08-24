@@ -19,6 +19,7 @@ var main = {
 
         let data = {
             postId: match[1],
+            cache: false,
             nickname: $('#comment-author').text(),
             content: $('#comment-content').val(),
             secret: checked
@@ -29,10 +30,11 @@ var main = {
             url: '/api/v1/comments',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
-            async: true,
             data: JSON.stringify(data)
         }).done(function () {
+            console.log("hello");
             alert("댓글이 등록되었습니다.");
+            window.location.href = '/posts/find/' + data.postId;
         }).fail(function (error) {
             alert(error.responseJSON.message);
             return false;
