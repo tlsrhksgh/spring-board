@@ -11,7 +11,6 @@ var main = {
 
         const email = $('#email').text();
         const imageFile = $('#picture')[0];
-        console.log(imageFile.files);
 
         formData.append('email',email);
         formData.append('name', $('#name').val());
@@ -27,10 +26,10 @@ var main = {
             cache: false,
             data: formData
         }).done(function () {
-            alert("글이 수정되었습니다.");
-            window.location.href = '/user/info/' + email;
+            alert("프로필 수정을 완료 하였습니다.");
+            window.location.href = '/user/info';
         }).fail(function(error) {
-            alert(error.responseJSON.message);
+            console.log(error);
             return false;
         })
     },

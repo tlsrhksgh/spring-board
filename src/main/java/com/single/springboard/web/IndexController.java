@@ -83,7 +83,7 @@ public class IndexController {
         return "search";
     }
 
-    @GetMapping("/user/info/{email}")
+    @GetMapping("/user/info")
     public String userInfo(
             @LoginUser SessionUser user,
             Model model) {

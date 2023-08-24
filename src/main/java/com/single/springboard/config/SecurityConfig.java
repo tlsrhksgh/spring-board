@@ -1,11 +1,12 @@
 package com.single.springboard.config;
 
-import com.single.springboard.service.user.CustomOAuth2UserService;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.exception.auth.CustomAuthEntryPoint;
+import com.single.springboard.service.user.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -59,6 +60,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
 }

@@ -18,7 +18,6 @@ public class RankingScheduler {
     private final RedisTemplate<String, String> redisTemplate;
 
     public List<PostRankResponse> getPostsRanking() {
-        long startTime = System.currentTimeMillis();
         String key = "ranking";
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
         Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(key, 0, 4);
@@ -38,9 +37,6 @@ public class RankingScheduler {
 
             responses.addAll(list);
         }
-
-        long endTime = System.currentTimeMillis();
-        log.info("처리 시간: " + (endTime - startTime) + "ms");
 
         return responses;
     }

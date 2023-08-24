@@ -1,5 +1,6 @@
 package com.single.springboard.domain.user;
 
+import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.comments.Comments;
 import com.single.springboard.domain.posts.Posts;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.List;
 
@@ -16,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "USERS")
 @Entity
-public class User {
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,14 +26,14 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, updatable = false)
     private String email;
 
     @Column
     private String picture;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private Role role;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE,orphanRemoval = true)
