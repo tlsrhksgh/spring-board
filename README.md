@@ -3,8 +3,6 @@
 
 > 개발 기간: 2023.07.18 - 2023.08.16
 
-# 요구사항 정의서
-
 # 💡구현 기능💡
 ```
 🔗 File
@@ -41,6 +39,9 @@
 
 # ERD 설계
 ![spring-board](https://github.com/tlsrhksgh/spring-board/assets/12388299/bed37d10-9aa0-4339-931a-b2dfc0b0a0da)
+
+# 인프라 구성도
+![spring-board (1)](https://github.com/tlsrhksgh/spring-board/assets/12388299/23379764-36df-48d3-af94-1ec997a04aba)
 
 # 프로젝트 구조
 ```
