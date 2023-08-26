@@ -53,11 +53,6 @@
       |               └── 📂 springboard
       |                    ├── 📂 config
       |                         ├── 📂 auth
-      |                             ├── 📂 dto
-      |                                 └── 📄 OAuthAttribute
-      |                                 └── 📄 SessionUser
-      |                             └── 📄 CustomOauth2UserService
-      |                             └── 📄 LoginUser
       |                             └── 📄 LoginUserArgumentResolver
       |                         └── 📄 JpaConfig
       |                         └── 📄 QuerydslConfig
@@ -66,30 +61,43 @@
       |                         └── 📄 SecurityConfig
       |                         └── 📄 WebConfig
       |                    ├── 📂 domain (Entity와 JpaRepository 파일)
-      |                         └── 📂 comments
-      |                         └── 📂 files
-      |                         └── 📂 posts
+      |                         └── 📂 comment
+      |                         └── 📂 file
+      |                         └── 📂 post
       |                         └── 📂 user
       |                    ├── 📂 exception
+      |                         └── 📂 auth
+      |                             └── 📄 CustomAuthEntryPointException
+      |                         └── 📄 CustomException
+      |                         └── 📄 ErrorCode
+      |                         └── 📄 ExceptionHandler
+      |                         └── 📄 ExceptionForm
       |                    ├── 📂 service
-      |                         └── 📂 comments
-      |                             └── 📄 CommentsService
-      |                         └── 📂 files
+      |                         └── 📂 comment
+      |                             └── 📄 CommentService
+      |                         └── 📂 file
       |                             └── 📄 AwsS3Upload
-      |                             └── 📄 FilesService
-      |                         └── 📂 posts
-      |                             └── 📄 PostsService
+      |                             └── 📄 FileService
+      |                         └── 📂 post
+      |                             └── 📄 PostService
       |                         └── 📂 search
       |                             └── 📄 SearchService
+      |                         └── 📂 user
+      |                             ├── 📂 dto
+      |                                 └── 📄 OAuthAttribute
+      |                                 └── 📄 SessionUser
+      |                             └── 📄 CustomOauth2UserService
+      |                             └── 📄 LoginUser
       |                    ├── 📂 util
       |                         └── 📄 CommentsUtils
       |                         └── 📄 DateUtils
       |                         └── 📄 FileUtils
       |                    ├── 📂 web
-      |                         ├── 📂 dto
+      |                         ├── 📂 dto(comment, file, post, user dto 파일)
       |                         └── 📄 CommentApiController
       |                         └── 📄 IndexController(Server side rendering)
       |                         └── 📄 PostsApiController
+      |                         └── 📄 UserApiController
       |                    └── 📄 SpringBoardApplication.java
       ├── 📂 resources
       |     ├── 📂 static
