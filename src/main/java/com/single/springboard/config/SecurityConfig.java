@@ -1,7 +1,7 @@
 package com.single.springboard.config;
 
 import com.single.springboard.domain.user.Role;
-import com.single.springboard.exception.auth.CustomAuthEntryPoint;
+import com.single.springboard.exception.auth.CustomAuthEntryPointException;
 import com.single.springboard.service.user.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomAuthEntryPoint customAuthEntryPoint;
+    private final CustomAuthEntryPointException customAuthEntryPointException;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -28,7 +28,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/css/**", "/images/**",
-                                "/js/**", "/posts/find/**", "/search/**")
+                                "/js/**", "/posts/find/**", "/search/**", "/actuator/health")
                         .permitAll()
                         .requestMatchers("/api/v1/comments/**")
                         .hasRole(Role.USER.name())
@@ -48,7 +48,7 @@ public class SecurityConfig {
                     oAuth.userInfoEndpoint(config -> config.userService(customOAuth2UserService));
                 })
                 .exceptionHandling(exception -> {
-                    exception.authenticationEntryPoint(customAuthEntryPoint);
+                    exception.authenticationEntryPoint(customAuthEntryPointException);
                 });
 
         http.sessionManagement(management -> {
