@@ -28,6 +28,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final UserRepository userRepository;
     private final HttpSession httpSession;
     private final FileService fileService;
+    private static final String UPLOAD_URL = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/";
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -65,7 +66,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         if(currentUser.getEmail().equals(user.getEmail())) {
             if(requestDto.picture() != null && requestDto.picture().size() > 0) {
                 String translateFileName = fileService.profileImageUpdate(requestDto.picture());
-                String imageUrl = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/" + translateFileName;
+                String imageUrl = UPLOAD_URL + translateFileName;
                 user.update(requestDto.name(), imageUrl);
             } else {
                 user.update(requestDto.name());
