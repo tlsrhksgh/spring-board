@@ -41,7 +41,8 @@
 ![spring-board](https://github.com/tlsrhksgh/spring-board/assets/12388299/bed37d10-9aa0-4339-931a-b2dfc0b0a0da)
 
 # 인프라 구성도
-![spring-board (1)](https://github.com/tlsrhksgh/spring-board/assets/12388299/23379764-36df-48d3-af94-1ec997a04aba)
+![spring-board_infra drawio](https://github.com/tlsrhksgh/spring-board/assets/12388299/695c737b-216b-43de-843d-bda0ed0052e0)
+
 
 # 프로젝트 구조
 ```
