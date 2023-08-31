@@ -29,7 +29,7 @@ var main = {
             alert("프로필 수정을 완료 하였습니다.");
             window.location.href = '/user/info';
         }).fail(function(error) {
-            console.log(error);
+            alert(error.responseJSON.message);
             return false;
         })
     },
