@@ -24,10 +24,11 @@ public class SecurityConfig {
 
         http.csrf(CsrfConfigurer::disable)
                 .headers(httpSecurityHeadersConfigurer ->
-                        httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+                        httpSecurityHeadersConfigurer
+                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/css/**", "/images/**",
+                        .requestMatchers("/", "/css/**", "/images/**", "/h2-console/**",
                                 "/js/**", "/posts/find/**", "/search/**", "/actuator/health")
                         .permitAll()
                         .requestMatchers("/api/v1/comments/**")

@@ -24,7 +24,6 @@ public class CustomAuthEntryPointException implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-
         ExceptionForm exceptionForm = new ExceptionForm(
                 UNAUTHORIZED_USER.getContent(),
                 UNAUTHORIZED_USER.getHttpStatus().value());

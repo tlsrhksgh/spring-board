@@ -22,9 +22,10 @@ public class UserApiController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PatchMapping
     public ResponseEntity<Void> userInfoUpdate(@ModelAttribute UserUpdateRequest requestDto,
-                                               @LoginUser SessionUser currentUser) {
-        boolean result = oAuth2UserService.updateUser(requestDto, currentUser);
+                                               @LoginUser SessionUser user
+    ) {
+        oAuth2UserService.updateUser(requestDto, user);
 
-        return result ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok().build();
     }
 }

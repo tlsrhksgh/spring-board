@@ -3,7 +3,6 @@ package com.single.springboard.service.user;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.exception.ErrorCode;
 import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.user.dto.OAuthAttributes;
 import com.single.springboard.service.user.dto.SessionUser;
@@ -21,6 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.single.springboard.exception.ErrorCode.*;
 
 @RequiredArgsConstructor
 @Service
@@ -29,6 +32,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final HttpSession httpSession;
     private final FileService fileService;
     private static final String UPLOAD_URL = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/";
+    private static final AtomicInteger TEMPORARY_USER_COUNT = new AtomicInteger();
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -59,22 +63,35 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     @Transactional
-    public boolean updateUser(UserUpdateRequest requestDto, @LoginUser SessionUser currentUser) {
-        User user = userRepository.findByEmail(requestDto.email())
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
-
-        if(currentUser.getEmail().equals(user.getEmail())) {
-            if(requestDto.picture() != null && requestDto.picture().size() > 0) {
-                String translateFileName = fileService.profileImageUpdate(requestDto.picture());
-                String imageUrl = UPLOAD_URL + translateFileName;
-                user.update(requestDto.name(), imageUrl);
-            } else {
-                user.update(requestDto.name());
+    public void updateUser(UserUpdateRequest requestDto, SessionUser currentUser) {
+        if(requestDto.name().equals(currentUser.getName())) {
+            userNameAndImageUpdate(requestDto);
+        } else {
+            if(existUsernameCheck(requestDto.name())) {
+                throw new CustomException(IS_EXIST_USERNAME);
             }
-            httpSession.setAttribute("user", new SessionUser(user));
-            return true;
+            userNameAndImageUpdate(requestDto);
+        }
+    }
+
+    private boolean existUsernameCheck(String name) {
+        Optional<User> existUsername = userRepository.findByName(name);
+
+        return existUsername.isPresent();
+    }
+
+    private void userNameAndImageUpdate(UserUpdateRequest requestDto) {
+        User user = userRepository.findByEmail(requestDto.email())
+                .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+        if(requestDto.picture() != null && requestDto.picture().size() > 0) {
+            String translateFileName = fileService.profileImageUpdate(requestDto.picture());
+            String imageUrl = UPLOAD_URL + translateFileName;
+            user.update(requestDto.name(), imageUrl);
+        } else {
+            user.update(requestDto.name());
         }
 
-        return true;
+        httpSession.setAttribute("user", new SessionUser(user));
     }
 }
