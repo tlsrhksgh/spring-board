@@ -71,11 +71,10 @@ public class PostService {
     }
 
     public PostElementsResponse findPostAndElements(Long id, @LoginUser SessionUser user) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+        Post post = postRepository.findPostWithCommentsAndUser(id);
 
         if (user != null) {
-            increasePostViewCount(String.valueOf(id), user.getEmail());
+            increasePostViewCount(String.valueOf(id), user.getEmail(), post);
         }
 
         List<Comment> comments = post.getComments();
@@ -109,7 +108,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostsResponse> findAllPostsAndCommentsCountDesc(Pageable pageable) {
-        return postRepository.findAllPostsWithCommentsCount(pageable)
+        return postRepository.findAllPostsWithCommentsCountAndUser(pageable)
                 .map(objects -> {
                     Post post = (Post) objects[0];
                     Long commentsCount = (Long) objects[1];
@@ -161,15 +160,12 @@ public class PostService {
         return false;
     }
 
-    public void increasePostViewCount(String postId, String userId) {
+    public void increasePostViewCount(String postId, String userId, Post post) {
         String userViewKey = "post:view:user:" + userId;
 
         boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
 
         if (!hasViewed) {
-            Post post = postRepository.findById(Long.valueOf(postId))
-                    .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
-
             redisTemplate.opsForZSet().incrementScore("ranking", post.getTitle() + ":" + postId, 1);
             redisTemplate.opsForSet().add(userViewKey, postId);
             post.updateViewCount();
