@@ -1,5 +1,6 @@
 package com.single.springboard.web;
 
+import com.single.springboard.config.SecurityConfig;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;
@@ -10,12 +11,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -25,7 +30,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(PostApiController.class)
+@WebMvcTest(value = PostApiController.class,
+        excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
+})
 class PostApiControllerTest {
 
     @Autowired
@@ -36,7 +44,7 @@ class PostApiControllerTest {
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
-    void savePost_authorize_success() throws Exception {
+    void savePost_authorizedUser_success() throws Exception {
         // given
         MockMultipartFile file = new MockMultipartFile(
                 "file",         // 파일 파라미터 이름
@@ -95,9 +103,6 @@ class PostApiControllerTest {
                 .role(Role.USER)
                 .build();
 
-        MockHttpSession mockHttpSession = new MockHttpSession();
-        mockHttpSession.setAttribute("user", new SessionUser(user));
-
         PostSaveRequest requestDto = new PostSaveRequest("", "content", "author", null);
 
         // when
@@ -108,7 +113,6 @@ class PostApiControllerTest {
                         .param("author", requestDto.author())
                         .param("content", requestDto.content())
                         .contentType("multipart/form-data")
-                        .session(mockHttpSession)
                         .with(csrf())
                 )
                 .andDo(print())
@@ -121,36 +125,35 @@ class PostApiControllerTest {
 
     @Test
     @WithAnonymousUser
-    void savePost_unauthorized_failed() throws Exception {
+    void savePost_notAuthorizedUser_failed() throws Exception {
         // given
         MockMultipartFile file = new MockMultipartFile(
-                "file",         // 파일 파라미터 이름
-                "image.png", // 파일 이름
+                "file",
+                "image.png",
                 MediaType.IMAGE_PNG_VALUE,
                 "Hello world!".getBytes()
         );
-
-        PostSaveRequest requestDto = new PostSaveRequest("title", "content", "author", null);
+        PostSaveRequest requestDto = new PostSaveRequest("hello", "content", "guest", List.of(file));
 
         // when
         // then
         mockMvc.perform(multipart("/api/v1/posts")
                         .file(file)
-                        .param("title", requestDto.title())
+                        .param("title",requestDto.title())
                         .param("author", requestDto.author())
                         .param("content", requestDto.content())
                         .contentType("multipart/form-data")
                         .with(csrf())
                 )
                 .andDo(print())
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isUnauthorized());
 
         verify(postService, times(0)).savePostAndFiles(requestDto, null);
     }
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
-    void updatePost_authorize_success() throws Exception {
+    void updatePost_authorizeUser_success() throws Exception {
         // given
         Long postId = 1L;
         PostUpdateRequest updateDto = new PostUpdateRequest("title", "author", "content", null);
