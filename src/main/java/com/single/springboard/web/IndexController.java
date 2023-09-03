@@ -1,16 +1,18 @@
 package com.single.springboard.web;
 
-import com.single.springboard.service.user.LoginUser;
-import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.scheduler.RankingScheduler;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
+import com.single.springboard.service.user.LoginUser;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.post.PostElementsResponse;
 import com.single.springboard.web.dto.post.PostResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +28,7 @@ public class IndexController {
     private final SearchService searchService;
     private final RankingScheduler rankingScheduler;
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_GUEST')")
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,

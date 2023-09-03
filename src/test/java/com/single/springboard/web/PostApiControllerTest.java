@@ -1,10 +1,10 @@
 package com.single.springboard.web;
 
 import com.single.springboard.config.SecurityConfig;
-import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.service.post.PostService;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
 import org.junit.jupiter.api.Test;
@@ -20,8 +20,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,10 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(value = PostApiController.class,
-        excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
-})
+@WebMvcTest(value = PostApiController.class)
 class PostApiControllerTest {
 
     @Autowired
@@ -64,7 +59,7 @@ class PostApiControllerTest {
         mockHttpSession.setAttribute("user", new SessionUser(user));
 
         PostSaveRequest requestDto = new PostSaveRequest("title", "content", "author", null);
-        given(postService.savePostAndFiles(requestDto, user.getEmail()))
+        given(postService.savePostAndFiles(requestDto, (SessionUser) mockHttpSession.getAttribute("user")))
                 .willReturn(1L);
 
         // when
@@ -82,7 +77,8 @@ class PostApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
-        verify(postService, times(1)).savePostAndFiles(requestDto, user.getEmail());
+        verify(postService, times(1)).savePostAndFiles(requestDto,
+                (SessionUser) mockHttpSession.getAttribute("user"));
     }
 
     @Test
@@ -104,6 +100,8 @@ class PostApiControllerTest {
                 .build();
 
         PostSaveRequest requestDto = new PostSaveRequest("", "content", "author", null);
+        MockHttpSession mockHttpSession = new MockHttpSession();
+        mockHttpSession.setAttribute("user", new SessionUser(user));
 
         // when
         // then
@@ -120,29 +118,26 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.message").value("제목은 띄어쓰기만 있을 수 없습니다. 한 글자 이상 입력해 주세요."))
                 .andExpect(jsonPath("$.errorCode").value(400));
 
-        verify(postService, times(0)).savePostAndFiles(requestDto, user.getEmail());
+        verify(postService, times(0)).savePostAndFiles(requestDto,
+                (SessionUser) mockHttpSession.getAttribute("user"));
     }
 
     @Test
-    @WithAnonymousUser
-    void savePost_notAuthorizedUser_failed() throws Exception {
+    @WithMockUser(username = "guestUser", roles = "GUEST")
+    void savePost_guestUser_failed() throws Exception {
         // given
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "image.png",
-                MediaType.IMAGE_PNG_VALUE,
-                "Hello world!".getBytes()
-        );
-        PostSaveRequest requestDto = new PostSaveRequest("hello", "content", "guest", List.of(file));
+        PostSaveRequest requestDto = new PostSaveRequest("hello", "content", "guest", null);
+
+        given(postService.savePostAndFiles(requestDto, null))
+                .willReturn(null);
 
         // when
         // then
         mockMvc.perform(multipart("/api/v1/posts")
-                        .file(file)
                         .param("title",requestDto.title())
                         .param("author", requestDto.author())
                         .param("content", requestDto.content())
-                        .contentType("multipart/form-data")
+                        .contentType("application/json")
                         .with(csrf())
                 )
                 .andDo(print())

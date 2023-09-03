@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -31,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/css/**", "/images/**", "/h2-console/**",
                                 "/js/**", "/posts/find/**", "/search/**", "/actuator/health")
                         .permitAll()
-                        .requestMatchers("/api/v1/comments/**")
+                        .requestMatchers("/api/v1/comments/**", "/api/v1/posts/**")
                         .hasRole(Role.USER.name())
                         .anyRequest().authenticated())
                 .anonymous(anonymous -> {
