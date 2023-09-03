@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
-import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
+import static com.single.springboard.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +41,12 @@ public class PostService {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
-    public Long savePostAndFiles(PostSaveRequest requestDto, String email) {
-        User user = userRepository.findByEmail(email)
+    public Long savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
+        if(currentUser == null) {
+            throw new CustomException(UNAUTHORIZED_USER_REQUIRED_LOGIN);
+        }
+
+        User user = userRepository.findByEmail(currentUser.getEmail())
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
         Post post = postRepository.save(requestDto.toEntity(user));

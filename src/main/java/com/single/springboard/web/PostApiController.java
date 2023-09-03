@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
+@PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 @RestController
@@ -20,21 +21,18 @@ public class PostApiController {
 
     private final PostService postService;
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PostMapping
     public Long savePost(
             @ModelAttribute @Valid PostSaveRequest requestDto,
             @LoginUser SessionUser user) {
-        return postService.savePostAndFiles(requestDto, user.getEmail());
+        return postService.savePostAndFiles(requestDto, user);
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PatchMapping("/{id}")
     public Long updatePost(@PathVariable Long id, @ModelAttribute @Valid PostUpdateRequest updateDto) {
         return postService.updatePost(id, updateDto);
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Long> deletePost(@PathVariable Long id) {
         boolean result = postService.deletePostWithFiles(id);
