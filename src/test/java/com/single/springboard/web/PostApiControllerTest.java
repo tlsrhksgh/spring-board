@@ -1,6 +1,5 @@
 package com.single.springboard.web;
 
-import com.single.springboard.config.SecurityConfig;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.service.post.PostService;
@@ -11,11 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -123,13 +121,10 @@ class PostApiControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "guestUser", roles = "GUEST")
-    void savePost_guestUser_failed() throws Exception {
+    @WithAnonymousUser
+    void savePost_unAuthorizedUser_failed() throws Exception {
         // given
         PostSaveRequest requestDto = new PostSaveRequest("hello", "content", "guest", null);
-
-        given(postService.savePostAndFiles(requestDto, null))
-                .willReturn(null);
 
         // when
         // then

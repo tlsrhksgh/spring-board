@@ -11,8 +11,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -28,7 +26,7 @@ public class IndexController {
     private final SearchService searchService;
     private final RankingScheduler rankingScheduler;
 
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_GUEST')")
+    @PreAuthorize("isAnonymous() and hasAnyAuthority('ROLE_GUEST', 'ROLE_USER')")
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
@@ -58,7 +56,7 @@ public class IndexController {
         return "post-update";
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAnonymous() and hasAnyAuthority('ROLE_GUEST', 'ROLE_USER')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         long startTime = System.currentTimeMillis();
@@ -74,7 +72,7 @@ public class IndexController {
         return "post-find";
     }
 
-
+    @PreAuthorize("isAnonymous() and hasAnyAuthority('ROLE_GUEST', 'ROLE_USER')")
     @GetMapping("/search")
     public String search(
             @RequestParam("query") @NotBlank(message = "검색은 한 글자 이상 입력되어야 합니다.") String keyword,
@@ -86,6 +84,7 @@ public class IndexController {
         return "search";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/user/info")
     public String userInfo(
             @LoginUser SessionUser user,
