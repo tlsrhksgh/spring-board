@@ -9,13 +9,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 import static com.single.springboard.exception.ErrorCode.UNAUTHORIZED_USER_REQUIRED_LOGIN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
-@Configuration
+@Component
 @RequiredArgsConstructor
 public class CustomAuthEntryPointException implements AuthenticationEntryPoint {
     private final ObjectMapper objectMapper;
