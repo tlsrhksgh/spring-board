@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -136,7 +137,7 @@ class PostApiControllerTest {
                         .with(csrf())
                 )
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
 
         verify(postService, times(0)).savePostAndFiles(requestDto, null);
     }
@@ -178,8 +179,30 @@ class PostApiControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "guestUser", authorities = "ROLE_GUEST")
+    void updatePost_unAuthorizedUser_failed() throws Exception {
+        // given
+        Long postId = 1L;
+        PostUpdateRequest updateDto = new PostUpdateRequest("title", "author", "content", null);
+
+        // when
+        // then
+        mockMvc.perform(patch("/api/v1/posts/{id}", postId)
+                        .param("title", updateDto.title())
+                        .param("author", updateDto.author())
+                        .param("content", updateDto.content())
+                        .with(csrf())
+                        .with(anonymous())
+                )
+                .andDo(print())
+                .andExpect(status().is3xxRedirection());
+
+        verify(postService, times(0)).updatePost(1L, updateDto);
+    }
+
+    @Test
     @WithMockUser(username = "user", roles = "USER")
-    void deletePost_authorize_success() throws Exception {
+    void deletePost_authorizeUser_success() throws Exception {
         // given
         Long postId = 1L;
 
@@ -207,5 +230,23 @@ class PostApiControllerTest {
                 .andExpect(content().string("1"));
 
         verify(postService, times(1)).deletePostWithFiles(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "guestUser", authorities = "ROLE_GUEST")
+    void deletePost_unAuthorizedUser_failed() throws Exception {
+        // given
+        Long postId = 1L;
+
+        // when
+        // then
+        mockMvc.perform(delete("/api/v1/posts/{id}", postId)
+                        .with(csrf())
+                        .with(anonymous())
+                )
+                .andDo(print())
+                .andExpect(status().is3xxRedirection());
+
+        verify(postService, times(0)).deletePostWithFiles(1L);
     }
 }
