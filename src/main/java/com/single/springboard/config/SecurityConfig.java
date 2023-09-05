@@ -1,5 +1,6 @@
 package com.single.springboard.config;
 
+import com.single.springboard.config.handler.OAuthLoginSuccessHandler;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.exception.auth.CustomAuthEntryPointException;
 import com.single.springboard.service.user.CustomOAuth2UserService;
@@ -20,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomAuthEntryPointException customAuthEntryPointException;
+    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,20 +49,19 @@ public class SecurityConfig {
                                 .invalidateHttpSession(true)
                 )
                 .oauth2Login(oAuth -> {
-                    oAuth.defaultSuccessUrl("/");
                     oAuth.userInfoEndpoint(config -> config.userService(customOAuth2UserService));
+                    oAuth.successHandler(oAuthLoginSuccessHandler);
                 })
                 .exceptionHandling(exception -> {
                     exception.authenticationEntryPoint(customAuthEntryPointException);
                 });
 
-        http.sessionManagement(management -> {
-            management.maximumSessions(2) // 최대 허용 가능한 세션 수
-                    .maxSessionsPreventsLogin(true) // 동시 로그인 차단
-                    .expiredUrl("/");
-        });
+//        http.sessionManagement(management -> {
+//            management.maximumSessions(2) // 최대 허용 가능한 세션 수
+//                    .maxSessionsPreventsLogin(true) // 동시 로그인 차단
+//                    .expiredUrl("/");
+//        });
 
         return http.build();
     }
-
 }
