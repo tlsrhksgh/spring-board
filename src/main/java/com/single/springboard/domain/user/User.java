@@ -22,7 +22,7 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false, unique = true, updatable = false)
@@ -30,6 +30,9 @@ public class User extends BaseTimeEntity {
 
     @Column
     private String picture;
+
+    @Column
+    private boolean sameName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
@@ -44,11 +47,17 @@ public class User extends BaseTimeEntity {
     public User update(String name, String picture) {
         this.name = name;
         this.picture = picture;
+        this.sameName = false;
         return this;
     }
 
     public User update(String name) {
         this.name = name;
+        this.sameName = false;
         return this;
+    }
+
+    public void setSameNameCheck() {
+        this.sameName = true;
     }
 }

@@ -9,6 +9,8 @@ import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.user.UserUpdateRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -21,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.single.springboard.exception.ErrorCode.*;
+import static com.single.springboard.exception.ErrorCode.IS_EXIST_USERNAME;
+import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 
 @RequiredArgsConstructor
 @Service
@@ -31,8 +33,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final UserRepository userRepository;
     private final HttpSession httpSession;
     private final FileService fileService;
+    private final RedisTemplate<String, Object> redisTemplate;
+
     private static final String UPLOAD_URL = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/";
-    private static final AtomicInteger TEMPORARY_USER_COUNT = new AtomicInteger();
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -56,17 +59,36 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrLoadUser(OAuthAttributes attributes) {
-        User user = userRepository.findByEmail(attributes.getEmail())
-                .orElse(attributes.toEntity());
+        Optional<User> user = userRepository.findByEmail(attributes.getEmail());
 
-        return userRepository.save(user);
+        if(user.isEmpty()) {
+            boolean isExistName = userRepository.existsByName(attributes.getName());
+
+            user = Optional.of(attributes.toEntity());
+
+            if(isExistName) {
+                user.get().update("사용자" + getTemporaryUserNumber());
+                user.get().setSameNameCheck();
+            }
+        }
+
+        return userRepository.save(user.get());
+    }
+
+    private Integer getTemporaryUserNumber() {
+        final String key = "temporaryUserNumber";
+        final ValueOperations<String, Object> stringIntegerValueOperations = redisTemplate.opsForValue();
+        stringIntegerValueOperations.increment(key);
+        return Integer.parseInt(String.valueOf(stringIntegerValueOperations.get(key)));
     }
 
     @Transactional
     public void updateUser(UserUpdateRequest requestDto, SessionUser currentUser) {
         if(requestDto.name().equals(currentUser.getName())) {
+            // 이름은 동일하고 이미지 파일만 변경하는 경우
             userNameAndImageUpdate(requestDto);
         } else {
+            // 이름 or 이미지 파일을 변경하는 경우
             if(existUsernameCheck(requestDto.name())) {
                 throw new CustomException(IS_EXIST_USERNAME);
             }
@@ -75,9 +97,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private boolean existUsernameCheck(String name) {
-        Optional<User> existUsername = userRepository.findByName(name);
-
-        return existUsername.isPresent();
+        return userRepository.existsByName(name);
     }
 
     private void userNameAndImageUpdate(UserUpdateRequest requestDto) {

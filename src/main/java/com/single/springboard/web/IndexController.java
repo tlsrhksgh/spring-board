@@ -1,6 +1,5 @@
 package com.single.springboard.web;
 
-import com.single.springboard.scheduler.RankingScheduler;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.LoginUser;
@@ -24,15 +23,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class IndexController {
     private final PostService postService;
     private final SearchService searchService;
-    private final RankingScheduler rankingScheduler;
 
-    @PreAuthorize("isAnonymous() and hasAnyAuthority('ROLE_GUEST', 'ROLE_USER')")
+    @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
         model.addAttribute("posts", postService.findAllPostsAndCommentsCountDesc(pageable));
-        model.addAttribute("ranking", rankingScheduler.getPostsRanking());
+        model.addAttribute("ranking", postService.getPostsRanking());
         model.addAttribute("user", user);
 
         return "index";
@@ -56,7 +54,7 @@ public class IndexController {
         return "post-update";
     }
 
-    @PreAuthorize("isAnonymous() and hasAnyAuthority('ROLE_GUEST', 'ROLE_USER')")
+    @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         long startTime = System.currentTimeMillis();
@@ -72,7 +70,7 @@ public class IndexController {
         return "post-find";
     }
 
-    @PreAuthorize("isAnonymous() and hasAnyAuthority('ROLE_GUEST', 'ROLE_USER')")
+    @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
     @GetMapping("/search")
     public String search(
             @RequestParam("query") @NotBlank(message = "검색은 한 글자 이상 입력되어야 합니다.") String keyword,

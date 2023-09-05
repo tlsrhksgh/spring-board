@@ -10,6 +10,7 @@ import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.file.AwsS3Upload;
 import com.single.springboard.service.file.FileService;
+import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.CommentsUtils;
@@ -20,11 +21,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.*;
@@ -38,11 +41,11 @@ public class PostService {
     private final FileService fileService;
     private final AwsS3Upload awsS3Upload;
     private final CommentsUtils commentsUtils;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public Long savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
-        if(currentUser == null) {
+        if (currentUser == null) {
             throw new CustomException(UNAUTHORIZED_USER_REQUIRED_LOGIN);
         }
 
@@ -133,12 +136,12 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
         post.updatePost(updateDto);
         List<File> existFiles = fileRepository.findAllByPostId(id);
-        if(existFiles.size() > 0) {
+        if (existFiles.size() > 0) {
             awsS3Upload.delete(existFiles);
             fileRepository.deleteFiles(id);
         }
 
-        if(updateDto.files() != null) {
+        if (updateDto.files() != null) {
             fileService.postFilesSave(post, updateDto.files());
         }
 
@@ -155,12 +158,36 @@ public class PostService {
             fileService.deletePostChildFiles(post);
             postRepository.deleteById(post.getId());
             return true;
-        } else if (post != null){
+        } else if (post != null) {
             postRepository.deleteById(post.getId());
             return true;
         }
 
         return false;
+    }
+
+    public List<PostRankResponse> getPostsRanking() {
+        String key = "ranking";
+        ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
+        Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOperations.reverseRangeWithScores(key, 0, 4);
+
+        List<PostRankResponse> responses = new ArrayList<>();
+        if (!typedTuples.isEmpty()) {
+            List<PostRankResponse> list = typedTuples.stream()
+                    .map(tuple -> {
+                        String[] splitValue = String.valueOf(tuple.getValue()).split(":");
+                        return PostRankResponse.builder()
+                                .id(Long.parseLong(splitValue[splitValue.length - 1]))
+                                .title(splitValue[0])
+                                .score(tuple.getScore().longValue())
+                                .build();
+                    })
+                    .toList();
+
+            responses.addAll(list);
+        }
+
+        return responses;
     }
 
     public void increasePostViewCount(String postId, String userId, Post post) {

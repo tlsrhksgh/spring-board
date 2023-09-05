@@ -8,6 +8,12 @@
 <body>
 <h1>프로필 수정</h1>
 
+<div th:if="${user.sameName}" style="display: none">
+    <script th:inline="javascript">
+        alert('존재하는 이름이 있습니다. 이름을 변경해 주세요.');
+    </script>
+</div>
+
 <div class="col-md-12">
     <div style="margin-bottom: 30px">
         <img th:src="${user.getPicture()}" style="width: 100px; height: 100px; border-radius: 55px;" />
