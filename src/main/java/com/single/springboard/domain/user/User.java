@@ -57,7 +57,7 @@ public class User extends BaseTimeEntity {
         return this;
     }
 
-    public void setSameNameCheck() {
+    public void setSameName() {
         this.sameName = true;
     }
 }
