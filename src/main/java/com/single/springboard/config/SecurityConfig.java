@@ -2,7 +2,8 @@ package com.single.springboard.config;
 
 import com.single.springboard.config.handler.OAuthLoginSuccessHandler;
 import com.single.springboard.domain.user.Role;
-import com.single.springboard.exception.auth.CustomAuthEntryPointException;
+import com.single.springboard.exception.handler.CustomAccessDeniedHandler;
+import com.single.springboard.exception.handler.CustomAuthEntryPointException;
 import com.single.springboard.service.user.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -21,6 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomAuthEntryPointException customAuthEntryPointException;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
 
     @Bean
@@ -43,24 +46,22 @@ public class SecurityConfig {
                             .authorities(Role.GUEST.getKey())
                             .key(Role.GUEST.getKey());
                 })
+                .formLogin(FormLoginConfigurer::disable)
                 .logout(logoutConfigurer ->
                         logoutConfigurer
                                 .logoutSuccessUrl("/")
+                                .clearAuthentication(true)
                                 .invalidateHttpSession(true)
                 )
-                .oauth2Login(oAuth -> {
-                    oAuth.userInfoEndpoint(config -> config.userService(customOAuth2UserService));
-                    oAuth.successHandler(oAuthLoginSuccessHandler);
+                .oauth2Login(oAuth2LoginConfigurer -> {
+                    oAuth2LoginConfigurer.userInfoEndpoint(config -> config.userService(customOAuth2UserService));
+                    oAuth2LoginConfigurer.successHandler(oAuthLoginSuccessHandler);
                 })
-                .exceptionHandling(exception -> {
-                    exception.authenticationEntryPoint(customAuthEntryPointException);
-                });
-
-//        http.sessionManagement(management -> {
-//            management.maximumSessions(2) // 최대 허용 가능한 세션 수
-//                    .maxSessionsPreventsLogin(true) // 동시 로그인 차단
-//                    .expiredUrl("/");
-//        });
+                .exceptionHandling(exceptionHandlingConfigurer ->
+                        exceptionHandlingConfigurer
+                                .accessDeniedHandler(customAccessDeniedHandler)
+                                .authenticationEntryPoint(customAuthEntryPointException)
+                );
 
         return http.build();
     }

@@ -68,7 +68,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
             if(isExistName) {
                 user.get().update("사용자" + getTemporaryUserNumber());
-                user.get().setSameNameCheck();
+                user.get().setSameName();
             }
         }
 
