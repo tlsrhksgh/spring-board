@@ -32,7 +32,7 @@
  
 # 사용 기술
 ## Backend
-- ```JAVA17``` ```SpringBoot``` ```Spring Data JPA``` ```QueryDsl``` ```H2 Database```
+- ```JAVA17``` ```SpringBoot``` ```Spring Data JPA``` ```Spring Data Redis``` ```QueryDsl``` ```H2 Database``` 
 
 ## DevOps
 - ```AWS EC2``` ```AWS RDS``` ```AWS S3``` ```Jenkins``` ```Nginx```
