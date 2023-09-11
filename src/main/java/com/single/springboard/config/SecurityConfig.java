@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableMethodSecurity
@@ -35,10 +36,12 @@ public class SecurityConfig {
                                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/css/**", "/images/**", "/h2-console/**",
-                                "/js/**", "/posts/find/**", "/search/**", "/actuator/health")
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
                         .permitAll()
-                        .requestMatchers("/api/v1/comments/**", "/api/v1/posts/**")
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**",
+                                "/posts/find/**", "/search/**", "/actuator/health")
+                        .permitAll()
+                        .requestMatchers("/api/v1/**")
                         .hasRole(Role.USER.name())
                         .anyRequest().authenticated())
                 .anonymous(anonymous -> {
@@ -50,7 +53,6 @@ public class SecurityConfig {
                 .logout(logoutConfigurer ->
                         logoutConfigurer
                                 .logoutSuccessUrl("/")
-                                .clearAuthentication(true)
                                 .invalidateHttpSession(true)
                 )
                 .oauth2Login(oAuth2LoginConfigurer -> {

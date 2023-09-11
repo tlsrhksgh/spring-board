@@ -19,7 +19,6 @@ public class UserApiController {
 
     private final CustomOAuth2UserService oAuth2UserService;
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PatchMapping
     public ResponseEntity<Void> userInfoUpdate(@ModelAttribute UserUpdateRequest requestDto,
                                                @LoginUser SessionUser user

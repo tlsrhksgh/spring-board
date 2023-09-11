@@ -10,7 +10,7 @@ import com.single.springboard.web.dto.user.UserUpdateRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -34,6 +34,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final HttpSession httpSession;
     private final FileService fileService;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisScript<String> temporaryUserIncrScript;
 
     private static final String UPLOAD_URL = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/";
 
@@ -75,11 +76,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         return userRepository.save(user.get());
     }
 
-    private Integer getTemporaryUserNumber() {
-        final String key = "temporaryUserNumber";
-        final ValueOperations<String, Object> stringIntegerValueOperations = redisTemplate.opsForValue();
-        stringIntegerValueOperations.increment(key);
-        return Integer.parseInt(String.valueOf(stringIntegerValueOperations.get(key)));
+    private String getTemporaryUserNumber() {
+        String increment = "1";
+        return redisTemplate.execute(temporaryUserIncrScript,
+                Collections.singletonList("temporaryUserNumber"), increment);
     }
 
     @Transactional

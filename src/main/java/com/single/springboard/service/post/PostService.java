@@ -54,10 +54,8 @@ public class PostService {
 
         Post post = postRepository.save(requestDto.toEntity(user));
 
-        List<File> files = new ArrayList<>();
-
         if (requestDto.files() != null) {
-            files.addAll(fileService.postFilesSave(post, requestDto.files()));
+            List<File> files = new ArrayList<>(fileService.postFilesSave(post, requestDto.files()));
         }
 
         return post.getId();
