@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class CommentsUtils {
+public class CommentUtils {
 
     public List<Comment> commentsSort(List<Comment> comments) {
         List<Comment> sortedComments = new ArrayList<>();

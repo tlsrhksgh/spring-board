@@ -12,18 +12,17 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-public class FilesUtils {
-    public List<MultipartFile> fileMimeTypeCheck(final List<MultipartFile> multipartFiles) {
+public class FileUtils {
+    public void fileMimeTypeCheck(final List<MultipartFile> multipartFiles) {
         for(MultipartFile multipartFile : multipartFiles) {
             String mimeType = getMimeType(multipartFile);
             if(!validImageMimeType(mimeType)) {
                 throw new RuntimeException("이미지 파일만 업로드 가능합니다.");
             }
         }
-        return multipartFiles;
     }
 
-    public String translateSaveFileName(final String fileName) {
+    public String translateFileName(final String fileName) {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String extension = StringUtils.getFilenameExtension(fileName);
         return uuid + "." + extension;

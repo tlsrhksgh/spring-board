@@ -1,4 +1,4 @@
-var main = {
+let user = {
     init : function() {
         var _this = this;
         $('.user-update_btn').on('click', () => {
@@ -35,4 +35,4 @@ var main = {
     },
 };
 
-main.init();
+user.init();

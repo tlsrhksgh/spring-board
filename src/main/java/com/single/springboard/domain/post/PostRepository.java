@@ -20,4 +20,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostCustomRep
             "LEFT JOIN FETCH p.user " +
             "where p.id = :postId")
     Post findPostWithCommentsAndUser(@Param("postId") Long postId);
+
+    @Query("SELECT p from Post p " +
+            "LEFT JOIN fetch p.files " +
+            "where p.id = :postId")
+    Post findPostWithFiles(@Param("postId") Long postId);
 }

@@ -1,5 +1,6 @@
 package com.single.springboard.web.dto.post;
 
+import com.single.springboard.service.file.dto.FilesNameDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,9 @@ public record PostUpdateRequest(
         @NotEmpty(message = "수정하실 게시글 내용을 입력 해주세요.")
         String content,
 
-        List<MultipartFile> files
+        List<MultipartFile> files,
+
+        List<String> oldFileNames
 ) {
 
 }

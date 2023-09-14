@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 @RestController
@@ -30,6 +29,7 @@ public class PostApiController {
 
     @PatchMapping("/{id}")
     public Long updatePost(@PathVariable Long id, @ModelAttribute @Valid PostUpdateRequest updateDto) {
+
         return postService.updatePost(id, updateDto);
     }
 

@@ -1,7 +1,8 @@
-let fileArr = [];
-var main = {
+let newFileArr = [];
+
+let post = {
     init : function() {
-        var _this = this;
+        let _this = this;
         $('.post-save_btn').on('click', () => {
             _this.save();
         });
@@ -20,7 +21,7 @@ var main = {
         })
 
         $('.del-image_btn').on('click', (e) => {
-            _this.deleteFile(e);
+            deleteFile(e);
         })
 
         $('#drop-zone').on('dragover', (e) => {
@@ -58,7 +59,7 @@ var main = {
 
     },
     save : function() {
-        const formData = this.createFormData();
+        const formData = this.createForm();
 
         $.ajax({
             type: 'POST',
@@ -78,12 +79,17 @@ var main = {
     },
 
     update : function () {
-        const formData = this.createFormData();
+        const formData = this.createForm();
+        let oldFileObj = {};
+        for (let i = 0; i < oldFileArr.length; i++) {
+            oldFileObj
+        }
+        formData.append('oldFileNames', JSON.stringify(oldFileObj));
 
         const id = $('#id').text();
 
         $.ajax({
-            type: 'PATCH',
+            method: 'PATCH',
             url: '/api/v1/posts/'+id,
             processData: false,
             contentType: false,
@@ -119,7 +125,7 @@ var main = {
         $("#drop-zone p").remove();
         for (let i = 0; i < files.length; i++) {
             let file = files[i];
-            fileArr.push(file);
+            newFileArr.push(file);
             const fileName = file.name;
             let fileSize = file.size / 1024 / 1024;
             fileSize = fileSize < 1 ? fileSize.toFixed(3) : fileSize.toFixed(1);
@@ -127,6 +133,7 @@ var main = {
             div.className = "file";
             div.style.display = "flex";
             div.style.justifyContent = "space-between";
+            div.style.marginBottom = "10px";
             const fileNameSpan = document.createElement("span");
             fileNameSpan.className = "fileName";
             fileNameSpan.innerText = fileName;
@@ -135,11 +142,9 @@ var main = {
             fileSizeSpan.innerText = fileSize + " MB";
             const delBtn = document.createElement("button");
             delBtn.className = "del-image_btn btn btn-danger";
-            delBtn.style.color = "while";
             delBtn.innerText = "삭제";
-            let _this = this;
             delBtn.addEventListener('click', (e) => {
-                _this.deleteFile(e);
+                deleteFile(e);
             })
             div.appendChild(fileNameSpan);
             div.appendChild(fileSizeSpan);
@@ -149,31 +154,17 @@ var main = {
         }
     },
 
-    deleteFile : function (e) {
-        e.stopPropagation();
-
-        const filename = e.target.parentNode.childNodes[0].outerText;
-
-        for (let i = 0; i < fileArr.length; i++) {
-            if(filename === fileArr[i].name) {
-                fileArr.splice(i);
-            }
-        }
-
-        const fileElement = e.target.parentNode;
-        fileElement.remove();
-    },
-
-    createFormData : function () {
+    createForm : function () {
         let formData = new FormData();
         formData.append('title', $('#title').val());
         formData.append('author', $('#author').text());
         formData.append('content', $('#content').val());
-        fileArr.forEach(file => {
-            formData.append('files', file)
+        newFileArr.forEach(file => {
+            formData.append('files', file);
         });
         return formData;
-    }
+    },
+
 };
 
-main.init();
+post.init();

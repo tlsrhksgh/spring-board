@@ -42,12 +42,16 @@ public class Post extends BaseTimeEntity {
 
     private long viewCount;
 
-    public void updatePost(PostUpdateRequest updateDto) {
-        this.title = updateDto.title();
-        this.content = updateDto.content();
+    public void updatePost(PostUpdateRequest updateRequest) {
+        this.title = updateRequest.title();
+        this.content = updateRequest.content();
     }
 
-    public void updateViewCount() {
+    public void updatePostFiles(List<File> files) {
+        this.files = files;
+    }
+
+    public void increaseViewCount() {
         this.viewCount += 1;
     }
 }

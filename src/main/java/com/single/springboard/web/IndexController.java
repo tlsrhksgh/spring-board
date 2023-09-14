@@ -49,7 +49,6 @@ public class IndexController {
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostResponse post = postService.findPostById(id);
         model.addAttribute("post", post);
-        model.addAttribute("files", post.files());
 
         return "post-update";
     }
