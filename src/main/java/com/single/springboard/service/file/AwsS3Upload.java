@@ -1,7 +1,7 @@
 package com.single.springboard.service.file;
 
 import com.single.springboard.domain.file.File;
-import com.single.springboard.util.FilesUtils;
+import com.single.springboard.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AwsS3Upload {
-    private final FilesUtils filesUtils;
+    private final FileUtils fileUtils;
     private final S3Client s3Client;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -34,7 +34,7 @@ public class AwsS3Upload {
         PutObjectRequest putObj;
 
         for (MultipartFile file : files) {
-            String keyName = filesUtils.translateSaveFileName(file.getOriginalFilename());
+            String keyName = fileUtils.translateFileName(file.getOriginalFilename());
 
             putObj = PutObjectRequest.builder()
                     .bucket(bucket)

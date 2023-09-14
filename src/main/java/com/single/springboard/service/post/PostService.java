@@ -13,7 +13,7 @@ import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.util.CommentsUtils;
+import com.single.springboard.util.CommentUtils;
 import com.single.springboard.util.DateUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
 import com.single.springboard.web.dto.post.*;
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,8 +41,10 @@ public class PostService {
     private final FileRepository fileRepository;
     private final FileService fileService;
     private final AwsS3Upload awsS3Upload;
-    private final CommentsUtils commentsUtils;
+    private final CommentUtils commentUtils;
     private final RedisTemplate<String, Object> redisTemplate;
+
+    private static final String CACHE_KEY = "ranking";
 
     @Transactional
     public Long savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
@@ -82,7 +85,7 @@ public class PostService {
         }
 
         List<Comment> comments = post.getComments();
-        List<Comment> sortedComments = commentsUtils.commentsSort(comments);
+        List<Comment> sortedComments = commentUtils.commentsSort(comments);
 
         List<CommentsResponse> commentsResponses = sortedComments.stream()
                 .map(comment -> CommentsResponse.builder()
@@ -90,7 +93,7 @@ public class PostService {
                         .commentLevel(comment.getCommentLevel())
                         .parentId(comment.getParentComment())
                         .content(comment.isSecret() ?
-                                (user != null && commentsUtils.enableSecretCommentView(post.getUser().getName(),
+                                (user != null && commentUtils.enableSecretCommentView(post.getUser().getName(),
                                         user.getName(), comment.getUser().getName()) ?
                                         comment.getContent() : "비밀 댓글 입니다.") : comment.getContent())
                         .author(comment.getUser().getName())
@@ -130,18 +133,20 @@ public class PostService {
 
     @Transactional
     public Long updatePost(Long id, PostUpdateRequest updateDto) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
-        post.updatePost(updateDto);
-        List<File> existFiles = fileRepository.findAllByPostId(id);
-        if (existFiles.size() > 0) {
-            awsS3Upload.delete(existFiles);
-            fileRepository.deleteFiles(id);
+        Post post = postRepository.findPostWithFiles(id);
+
+        if(post == null) {
+            throw new CustomException(NOT_FOUND_POST);
         }
 
+        List<File> existFiles = post.getFiles();
+
         if (updateDto.files() != null) {
-            fileService.postFilesSave(post, updateDto.files());
+            List<File> files = fileService.filesUpdate(existFiles, updateDto.files(), new HashMap<>());
+            post.updatePostFiles(files);
         }
+
+        post.updatePost(updateDto);
 
         return post.getId();
     }
@@ -165,12 +170,11 @@ public class PostService {
     }
 
     public List<PostRankResponse> getPostsRanking() {
-        String key = "ranking";
         ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
-        Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOperations.reverseRangeWithScores(key, 0, 4);
+        Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOperations.reverseRangeWithScores(CACHE_KEY, 0, 4);
 
         List<PostRankResponse> responses = new ArrayList<>();
-        if (!typedTuples.isEmpty()) {
+        if (typedTuples != null && !typedTuples.isEmpty()) {
             List<PostRankResponse> list = typedTuples.stream()
                     .map(tuple -> {
                         String[] splitValue = String.valueOf(tuple.getValue()).split(":");
@@ -196,7 +200,7 @@ public class PostService {
         if (!hasViewed) {
             redisTemplate.opsForZSet().incrementScore("ranking", post.getTitle() + ":" + postId, 1);
             redisTemplate.opsForSet().add(userViewKey, postId);
-            post.updateViewCount();
+            post.increaseViewCount();
         }
     }
 }

@@ -1,4 +1,4 @@
-var main = {
+let comment = {
     init : function () {
         var _this = this;
         $('.btn-save').on('click', () => {
@@ -119,4 +119,4 @@ var main = {
 };
 
 
-main.init();
+comment.init();

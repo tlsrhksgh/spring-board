@@ -1,16 +1,16 @@
 package com.single.springboard.service.user;
 
+import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.user.dto.OAuthAttributes;
 import com.single.springboard.service.user.dto.SessionUser;
+import com.single.springboard.util.UserUtils;
 import com.single.springboard.web.dto.user.UserUpdateRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -21,8 +21,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static com.single.springboard.exception.ErrorCode.IS_EXIST_USERNAME;
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
@@ -33,10 +32,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final UserRepository userRepository;
     private final HttpSession httpSession;
     private final FileService fileService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final RedisScript<String> temporaryUserIncrScript;
+    private final UserUtils userUtils;
 
     private static final String UPLOAD_URL = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/";
+    private static final String TEMP_USER_NAME = "사용자";
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -63,23 +62,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Optional<User> user = userRepository.findByEmail(attributes.getEmail());
 
         if(user.isEmpty()) {
-            boolean isExistName = userRepository.existsByName(attributes.getName());
-
             user = Optional.of(attributes.toEntity());
 
-            if(isExistName) {
-                user.get().update("사용자" + getTemporaryUserNumber());
+            if(userRepository.existsByName(attributes.getName())) {
+                user.get().update(TEMP_USER_NAME + userUtils.getTemporaryUserNumber());
                 user.get().setSameName();
             }
         }
 
         return userRepository.save(user.get());
-    }
-
-    private String getTemporaryUserNumber() {
-        String increment = "1";
-        return redisTemplate.execute(temporaryUserIncrScript,
-                Collections.singletonList("temporaryUserNumber"), increment);
     }
 
     @Transactional
@@ -90,6 +81,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         } else {
             // 이름 or 이미지 파일을 변경하는 경우
             if(existUsernameCheck(requestDto.name())) {
+
                 throw new CustomException(IS_EXIST_USERNAME);
             }
             userNameAndImageUpdate(requestDto);
@@ -100,13 +92,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         return userRepository.existsByName(name);
     }
 
-    private void userNameAndImageUpdate(UserUpdateRequest requestDto) {
+    @Transactional
+    public void userNameAndImageUpdate(UserUpdateRequest requestDto) {
         User user = userRepository.findByEmail(requestDto.email())
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
         if(requestDto.picture() != null && requestDto.picture().size() > 0) {
-            String translateFileName = fileService.profileImageUpdate(requestDto.picture());
-            String imageUrl = UPLOAD_URL + translateFileName;
+            Optional<File> imageFile = fileService.findByTranslateName(user.getPicture());
+            List<File> imageList = new ArrayList<>();
+
+            imageFile.ifPresent(imageList::add);
+
+            File translateFile = fileService.filesUpdate(imageList, requestDto.picture(), new HashMap<>()).get(0);
+            String imageUrl = UPLOAD_URL + translateFile.getTranslateName();
             user.update(requestDto.name(), imageUrl);
         } else {
             user.update(requestDto.name());
