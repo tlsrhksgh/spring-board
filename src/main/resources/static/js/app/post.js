@@ -20,10 +20,6 @@ let post = {
             _this.displayFileInfo(files);
         })
 
-        $('.del-image_btn').on('click', (e) => {
-            deleteFile(e);
-        })
-
         $('#drop-zone').on('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -55,8 +51,6 @@ let post = {
                 _this.displayFileInfo(files);
             }
         });
-
-
     },
     save : function() {
         const formData = this.createForm();
@@ -135,7 +129,6 @@ let post = {
             div.style.justifyContent = "space-between";
             div.style.marginBottom = "10px";
             const fileNameSpan = document.createElement("span");
-            fileNameSpan.className = "fileName";
             fileNameSpan.innerText = fileName;
             const fileSizeSpan = document.createElement("span");
             fileSizeSpan.className = "fileSize";
@@ -144,7 +137,7 @@ let post = {
             delBtn.className = "del-image_btn btn btn-danger";
             delBtn.innerText = "삭제";
             delBtn.addEventListener('click', (e) => {
-                deleteFile(e);
+                this.deleteFile(e);
             })
             div.appendChild(fileNameSpan);
             div.appendChild(fileSizeSpan);
@@ -165,6 +158,31 @@ let post = {
         return formData;
     },
 
+    deleteFile : function (e) {
+    e.stopPropagation();
+
+    const filename = e.target.parentNode.childNodes[0].outerText;
+
+    newFileArr = newFileArr.filter(item => filename !== item.name);
+
+    const fileElement = e.target.parentNode;
+    fileElement.remove();
+
+    if(newFileArr.length === 0) {
+        $('#file-input').val('');
+        createDropZoneDescription();
+    }
+}
+
 };
+
+function createDropZoneDescription() {
+    const dropZone = document.getElementById("drop-zone");
+    const p = document.createElement("p");
+    p.innerText = "여기를 클릭하거나 파일을 드래그앤드롭 하세요\n" +
+        "용량은 한 파일 당 10MB씩 50MB 까지 업로드가 가능합니다.";
+    p.style.opacity = "0.7";
+    dropZone.appendChild(p);
+}
 
 post.init();
