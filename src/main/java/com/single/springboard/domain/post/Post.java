@@ -47,10 +47,6 @@ public class Post extends BaseTimeEntity {
         this.content = updateRequest.content();
     }
 
-    public void updatePostFiles(List<File> files) {
-        this.files = files;
-    }
-
     public void increaseViewCount() {
         this.viewCount += 1;
     }

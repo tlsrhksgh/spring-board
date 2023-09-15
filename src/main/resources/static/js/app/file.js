@@ -52,7 +52,7 @@ function deleteFile (e) {
     const filename = e.target.parentNode.childNodes[0].outerText;
 
     newFileArr = newFileArr.filter(item => filename !== item.name);
-    oldFileArr = oldFileArr.filter(item => filename !== item.name);
+    oldFileArr = oldFileArr.filter(item => filename !== item.originalName);
 
     const fileElement = e.target.parentNode;
     fileElement.remove();

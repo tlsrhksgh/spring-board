@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,21 +32,32 @@ public class FileService {
     }
 
     @Transactional
-    public List<File> filesUpdate(List<File> oldFiles, List<MultipartFile> newFiles, HashMap<Long, String> oldFileNames) {
+    public List<File> postFilesUpdate(List<File> oldFiles, List<MultipartFile> newFiles, Map<Long, String> oldFileNames) {
         fileUtils.fileMimeTypeCheck(newFiles);
 
-        List<File> toBeDeleteFiles = findDeleteFiles(oldFiles, oldFileNames);
+        List<Long> deleteFileIds = findDeleteFiles(oldFiles, oldFileNames);
 
-        if(!oldFiles.isEmpty()) {
-            s3Upload.delete(toBeDeleteFiles);
-            if(oldFiles.size() > 1) {
-                fileRepository.deleteFiles(toBeDeleteFiles.get(0).getPost().getId());
-            } else {
-                fileRepository.delete(toBeDeleteFiles.get(0));
-            }
+        if(!deleteFileIds.isEmpty()) {
+            s3Upload.delete(fileRepository.findFilesByIds(deleteFileIds));
+            fileRepository.deleteFilesByIds(deleteFileIds);
         }
 
-        return s3Upload.uploadFile(newFiles);
+        List<File> newFileEntities = s3Upload.uploadFile(newFiles);
+        newFileEntities.forEach(file ->
+                file.setPost(oldFiles.get(0).getPost())
+        );
+        fileRepository.saveAll(newFileEntities);
+
+        return newFileEntities;
+    }
+
+    @Transactional
+    public String userImageUpdate(String oldImageUrl, List<MultipartFile> newFile) {
+        fileUtils.fileMimeTypeCheck(newFile);
+
+        s3Upload.delete(List.of(oldImageUrl));
+
+        return s3Upload.uploadFile(newFile).get(0).getTranslateName();
     }
 
     public List<FilesNameDto> getFilesOfPost(Long postId) {
@@ -60,22 +68,26 @@ public class FileService {
 
     @Transactional
     public void deletePostChildFiles(Post post) {
-        s3Upload.delete(post.getFiles());
+        List<String> translateFileNames = post.getFiles().stream()
+                .map(File::getTranslateName)
+                .toList();
+
+        s3Upload.delete(translateFileNames);
         fileRepository.deleteFiles(post.getId());
     }
 
-    public Optional<File> findByTranslateName(String name) {
-        return fileRepository.findByTranslateName(name);
-    }
+    public List<Long> findDeleteFiles(List<File> existFiles, Map<Long, String> fileNames) {
+        if(existFiles == null || fileNames == null) {
+            return new ArrayList<>();
+        }
 
-    public List<File> findDeleteFiles(List<File> existFiles, HashMap<Long, String> fileNames) {
-        List<File> willBeDeleteFiles = new ArrayList<>();
+        List<Long> deleteFiles = new ArrayList<>();
         for(File file : existFiles) {
             if(!fileNames.containsValue(file.getOriginalName())) {
-                willBeDeleteFiles.add(file);
+                deleteFiles.add(file.getId());
             }
         }
 
-        return willBeDeleteFiles;
+        return deleteFiles;
     }
 }

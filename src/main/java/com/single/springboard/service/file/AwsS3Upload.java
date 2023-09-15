@@ -60,11 +60,11 @@ public class AwsS3Upload {
 
     @Transactional
     // one request
-    public void delete(List<File> files) {
+    public void delete(List<String> fileUrls) {
         ArrayList<ObjectIdentifier> keys = new ArrayList<>();
-        for (File file : files) {
+        for (String fileUrl : fileUrls) {
             keys.add(ObjectIdentifier.builder()
-                    .key(file.getTranslateName())
+                    .key(fileUrl)
                     .build());
         }
 
