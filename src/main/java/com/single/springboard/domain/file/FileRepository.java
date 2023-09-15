@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface FileRepository extends JpaRepository<File, Long> {
+public interface FileRepository extends JpaRepository<File, Long>, FileCustomRepository {
     @Modifying(clearAutomatically = true)
     @Query("delete from File f where f.post.id = :postId")
     void deleteFiles(@Param("postId") Long postId);

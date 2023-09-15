@@ -1,15 +1,14 @@
 package com.single.springboard.web;
 
+import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.service.post.PostService;
 import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/posts")
 @RestController
 public class PostApiController {
-
     private final PostService postService;
 
     @PostMapping
@@ -29,7 +27,6 @@ public class PostApiController {
 
     @PatchMapping("/{id}")
     public Long updatePost(@PathVariable Long id, @ModelAttribute @Valid PostUpdateRequest updateDto) {
-
         return postService.updatePost(id, updateDto);
     }
 

@@ -80,11 +80,11 @@ let post = {
 
     update : function () {
         const formData = this.createForm();
-        let oldFileObj = {};
+        let dtoObj = {};
         for (let i = 0; i < oldFileArr.length; i++) {
-            oldFileObj
+            dtoObj[oldFileArr[i].id] = oldFileArr[i].originalName;
         }
-        formData.append('oldFileNames', JSON.stringify(oldFileObj));
+        formData.append('oldFileNames', JSON.stringify(dtoObj));
 
         const id = $('#id').text();
 

@@ -1,6 +1,5 @@
 package com.single.springboard.web.dto.post;
 
-import com.single.springboard.service.file.dto.FilesNameDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +18,7 @@ public record PostUpdateRequest(
 
         List<MultipartFile> files,
 
-        List<String> oldFileNames
+        String oldFileNames
 ) {
 
 }

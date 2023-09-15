@@ -24,8 +24,13 @@ public class File {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @Column(nullable = false, updatable = false)
     private String originalName;
+
+    @Column(nullable = false, updatable = false)
     private String translateName;
+
+    @Column(nullable = false, updatable = false)
     private long size;
 
     @CreatedDate

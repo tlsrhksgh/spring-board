@@ -2,19 +2,18 @@ package com.single.springboard.service.post;
 
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.file.File;
-import com.single.springboard.domain.file.FileRepository;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.service.file.AwsS3Upload;
 import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.CommentUtils;
 import com.single.springboard.util.DateUtils;
+import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
 import com.single.springboard.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,15 +34,13 @@ import static com.single.springboard.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+    private static final String CACHE_KEY = "ranking";
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final FileRepository fileRepository;
     private final FileService fileService;
-    private final AwsS3Upload awsS3Upload;
     private final CommentUtils commentUtils;
+    private final PostUtils postUtils;
     private final RedisTemplate<String, Object> redisTemplate;
-
-    private static final String CACHE_KEY = "ranking";
 
     @Transactional
     public Long savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
@@ -135,15 +131,15 @@ public class PostService {
     public Long updatePost(Long id, PostUpdateRequest updateDto) {
         Post post = postRepository.findPostWithFiles(id);
 
-        if(post == null) {
+        if (post == null) {
             throw new CustomException(NOT_FOUND_POST);
         }
 
         List<File> existFiles = post.getFiles();
 
         if (updateDto.files() != null) {
-            List<File> files = fileService.filesUpdate(existFiles, updateDto.files(), new HashMap<>());
-            post.updatePostFiles(files);
+            fileService.postFilesUpdate(existFiles, updateDto.files(),
+                    postUtils.parseJsonStringToMap(updateDto.oldFileNames()));
         }
 
         post.updatePost(updateDto);
