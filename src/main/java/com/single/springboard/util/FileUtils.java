@@ -32,6 +32,11 @@ public class FileUtils {
         return uuid + "." + extension;
     }
 
+    public String splitImageUrl(String imageUrl) {
+        String[] splitUrl = imageUrl.split("/");
+        return splitUrl[splitUrl.length - 1];
+    }
+
     private String getMimeType(MultipartFile multipartFile) {
         try {
             return tika.detect(multipartFile.getInputStream());

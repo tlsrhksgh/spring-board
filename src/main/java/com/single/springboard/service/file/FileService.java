@@ -32,30 +32,30 @@ public class FileService {
     }
 
     @Transactional
-    public List<File> postFilesUpdate(List<File> oldFiles, List<MultipartFile> newFiles, Map<Long, String> oldFileNames) {
-        fileUtils.fileMimeTypeCheck(newFiles);
-
-        List<Long> deleteFileIds = findDeleteFiles(oldFiles, oldFileNames);
+    public void postFilesUpdate(Post post, List<File> oldFiles,
+                                      List<MultipartFile> newFiles, Map<Long, String> deleteFileNames) {
+        List<Long> deleteFileIds = findOldDeleteFiles(oldFiles, deleteFileNames);
 
         if(!deleteFileIds.isEmpty()) {
             s3Upload.delete(fileRepository.findFilesByIds(deleteFileIds));
             fileRepository.deleteFilesByIds(deleteFileIds);
         }
 
-        List<File> newFileEntities = s3Upload.uploadFile(newFiles);
-        newFileEntities.forEach(file ->
-                file.setPost(oldFiles.get(0).getPost())
-        );
-        fileRepository.saveAll(newFileEntities);
-
-        return newFileEntities;
+        if(newFiles != null && newFiles.size() > 0) {
+            fileUtils.fileMimeTypeCheck(newFiles);
+            List<File> newFileEntities = s3Upload.uploadFile(newFiles);
+            newFileEntities.forEach(file ->
+                    file.setPost(post)
+            );
+            fileRepository.saveAll(newFileEntities);
+        }
     }
 
     @Transactional
     public String userImageUpdate(String oldImageUrl, List<MultipartFile> newFile) {
         fileUtils.fileMimeTypeCheck(newFile);
 
-        s3Upload.delete(List.of(oldImageUrl));
+        s3Upload.delete(List.of(fileUtils.splitImageUrl(oldImageUrl)));
 
         return s3Upload.uploadFile(newFile).get(0).getTranslateName();
     }
@@ -76,7 +76,7 @@ public class FileService {
         fileRepository.deleteFiles(post.getId());
     }
 
-    public List<Long> findDeleteFiles(List<File> existFiles, Map<Long, String> fileNames) {
+    public List<Long> findOldDeleteFiles(List<File> existFiles, Map<Long, String> fileNames) {
         if(existFiles == null || fileNames == null) {
             return new ArrayList<>();
         }

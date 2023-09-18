@@ -32,7 +32,6 @@ let comment = {
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(data)
         }).done(function () {
-            console.log("hello");
             alert("댓글이 등록되었습니다.");
             window.location.href = '/posts/find/' + data.postId;
         }).fail(function (error) {
@@ -64,7 +63,7 @@ let comment = {
             contentType:'application/json; charset=utf-8',
             data: JSON.stringify(data)
         }).done(function () {
-            alert("답글이 등록 되었습니다.");
+            alert("댓글이 등록 되었습니다.");
             window.location.href = '/posts/find/' + data.postId;
         }).fail(function (error) {
             alert(error.responseJSON.message);

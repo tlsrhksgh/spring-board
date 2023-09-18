@@ -13,7 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -216,7 +215,7 @@ class PostApiControllerTest {
 
         MockHttpSession mockHttpSession = new MockHttpSession();
         mockHttpSession.setAttribute("user", new SessionUser(user));
-        given(postService.deletePostWithFiles(postId))
+        given(postService.deletePost(postId))
                 .willReturn(true);
 
         // when
@@ -229,7 +228,7 @@ class PostApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
-        verify(postService, times(1)).deletePostWithFiles(1L);
+        verify(postService, times(1)).deletePost(1L);
     }
 
     @Test
@@ -247,6 +246,6 @@ class PostApiControllerTest {
                 .andDo(print())
                 .andExpect(status().is3xxRedirection());
 
-        verify(postService, times(0)).deletePostWithFiles(1L);
+        verify(postService, times(0)).deletePost(1L);
     }
 }

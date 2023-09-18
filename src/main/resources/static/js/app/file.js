@@ -1,4 +1,5 @@
-let oldFileArr = [];
+let oldFileNameArr = [];
+let newFileArr = [];
 
 let file = {
     init: function () {
@@ -23,9 +24,13 @@ let file = {
     },
 
     displayFileName: function (fileNameArr) {
+        if(fileNameArr.length > 0) {
+            $("#drop-zone p").remove();
+        }
+
         for (let i = 0; i < fileNameArr.length; i++) {
             let file = fileNameArr[i];
-            oldFileArr.push(file);
+            oldFileNameArr.push(file);
             const fileName = file.originalName;
             const div = document.createElement("div");
             div.className = "file";
@@ -38,30 +43,29 @@ let file = {
             delBtn.className = "del-image_btn btn btn-danger";
             delBtn.innerText = "삭제";
             delBtn.addEventListener('click', (e) => {
-                this.deleteFile(e);
+                deleteFile(e);
             })
             div.appendChild(fileNameSpan);
             div.appendChild(delBtn);
             const dropZone = $("#drop-zone");
             dropZone.append(div);
         }
-    },
-
-    deleteFile: function (e) {
-        e.stopPropagation();
-
-        const filename = e.target.parentNode.childNodes[0].outerText;
-
-        newFileArr = newFileArr.filter(item => filename !== item.name);
-        oldFileArr = oldFileArr.filter(item => filename !== item.originalName);
-
-        const fileElement = e.target.parentNode;
-        fileElement.remove();
-
-        if (newFileArr.length === 0 && oldFileArr.length === 0) {
-            createDropZoneDescription();
-        }
     }
 }
 
-file.init();
+function deleteFile (e) {
+    e.stopPropagation();
+
+    const filename = e.target.parentNode.childNodes[0].outerText;
+
+    newFileArr = newFileArr.filter(item => filename !== item.name);
+    oldFileNameArr = oldFileNameArr.filter(item => filename !== item.originalName);
+
+    const fileElement = e.target.parentNode;
+    fileElement.remove();
+
+    if (newFileArr.length === 0 && oldFileNameArr.length === 0) {
+        $('#file-input').val('');
+        createDropZoneDescription();
+    }
+}
