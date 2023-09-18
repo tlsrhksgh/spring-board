@@ -34,7 +34,6 @@ import static com.single.springboard.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-    private static final String CACHE_KEY = "ranking";
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final FileService fileService;
@@ -42,8 +41,11 @@ public class PostService {
     private final PostUtils postUtils;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private static final String CACHE_KEY = "ranking";
+    private static final String USER_VIEW_KEY = "post:view:user:";
+
     @Transactional
-    public Long savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
+    public void savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
         if (currentUser == null) {
             throw new CustomException(UNAUTHORIZED_USER_REQUIRED_LOGIN);
         }
@@ -54,10 +56,8 @@ public class PostService {
         Post post = postRepository.save(requestDto.toEntity(user));
 
         if (requestDto.files() != null) {
-            List<File> files = new ArrayList<>(fileService.postFilesSave(post, requestDto.files()));
+            fileService.postFilesSave(post, requestDto.files());
         }
-
-        return post.getId();
     }
 
     public PostResponse findPostById(Long postId) {
@@ -128,7 +128,7 @@ public class PostService {
     }
 
     @Transactional
-    public Long updatePost(Long id, PostUpdateRequest updateDto) {
+    public void updatePost(Long id, PostUpdateRequest updateDto) {
         Post post = postRepository.findPostWithFiles(id);
 
         if (post == null) {
@@ -137,37 +137,30 @@ public class PostService {
 
         List<File> existFiles = post.getFiles();
 
-        if (updateDto.files() != null) {
-            fileService.postFilesUpdate(existFiles, updateDto.files(),
-                    postUtils.parseJsonStringToMap(updateDto.oldFileNames()));
-        }
+        fileService.postFilesUpdate(post, existFiles, updateDto.files(),
+                postUtils.parseJsonStringToMap(updateDto.oldFileNames()));
 
         post.updatePost(updateDto);
-
-        return post.getId();
     }
 
 
     @Transactional
-    public boolean deletePostWithFiles(Long id) {
+    public void deletePost(Long id) {
         Post post = postRepository.findById(id)
-                .orElse(null);
+                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
-        if (post != null && post.getFiles().size() > 0) {
+        if (post.getFiles().size() > 0) {
             fileService.deletePostChildFiles(post);
-            postRepository.deleteById(post.getId());
-            return true;
-        } else if (post != null) {
-            postRepository.deleteById(post.getId());
-            return true;
         }
 
-        return false;
+        postRepository.deleteById(post.getId());
+        redisTemplate.delete(USER_VIEW_KEY + id);
     }
 
     public List<PostRankResponse> getPostsRanking() {
         ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
-        Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOperations.reverseRangeWithScores(CACHE_KEY, 0, 4);
+        Set<ZSetOperations.TypedTuple<Object>> typedTuples =
+                zSetOperations.reverseRangeWithScores(CACHE_KEY, 0, 4);
 
         List<PostRankResponse> responses = new ArrayList<>();
         if (typedTuples != null && !typedTuples.isEmpty()) {
@@ -189,7 +182,7 @@ public class PostService {
     }
 
     public void increasePostViewCount(String postId, String userId, Post post) {
-        String userViewKey = "post:view:user:" + userId;
+        String userViewKey = USER_VIEW_KEY + postId;
 
         boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
 

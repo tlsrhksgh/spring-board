@@ -8,6 +8,7 @@ import com.single.springboard.web.dto.post.PostUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,21 +20,22 @@ public class PostApiController {
     private final PostService postService;
 
     @PostMapping
-    public Long savePost(
+    public ResponseEntity<Void> savePost(
             @ModelAttribute @Valid PostSaveRequest requestDto,
             @LoginUser SessionUser user) {
-        return postService.savePostAndFiles(requestDto, user);
+        postService.savePostAndFiles(requestDto, user);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping("/{id}")
-    public Long updatePost(@PathVariable Long id, @ModelAttribute @Valid PostUpdateRequest updateDto) {
-        return postService.updatePost(id, updateDto);
+    public ResponseEntity<Void> updatePost(@PathVariable Long id, @ModelAttribute @Valid PostUpdateRequest updateDto) {
+        postService.updatePost(id, updateDto);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> deletePost(@PathVariable Long id) {
-        boolean result = postService.deletePostWithFiles(id);
-
-        return result ? ResponseEntity.ok(id) : ResponseEntity.badRequest().build();
+    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

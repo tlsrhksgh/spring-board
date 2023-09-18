@@ -17,6 +17,9 @@ public class PostUtils {
 
     public Map<Long, String> parseJsonStringToMap(String oldFileNameJson) {
         Map<Long, String> oldFileMap = new HashMap<>();
+        if(oldFileNameJson == null) {
+            return oldFileMap;
+        }
 
         try {
             JsonNode jsonNode = objectMapper.readTree(oldFileNameJson);
