@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="top-container" style="display: flex; justify-content: space-between; margin-bottom: 50px">
-    <div id="ranking-container">
+    <div id="ranking-container" style="margin-bottom: 15px">
         <div style="display: inline-block">
             <h4>인기 게시글 순위 Top5</h4>
             <span th:if="${ranking.size() == 0}" style="opacity: 0.6">존재하는 게시물이 없습니다.</span>
@@ -22,6 +22,17 @@
     <div th:if="${user != null}">
         <header th:replace="~{fragments/header :: login-menu(${user})}"></header>
     </div>
+</div>
+<div id="search" style="position: relative">
+    <form method="get" action="/search" style="position: absolute; top: -50px; right: 0">
+        <input type="text" name="query" placeholder="검색어를 입력해 주세요" />
+        <input type="submit" value="검색" />
+    </form>
+</div>
+<div th:if="${user != null}" style="position: relative">
+    <a href="/posts/save" style="position: absolute; top: -50px; left: 0" role="button" class="btn btn-primary">
+        글 등록
+    </a>
 </div>
 <div class="col-md-12">
     <table class="table table-horizontal table-bordered">
