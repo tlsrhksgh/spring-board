@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT COUNT(c.user.name) from Comment c where c.user.name = :username")
-    Long countPostByUser(@Param("username") String username);
+    Long countCommentByUser(@Param("username") String username);
 }

@@ -1,5 +1,6 @@
 package com.single.springboard.web;
 
+import com.single.springboard.domain.post.dto.PostPaginationDto;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.post.dto.CountResponse;
 import com.single.springboard.service.user.LoginUser;
@@ -12,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,5 +46,12 @@ public class PostApiController {
     @GetMapping("/count")
     public ResponseEntity<CountResponse> CountPostAndComment(@LoginUser SessionUser user) {
         return ResponseEntity.ok(postService.countPostAndComment(user));
+    }
+
+    @GetMapping("/post-comment-list")
+    public ResponseEntity<List<PostPaginationDto>> findPostAndCommentList(
+            @LoginUser SessionUser user,
+            @RequestParam(value = "postId", required = false) Long postId) {
+        return ResponseEntity.ok(postService.findWrittenPostByUsername(user, postId));
     }
 }
