@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.post.PostCustomRepository;
+import com.single.springboard.domain.post.dto.PostPaginationDto;
 import com.single.springboard.web.dto.post.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -62,5 +63,30 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 Expressions.stringTemplate("FORMATDATETIME({0}, {1})", date, "yyyy-MM-dd HH:mm:ss"),
                 "formattedModifiedDate"
         );
+    }
+
+    @Override
+    public List<PostPaginationDto> postPagination(Long postId, String username, int pageSize) {
+        return query
+                .select(Projections.constructor(PostPaginationDto.class,
+                        post.id.as("postId"),
+                        post.title,
+                        post.createdDate))
+                .from(post)
+                .where(
+                        ltPostId(postId),
+                        post.user.name.eq(username)
+                )
+                .orderBy(post.id.desc())
+                .limit(pageSize)
+                .fetch();
+    }
+
+    private BooleanExpression ltPostId(Long postId) {
+        if(postId == null) {
+            return null;
+        }
+
+        return post.id.lt(postId);
     }
 }

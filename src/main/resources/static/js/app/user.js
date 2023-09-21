@@ -6,8 +6,6 @@ $('#user-image').on('click', () => {
 $('#picture').on('change', (e) => {
     const imagePreview = document.getElementById("image-preview");
     const file = e.target.files[0];
-    console.log(file);
-    console.log(e);
 
     if (file) {
         const reader = new FileReader();
@@ -70,7 +68,7 @@ let user = {
         const postCountSpan = document.createElement("span");
         postCountSpan.textContent = "게시글 작성 건: ";
         const postCountLink = document.createElement("a");
-        postCountLink.href = "/post_count-list"
+        postCountLink.href = "/post_comment-list"
         postCountLink.text = data.postCount + "건";
         postCountDiv.append(postCountSpan, postCountLink);
 
@@ -78,7 +76,7 @@ let user = {
         const commentCountSpan = document.createElement("span");
         commentCountSpan.textContent = "댓글 작성 건: ";
         const commentCountLink = document.createElement("a");
-        commentCountLink.href = "/post_count-list"
+        commentCountLink.href = "/post_comment-list"
         commentCountLink.text = data.commentCount + "건";
         commentCountDiv.append(commentCountSpan, commentCountLink);
         postAndCommentCountContainer.append(postCountDiv, commentCountDiv);

@@ -86,4 +86,14 @@ public class IndexController {
 
         return "user-info";
     }
+
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @GetMapping("/post_comment-list")
+    public String postAndComment(
+            @LoginUser SessionUser user,
+            Model model) {
+        model.addAttribute("user", user);
+
+        return "post_comment-list";
+    }
 }

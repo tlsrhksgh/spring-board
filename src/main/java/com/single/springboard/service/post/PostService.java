@@ -5,6 +5,7 @@ import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
+import com.single.springboard.domain.post.dto.PostPaginationDto;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -200,8 +201,12 @@ public class PostService {
 
     public CountResponse countPostAndComment(SessionUser user) {
         Long postCount = postRepository.countPostByUser(user.getName());
-        Long commentCount = commentRepository.countPostByUser(user.getName());
+        Long commentCount = commentRepository.countCommentByUser(user.getName());
 
         return new CountResponse(postCount, commentCount);
+    }
+
+    public List<PostPaginationDto> findWrittenPostByUsername(SessionUser user, Long postId) {
+        return postRepository.postPagination(postId, user.getName(), 10);
     }
 }
