@@ -16,7 +16,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(indexes = @Index(name = "i_comments", columnList = "post_id"))
 @Entity
 public class Comment extends BaseTimeEntity {
 

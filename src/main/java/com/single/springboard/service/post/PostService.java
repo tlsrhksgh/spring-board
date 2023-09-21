@@ -1,6 +1,7 @@
 package com.single.springboard.service.post;
 
 import com.single.springboard.domain.comment.Comment;
+import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
@@ -8,6 +9,7 @@ import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.file.FileService;
+import com.single.springboard.service.post.dto.CountResponse;
 import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
@@ -17,6 +19,7 @@ import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
 import com.single.springboard.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -36,12 +39,13 @@ import static com.single.springboard.exception.ErrorCode.*;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final FileService fileService;
     private final CommentUtils commentUtils;
     private final PostUtils postUtils;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String CACHE_KEY = "ranking";
+    private static final String RANKING_KEY = "ranking";
     private static final String USER_VIEW_KEY = "post:view:user:";
 
     @Transactional
@@ -73,6 +77,7 @@ public class PostService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public PostElementsResponse findPostAndElements(Long id, @LoginUser SessionUser user) {
         Post post = postRepository.findPostWithCommentsAndUser(id);
 
@@ -154,16 +159,16 @@ public class PostService {
         }
 
         postRepository.deleteById(post.getId());
-        redisTemplate.delete(USER_VIEW_KEY + id);
+        redisTemplate.opsForZSet().remove(RANKING_KEY, post.getTitle() + ":" + post.getId());
     }
 
     public List<PostRankResponse> getPostsRanking() {
         ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
         Set<ZSetOperations.TypedTuple<Object>> typedTuples =
-                zSetOperations.reverseRangeWithScores(CACHE_KEY, 0, 4);
+                zSetOperations.reverseRangeWithScores(RANKING_KEY, 0, 4);
 
         List<PostRankResponse> responses = new ArrayList<>();
-        if (typedTuples != null && !typedTuples.isEmpty()) {
+        if (typedTuples != null) {
             List<PostRankResponse> list = typedTuples.stream()
                     .map(tuple -> {
                         String[] splitValue = String.valueOf(tuple.getValue()).split(":");
@@ -182,14 +187,21 @@ public class PostService {
     }
 
     public void increasePostViewCount(String postId, String userId, Post post) {
-        String userViewKey = USER_VIEW_KEY + postId;
+        String userViewKey = USER_VIEW_KEY + userId;
 
         boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
 
         if (!hasViewed) {
-            redisTemplate.opsForZSet().incrementScore("ranking", post.getTitle() + ":" + postId, 1);
+            redisTemplate.opsForZSet().incrementScore(RANKING_KEY, post.getTitle() + ":" + postId, 1);
             redisTemplate.opsForSet().add(userViewKey, postId);
             post.increaseViewCount();
         }
+    }
+
+    public CountResponse countPostAndComment(SessionUser user) {
+        Long postCount = postRepository.countPostByUser(user.getName());
+        Long commentCount = commentRepository.countPostByUser(user.getName());
+
+        return new CountResponse(postCount, commentCount);
     }
 }
