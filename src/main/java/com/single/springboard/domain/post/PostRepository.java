@@ -25,4 +25,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostCustomRep
             "LEFT JOIN fetch p.files " +
             "where p.id = :postId")
     Post findPostWithFiles(@Param("postId") Long postId);
+
+    @Query("SELECT COUNT(p.user.name) from Post p where p.user.name = :username")
+    Long countPostByUser(@Param("username") String username);
 }

@@ -1,6 +1,7 @@
 package com.single.springboard.web;
 
 import com.single.springboard.service.post.PostService;
+import com.single.springboard.service.post.dto.CountResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.post.PostSaveRequest;
@@ -37,5 +38,10 @@ public class PostApiController {
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<CountResponse> CountPostAndComment(@LoginUser SessionUser user) {
+        return ResponseEntity.ok(postService.countPostAndComment(user));
     }
 }

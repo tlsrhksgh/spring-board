@@ -56,15 +56,11 @@ public class IndexController {
     @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        long startTime = System.currentTimeMillis();
         PostElementsResponse post = postService.findPostAndElements(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
         model.addAttribute("files", post.fileName());
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("처리 시간: " + (endTime - startTime) + "ms");
 
         return "post-find";
     }
