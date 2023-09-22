@@ -11,5 +11,5 @@ public interface PostCustomRepository {
 
     Page<SearchResponse> findAllByKeyword(String keyword, Pageable pageable);
 
-    List<PostPaginationDto> postPagination(Long postId, String username, int pageSize);
+    List<PostPaginationDto> postListPagination(Long postId, String username, int pageSize);
 }

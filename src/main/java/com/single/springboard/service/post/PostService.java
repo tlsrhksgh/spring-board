@@ -20,7 +20,6 @@ import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
 import com.single.springboard.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -207,6 +206,6 @@ public class PostService {
     }
 
     public List<PostPaginationDto> findWrittenPostByUsername(SessionUser user, Long postId) {
-        return postRepository.postPagination(postId, user.getName(), 10);
+        return postRepository.postListPagination(postId, user.getName(), 10);
     }
 }

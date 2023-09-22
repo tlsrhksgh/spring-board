@@ -8,6 +8,7 @@ import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.single.springboard.domain.common.CommonUtils;
 import com.single.springboard.domain.post.PostCustomRepository;
 import com.single.springboard.domain.post.dto.PostPaginationDto;
 import com.single.springboard.web.dto.post.SearchResponse;
@@ -33,7 +34,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                         post.title,
                         post.content,
                         post.user.name,
-                        formattedModifiedDate(post.modifiedDate)
+                        CommonUtils.formattedModifiedDate(post.modifiedDate)
                 ))
                 .from(post)
                 .where(likePostTitleAndContent(keyword))
@@ -58,20 +59,14 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         return null;
     }
 
-    private Expression<String> formattedModifiedDate(DateTimePath<LocalDateTime> date) {
-        return ExpressionUtils.as(
-                Expressions.stringTemplate("FORMATDATETIME({0}, {1})", date, "yyyy-MM-dd HH:mm:ss"),
-                "formattedModifiedDate"
-        );
-    }
-
     @Override
-    public List<PostPaginationDto> postPagination(Long postId, String username, int pageSize) {
+    public List<PostPaginationDto> postListPagination(Long postId, String username, int pageSize) {
         return query
                 .select(Projections.constructor(PostPaginationDto.class,
                         post.id.as("postId"),
                         post.title,
-                        post.createdDate))
+                        post.viewCount,
+                        CommonUtils.formattedModifiedDate(post.createdDate)))
                 .from(post)
                 .where(
                         ltPostId(postId),
