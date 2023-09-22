@@ -1,9 +1,7 @@
 function init() {
-    const container = document.getElementById("post-comment_container");
-
     $.ajax({
         type: 'GET',
-        url: '/api/v1/posts/post-comment-list'
+        url: '/api/v1/posts/post-list'
     }).done((data) => {
         displayPostTable(data);
     }).fail((error) => {
@@ -13,7 +11,7 @@ function init() {
 }
 
 function displayPostTable(data) {
-    const container = $("#post-comment_container");
+    const container = $("#post-list_container");
 
     $.each(data, function(index, post) {
         const row = $("<tr>");
@@ -28,14 +26,15 @@ function displayPostTable(data) {
 }
 
 $('#more-view').on('click', () => {
-    const container = $("#post-comment_container");
+    const container = $("#post-list_container");
     const tbodyChildLength = container.find("tbody").children().length;
+
     const tbodyLastChild = container.find("tbody").children()[tbodyChildLength - 1];
     const lastPostId = tbodyLastChild.querySelectorAll("td")[0].textContent;
 
     $.ajax({
         type: 'GET',
-        url: '/api/v1/posts/post-comment-list',
+        url: '/api/v1/posts/post-list',
         data: {
             postId: lastPostId
         }

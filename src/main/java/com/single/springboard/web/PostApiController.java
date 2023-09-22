@@ -48,8 +48,8 @@ public class PostApiController {
         return ResponseEntity.ok(postService.countPostAndComment(user));
     }
 
-    @GetMapping("/post-comment-list")
-    public ResponseEntity<List<PostPaginationDto>> findPostAndCommentList(
+    @GetMapping("/post-list")
+    public ResponseEntity<List<PostPaginationDto>> findPostList(
             @LoginUser SessionUser user,
             @RequestParam(value = "postId", required = false) Long postId) {
         return ResponseEntity.ok(postService.findWrittenPostByUsername(user, postId));
