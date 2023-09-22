@@ -88,12 +88,22 @@ public class IndexController {
     }
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
-    @GetMapping("/post_comment-list")
-    public String postAndComment(
+    @GetMapping("/post-list")
+    public String postList(
             @LoginUser SessionUser user,
             Model model) {
         model.addAttribute("user", user);
 
-        return "post_comment-list";
+        return "post-list";
+    }
+
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @GetMapping("/comment-list")
+    public String commentList(
+            @LoginUser SessionUser user,
+            Model model) {
+        model.addAttribute("user", user);
+
+        return "comment-list";
     }
 }

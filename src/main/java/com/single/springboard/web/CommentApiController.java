@@ -1,5 +1,7 @@
 package com.single.springboard.web;
 
+import com.single.springboard.domain.comment.dto.CommentPaginationDto;
+import com.single.springboard.domain.post.dto.PostPaginationDto;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.service.comment.CommentService;
@@ -8,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/comments")
@@ -24,5 +28,12 @@ public class CommentApiController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Long> commentDelete(@PathVariable Long id) {
         return ResponseEntity.ok(commentService.deleteOneComment(id));
+    }
+
+    @GetMapping("/comment-list")
+    public ResponseEntity<List<CommentPaginationDto>> findCommentList(
+            @LoginUser SessionUser user,
+            @RequestParam(value = "commentId", required = false) Long commentId) {
+        return ResponseEntity.ok(commentService.findWrittenCommentByUsername(user, commentId));
     }
 }
