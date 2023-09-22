@@ -2,16 +2,19 @@ package com.single.springboard.service.comment;
 
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentRepository;
+import com.single.springboard.domain.comment.dto.CommentPaginationDto;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
+import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
@@ -64,5 +67,9 @@ public class CommentService {
         commentRepository.deleteById(commentId);
 
         return commentId;
+    }
+
+    public List<CommentPaginationDto> findWrittenCommentByUsername(SessionUser user, Long commentId) {
+        return commentRepository.commentListPagination(commentId, user.getName(), 10);
     }
 }
