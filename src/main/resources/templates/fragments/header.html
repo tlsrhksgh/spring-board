@@ -1,6 +1,6 @@
 <div xmlns:th="http://www.thymeleaf.org">
-    <div th:fragment="login-menu(user)" style="margin-top: 20px; min-width: 230px">
-        <div style="display:flex; justify-content: space-around; margin-bottom: 15px;">
+    <div th:fragment="login-menu(user)" style="margin-top: 20px; min-width: 230px; position: relative">
+        <div style="position: absolute; right: 0px; margin-bottom: 15px;">
             <a th:href="${'/user/info'}">
                 <img th:src="${user.getPicture()}" width="30px" height="30px" style="border-radius: 15px" />
             </a>
@@ -9,8 +9,8 @@
     </div>
 
 
-    <div th:fragment="logout-menu" style="margin-top: 20px;">
-        <div style="display: inline-block">
+    <div th:fragment="logout-menu" style="margin-top: 20px; position: relative">
+        <div style="position: absolute; right: 0px; min-width: 236px">
             <a href="/oauth2/authorization/naver" class="btn btn-success active" role="button">Naver Login</a>
             <a href="/oauth2/authorization/kakao" role="button">
                 <img src="/images/kakao_login.png" style="width: 115px; height: 38px"/>

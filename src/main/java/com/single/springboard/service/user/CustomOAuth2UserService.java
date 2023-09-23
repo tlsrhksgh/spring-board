@@ -1,6 +1,5 @@
 package com.single.springboard.service.user;
 
-import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -21,7 +20,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
 import static com.single.springboard.exception.ErrorCode.IS_EXIST_USERNAME;
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;

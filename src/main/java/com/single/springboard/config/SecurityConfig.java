@@ -52,8 +52,9 @@ public class SecurityConfig {
                 .formLogin(FormLoginConfigurer::disable)
                 .logout(logoutConfigurer ->
                         logoutConfigurer
-                                .logoutSuccessUrl("/")
+                                .deleteCookies("JSESSIONID")
                                 .invalidateHttpSession(true)
+                                .logoutSuccessUrl("/")
                 )
                 .oauth2Login(oAuth2LoginConfigurer -> {
                     oAuth2LoginConfigurer.userInfoEndpoint(config -> config.userService(customOAuth2UserService));
@@ -64,6 +65,13 @@ public class SecurityConfig {
                                 .accessDeniedHandler(customAccessDeniedHandler)
                                 .authenticationEntryPoint(customAuthEntryPointException)
                 );
+
+        http.sessionManagement(sessionManagement -> {
+            sessionManagement
+                    .maximumSessions(1)
+                    .maxSessionsPreventsLogin(false)
+                    .expiredUrl("/");
+        });
 
         return http.build();
     }

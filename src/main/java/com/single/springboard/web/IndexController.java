@@ -49,6 +49,7 @@ public class IndexController {
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostResponse post = postService.findPostById(id);
         model.addAttribute("post", post);
+        model.addAttribute("user", user);
 
         return "post-update";
     }
@@ -70,9 +71,11 @@ public class IndexController {
     public String search(
             @RequestParam("query") @NotBlank(message = "검색은 한 글자 이상 입력되어야 합니다.") String keyword,
                          Pageable pageable,
+                         @LoginUser SessionUser user,
                          Model model) {
         model.addAttribute("posts", searchService.findAllPostsByKeyword(keyword, pageable));
         model.addAttribute("keyword", keyword);
+        model.addAttribute("user", user);
 
         return "search";
     }

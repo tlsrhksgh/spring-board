@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>스프링 부트 웹서비스</title>
+    <title>게시글 수정</title>
     <meta http-equiv="content-type" content="text/html" charset="UTF-8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 </head>
@@ -13,7 +13,7 @@
         <form>
             <div class="form-group">
                 <label for="id">글 번호</label>
-                <p class="form-control" id="id" th:text="${post.id}"></p>
+                <p id="id" th:text="${post.id}"></p>
             </div>
             <div class="form-group">
                 <label for="title">제목</label>
@@ -21,11 +21,11 @@
             </div>
             <div class="form-group">
                 <label for="author">작성자</label>
-                <p type="text" class="form-control" id="author" th:text="${post.author}"></p>
+                <p id="author" th:text="${post.author}"></p>
             </div>
             <div class="form-group">
                 <label for="content">내용</label>
-                <textarea class="form-control" id="content" th:text="${post.content}"></textarea>
+                <textarea rows="10" class="form-control" id="content" th:text="${post.content}"></textarea>
                 <div th:each="file : ${files}">
                     <img th:src="'https://spring-board-file.s3.ap-northeast-2.amazonaws.com/' + ${file.getTranslateName()}" />
                 </div>
