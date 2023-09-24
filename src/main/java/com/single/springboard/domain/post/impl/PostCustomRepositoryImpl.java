@@ -1,16 +1,13 @@
 package com.single.springboard.domain.post.impl;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.DateTimePath;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.common.CommonUtils;
 import com.single.springboard.domain.post.PostCustomRepository;
-import com.single.springboard.domain.post.dto.PostPaginationDto;
+import com.single.springboard.domain.post.dto.PostListPaginationDto;
+import com.single.springboard.web.dto.post.PostsResponse;
 import com.single.springboard.web.dto.post.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,14 +15,34 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.single.springboard.domain.post.QPost.post;
+import static com.single.springboard.domain.comment.QComment.comment;
 
 @RequiredArgsConstructor
 public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory query;
+
+    @Override
+    public List<PostsResponse> findAllPostWithCommentsNoOffset(Long postId, int pageSize, boolean isLessThen) {
+        return query
+                .select(Projections.constructor(PostsResponse.class,
+                        post.id.as("postId"),
+                        post.title,
+                        post.user.name.as("author"),
+                        comment.count().as("commentCount"),
+                        post.viewCount,
+                        CommonUtils.formattedModifiedDate(post.modifiedDate)))
+                .from(post)
+                .leftJoin(comment)
+                .on(comment.post.id.eq(post.id))
+                .where(isLessThen ? ltPostId(postId) : gtPostId(postId))
+                .groupBy(post.id)
+                .orderBy(isLessThen ? post.id.desc() : post.id.asc())
+                .limit(pageSize)
+                .fetch();
+    }
 
     @Override
     public Page<SearchResponse> findAllByKeyword(String keyword, Pageable pageable) {
@@ -60,9 +77,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     }
 
     @Override
-    public List<PostPaginationDto> postListPagination(Long postId, String username, int pageSize) {
+    public List<PostListPaginationDto> postListPaginationNoOffset(Long postId, String username, int pageSize) {
         return query
-                .select(Projections.constructor(PostPaginationDto.class,
+                .select(Projections.constructor(PostListPaginationDto.class,
                         post.id.as("postId"),
                         post.title,
                         post.viewCount,
@@ -83,5 +100,13 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         }
 
         return post.id.lt(postId);
+    }
+
+    private BooleanExpression gtPostId(Long postId) {
+        if(postId == null) {
+            return null;
+        }
+
+        return post.id.gt(postId);
     }
 }

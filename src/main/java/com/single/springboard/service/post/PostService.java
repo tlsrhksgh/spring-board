@@ -5,7 +5,9 @@ import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
+import com.single.springboard.domain.post.dto.PostListPaginationDto;
 import com.single.springboard.domain.post.dto.PostPaginationDto;
+import com.single.springboard.domain.post.dto.RealPaginationDt;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -20,16 +22,16 @@ import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
 import com.single.springboard.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.*;
@@ -47,6 +49,7 @@ public class PostService {
 
     private static final String RANKING_KEY = "ranking";
     private static final String USER_VIEW_KEY = "post:view:user:";
+    private static AtomicLong postTotalCount = new AtomicLong();
 
     @Transactional
     public void savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
@@ -58,6 +61,12 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
         Post post = postRepository.save(requestDto.toEntity(user));
+        postTotalCount.incrementAndGet();
+
+        for (int i = 0; i < 10000; i++) {
+            postRepository.save(requestDto.toEntity(user));
+            postTotalCount.incrementAndGet();
+        }
 
         if (requestDto.files() != null) {
             fileService.postFilesSave(post, requestDto.files());
@@ -115,21 +124,34 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostsResponse> findAllPostsAndCommentsCountDesc(Pageable pageable) {
-        return postRepository.findAllPostsWithCommentsCountAndUser(pageable)
-                .map(objects -> {
-                    Post post = (Post) objects[0];
-                    Long commentsCount = (Long) objects[1];
+    public RealPaginationDt findAllPostAndCommentsCountDesc(int currentPage, int pageSize, boolean isLessThen) {
+        Long postId = currentPage == 1 ? postTotalCount.get() : postTotalCount.get() - ((long) currentPage *  pageSize);
+        List<PostsResponse> postsResponse = postRepository.findAllPostWithCommentsNoOffset(postId, pageSize, isLessThen);
 
-                    return PostsResponse.builder()
-                            .id(post.getId())
-                            .author(post.getUser().getName())
-                            .title(post.getTitle())
-                            .modifiedDate(DateUtils.formatDate(post.getModifiedDate()))
-                            .viewCount(post.getViewCount())
-                            .commentsCount(commentsCount)
-                            .build();
-                });
+        PostPaginationDto postPaginationDto;
+
+        if(postsResponse.size() > 0) {
+            if(!isLessThen) {
+                Collections.reverse(postsResponse);
+            }
+            postPaginationDto = PostPaginationDto.builder()
+                    .currentPage(currentPage)
+                    .firstPostId(postsResponse.get(0).id())
+                    .lastPostId(postsResponse.get(postsResponse.size() - 1).id())
+                    .size(pageSize)
+                    .totalPage((postTotalCount.get() / 20) >= 1 ? (postTotalCount.get() / 20) + 1 : 0)
+                    .build();
+        } else {
+            postPaginationDto = PostPaginationDto.builder()
+                    .currentPage(currentPage)
+                    .firstPostId(null)
+                    .lastPostId(null)
+                    .size(pageSize)
+                    .totalPage((postTotalCount.get() / 20) >= 1 ? (postTotalCount.get() / 20) + 1 : 0)
+                    .build();
+        }
+
+        return new RealPaginationDt(postsResponse, postPaginationDto);
     }
 
     @Transactional
@@ -158,6 +180,7 @@ public class PostService {
             fileService.deletePostChildFiles(post);
         }
 
+        postTotalCount.decrementAndGet();
         postRepository.deleteById(post.getId());
         redisTemplate.opsForZSet().remove(RANKING_KEY, post.getTitle() + ":" + post.getId());
     }
@@ -205,7 +228,7 @@ public class PostService {
         return new CountResponse(postCount, commentCount);
     }
 
-    public List<PostPaginationDto> findWrittenPostByUsername(SessionUser user, Long postId) {
-        return postRepository.postListPagination(postId, user.getName(), 10);
+    public List<PostListPaginationDto> findWrittenPostByUsername(SessionUser user, Long postId) {
+        return postRepository.postListPaginationNoOffset(postId, user.getName(), 10);
     }
 }

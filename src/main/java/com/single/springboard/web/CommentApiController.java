@@ -1,10 +1,9 @@
 package com.single.springboard.web;
 
 import com.single.springboard.domain.comment.dto.CommentPaginationDto;
-import com.single.springboard.domain.post.dto.PostPaginationDto;
+import com.single.springboard.service.comment.CommentService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.service.comment.CommentService;
 import com.single.springboard.web.dto.comment.CommentSaveRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

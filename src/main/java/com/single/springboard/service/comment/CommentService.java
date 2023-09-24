@@ -70,6 +70,6 @@ public class CommentService {
     }
 
     public List<CommentPaginationDto> findWrittenCommentByUsername(SessionUser user, Long commentId) {
-        return commentRepository.commentListPagination(commentId, user.getName(), 10);
+        return commentRepository.commentListPaginationNoOffset(commentId, user.getName(), 10);
     }
 }
