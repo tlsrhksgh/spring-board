@@ -6,8 +6,9 @@ import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.domain.post.dto.PostListPaginationDto;
-import com.single.springboard.domain.post.dto.PostPaginationDto;
-import com.single.springboard.domain.post.dto.RealPaginationDt;
+import com.single.springboard.domain.post.dto.MainPostPaginationDto;
+import com.single.springboard.domain.post.dto.PostsResponse;
+import com.single.springboard.domain.post.dao.PostsInfoNoOffsetDao;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -124,28 +124,18 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public RealPaginationDt findAllPostAndCommentsCountDesc(int currentPage, int pageSize) {
+    public PostsResponse findAllPostAndCommentsCountDesc(int currentPage, int pageSize) {
         Long postId = currentPage == 1 ? null : postTotalCount.get() - ((long) (currentPage - 1) * pageSize);
 
-        List<PostsResponse> postsResponse = postRepository.findAllPostWithCommentsNoOffset(postId, pageSize);
+        List<PostsInfoNoOffsetDao> postsInfoNoOffsetDao = postRepository.findAllPostWithCommentsNoOffset(postId, pageSize);
 
-        PostPaginationDto postPaginationDto;
+        MainPostPaginationDto mainPostPaginationDto = MainPostPaginationDto.builder()
+                .currentPage(currentPage)
+                .size(pageSize)
+                .totalPage((postTotalCount.get() / pageSize) >= 1 ? (postTotalCount.get() / pageSize) + 1 : 0)
+                .build();
 
-        if(postsResponse.size() > 0) {
-            postPaginationDto = PostPaginationDto.builder()
-                    .currentPage(currentPage)
-                    .size(pageSize)
-                    .totalPage((postTotalCount.get() / pageSize) >= 1 ? (postTotalCount.get() / pageSize) + 1 : 0)
-                    .build();
-        } else {
-            postPaginationDto = PostPaginationDto.builder()
-                    .currentPage(currentPage)
-                    .size(pageSize)
-                    .totalPage((postTotalCount.get() / pageSize) >= 1 ? (postTotalCount.get() / pageSize) + 1 : 0)
-                    .build();
-        }
-
-        return new RealPaginationDt(postsResponse, postPaginationDto);
+        return new PostsResponse(postsInfoNoOffsetDao, mainPostPaginationDto);
     }
 
     @Transactional

@@ -7,7 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.common.CommonUtils;
 import com.single.springboard.domain.post.PostCustomRepository;
 import com.single.springboard.domain.post.dto.PostListPaginationDto;
-import com.single.springboard.web.dto.post.PostsResponse;
+import com.single.springboard.domain.post.dao.PostsInfoNoOffsetDao;
 import com.single.springboard.web.dto.post.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,9 +25,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<PostsResponse> findAllPostWithCommentsNoOffset(Long postId, int pageSize) {
+    public List<PostsInfoNoOffsetDao> findAllPostWithCommentsNoOffset(Long postId, int pageSize) {
         return query
-                .select(Projections.constructor(PostsResponse.class,
+                .select(Projections.constructor(PostsInfoNoOffsetDao.class,
                         post.id.as("postId"),
                         post.title,
                         post.user.name.as("author"),

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PostPaginationDto {
+public class MainPostPaginationDto {
     private int currentPage;
     private long totalPage;
     private int size;
