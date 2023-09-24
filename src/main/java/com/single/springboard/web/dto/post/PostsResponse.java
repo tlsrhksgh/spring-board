@@ -8,8 +8,8 @@ public record PostsResponse(
         Long id,
         String title,
         String author,
-        long commentsCount,
-        long viewCount,
+        Long commentCount,
+        Long viewCount,
         String modifiedDate
 ) {
 

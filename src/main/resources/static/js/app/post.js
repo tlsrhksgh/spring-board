@@ -1,6 +1,7 @@
 let post = {
     init: function () {
         let _this = this;
+
         $('.post-save_btn').on('click', () => {
             _this.save();
         });

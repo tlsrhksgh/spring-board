@@ -5,7 +5,6 @@ import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.post.PostElementsResponse;
-import com.single.springboard.web.dto.post.PostResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -28,8 +27,11 @@ public class IndexController {
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
-                        Pageable pageable) {
-        model.addAttribute("posts", postService.findAllPostsAndCommentsCountDesc(pageable));
+                        @RequestParam(value = "isLessThen", defaultValue = "true") boolean isLessThen,
+                        @RequestParam(value = "page", defaultValue = "1") Integer currentPage,
+                        @RequestParam(value = "size", defaultValue = "20") Integer pageSize) {
+        model.addAttribute("posts",
+                postService.findAllPostAndCommentsCountDesc(currentPage, pageSize, isLessThen));
         model.addAttribute("ranking", postService.getPostsRanking());
         model.addAttribute("user", user);
 
@@ -47,8 +49,7 @@ public class IndexController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/update/{id}")
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        PostResponse post = postService.findPostById(id);
-        model.addAttribute("post", post);
+        model.addAttribute("post", postService.findPostById(id));
         model.addAttribute("user", user);
 
         return "post-update";

@@ -2,7 +2,6 @@ package com.single.springboard.web;
 
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;
-import com.single.springboard.scheduler.RankingScheduler;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.search.SearchService;
@@ -42,9 +41,6 @@ class IndexControllerTest {
     @MockBean
     private SearchService searchService;
 
-    @MockBean
-    private RankingScheduler rankingScheduler;
-
     @Test
     @WithMockUser(username = "guestUser", roles = "GUEST")
     void index_unAuthorizedUser_loadSuccess() throws Exception {
@@ -54,7 +50,7 @@ class IndexControllerTest {
         Page<PostsResponse> page = new PageImpl<>(postsResponses, pageable, 0);
         List<PostRankResponse> postRankResponses = Collections.emptyList();
 
-        given(postService.findAllPostsAndCommentsCountDesc(pageable))
+        given(postService.findAllPostAndCommentsCountDesc(pageable))
                 .willReturn(page);
         given(rankingScheduler.getPostsRanking())
                 .willReturn(postRankResponses);
@@ -67,7 +63,7 @@ class IndexControllerTest {
                 .andExpect(model().attributeExists("posts", "ranking"))
                 .andExpect(model().attributeDoesNotExist( "user"));
 
-        verify(postService, times(1)).findAllPostsAndCommentsCountDesc(pageable);
+        verify(postService, times(1)).findAllPostAndCommentsCountDesc(pageable);
         verify(rankingScheduler, times(1)).getPostsRanking();
     }
 
@@ -91,7 +87,7 @@ class IndexControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("user", new SessionUser(user));
 
-        given(postService.findAllPostsAndCommentsCountDesc(pageable))
+        given(postService.findAllPostAndCommentsCountDesc(pageable))
                 .willReturn(page);
         given(rankingScheduler.getPostsRanking())
                 .willReturn(postRankResponses);
@@ -104,7 +100,7 @@ class IndexControllerTest {
                 .andExpect(view().name("index"))
                 .andExpect(model().attributeExists("posts", "ranking", "user"));
 
-        verify(postService, times(1)).findAllPostsAndCommentsCountDesc(pageable);
+        verify(postService, times(1)).findAllPostAndCommentsCountDesc(pageable);
         verify(rankingScheduler, times(1)).getPostsRanking();
     }
 }

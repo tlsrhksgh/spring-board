@@ -17,7 +17,7 @@ public class CommentCustomRepositoryImpl implements CommentCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<CommentPaginationDto> commentListPagination(Long commentId, String username, int pageSize) {
+    public List<CommentPaginationDto> commentListPaginationNoOffset(Long commentId, String username, int pageSize) {
         return query
                 .select(Projections.constructor(CommentPaginationDto.class,
                         comment.id.as("commentId"),

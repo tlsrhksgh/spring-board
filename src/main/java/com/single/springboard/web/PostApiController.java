@@ -1,6 +1,6 @@
 package com.single.springboard.web;
 
-import com.single.springboard.domain.post.dto.PostPaginationDto;
+import com.single.springboard.domain.post.dto.PostListPaginationDto;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.post.dto.CountResponse;
 import com.single.springboard.service.user.LoginUser;
@@ -49,7 +49,7 @@ public class PostApiController {
     }
 
     @GetMapping("/post-list")
-    public ResponseEntity<List<PostPaginationDto>> findPostList(
+    public ResponseEntity<List<PostListPaginationDto>> findPostList(
             @LoginUser SessionUser user,
             @RequestParam(value = "postId", required = false) Long postId) {
         return ResponseEntity.ok(postService.findWrittenPostByUsername(user, postId));
