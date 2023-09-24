@@ -27,11 +27,9 @@ public class IndexController {
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
-                        @RequestParam(value = "isLessThen", defaultValue = "true") boolean isLessThen,
                         @RequestParam(value = "page", defaultValue = "1") Integer currentPage,
                         @RequestParam(value = "size", defaultValue = "20") Integer pageSize) {
-        model.addAttribute("posts",
-                postService.findAllPostAndCommentsCountDesc(currentPage, pageSize, isLessThen));
+        model.addAttribute("posts", postService.findAllPostAndCommentsCountDesc(currentPage, pageSize));
         model.addAttribute("ranking", postService.getPostsRanking());
         model.addAttribute("user", user);
 

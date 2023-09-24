@@ -76,8 +76,7 @@
             </li>
             <li class="page-item" th:classappend="${posts.getPagination().isFirst() ? 'disabled' : ''}">
                 <a class="page-link" th:href="@{/(
-                page=${posts.getPagination().getPreviousPage()}, size=${posts.getPagination().size},
-                isLessThen=false)}" aria-label="Previous">
+                page=${posts.getPagination().getPreviousPage()}, size=${posts.getPagination().size})}" aria-label="Previous">
                     <span aria-hidden="true"><</span>
                     <span class="sr-only">이전</span>
                 </a>
@@ -86,7 +85,7 @@
                 (posts.getPagination().currentPage % 10 == 0 ?
                 posts.getPagination().currentPage - 9 :
                 (posts.getPagination().currentPage - (posts.getPagination().currentPage % 10)) + 1),
-                (posts.getPagination().currentPage % 10 == 0 ?
+                (posts.getPagination().currentPage % 10 == 0 || posts.getPagination.isLast ?
                 posts.getPagination.currentPage :
                 ((posts.getPagination().currentPage / 10) + 1) * 10))}"
                 th:classappend="${posts.getPagination().getCurrentPage() == pageNumber ? 'active' : ''}">
@@ -96,15 +95,14 @@
             </li>
             <li class="page-item" th:classappend="${posts.getPagination().isLast() ? 'disabled' : ''}">
                 <a class="page-link" th:href="@{/(
-                page=${posts.getPagination().getNextPage()},size=${posts.getPagination().size},
-                isLessThen=true)}" aria-label="Next">
+                page=${posts.getPagination().getNextPage()},size=${posts.getPagination().size})}" aria-label="Next">
                     <span class="sr-only">다음</span>
                     <span aria-hidden="true">></span>
                 </a>
             </li>
             <li class="page-item" th:classappend="${posts.getPagination().isLast() ? 'disabled' : ''}">
                 <a class="page-link" th:href="@{/(page=${posts.getPagination().getTotalPage()},
-                size=${posts.getPagination().size}, postId=1, isLessThen=false)}" aria-label="Last">
+                size=${posts.getPagination().size}, postId=1)}" aria-label="Last">
                     <span class="sr-only">마지막으로</span>
                     <span aria-hidden="true">&raquo;</span>
                 </a>
