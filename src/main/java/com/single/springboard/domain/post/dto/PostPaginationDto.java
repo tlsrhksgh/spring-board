@@ -8,8 +8,6 @@ import lombok.Getter;
 public class PostPaginationDto {
     private int currentPage;
     private long totalPage;
-    private Long firstPostId;
-    private Long lastPostId;
     private int size;
     private boolean first;
     private boolean last;

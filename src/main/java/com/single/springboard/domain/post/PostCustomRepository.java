@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface PostCustomRepository {
 
-    List<PostsResponse> findAllPostWithCommentsNoOffset(Long postId, int pageSize, boolean isLessThen);
+    List<PostsResponse> findAllPostWithCommentsNoOffset(Long postId, int pageSize);
 
     Page<SearchResponse> findAllByKeyword(String keyword, Pageable pageable);
 

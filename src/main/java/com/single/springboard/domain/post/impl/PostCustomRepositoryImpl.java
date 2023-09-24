@@ -25,7 +25,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<PostsResponse> findAllPostWithCommentsNoOffset(Long postId, int pageSize, boolean isLessThen) {
+    public List<PostsResponse> findAllPostWithCommentsNoOffset(Long postId, int pageSize) {
         return query
                 .select(Projections.constructor(PostsResponse.class,
                         post.id.as("postId"),
@@ -37,9 +37,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .from(post)
                 .leftJoin(comment)
                 .on(comment.post.id.eq(post.id))
-                .where(isLessThen ? ltPostId(postId) : gtPostId(postId))
+                .where(loePostId(postId))
                 .groupBy(post.id)
-                .orderBy(isLessThen ? post.id.desc() : post.id.asc())
+                .orderBy(post.id.desc())
                 .limit(pageSize)
                 .fetch();
     }
@@ -94,19 +94,19 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .fetch();
     }
 
+    private BooleanExpression loePostId(Long postId) {
+        if(postId == null) {
+            return null;
+        }
+
+        return post.id.loe(postId);
+    }
+
     private BooleanExpression ltPostId(Long postId) {
         if(postId == null) {
             return null;
         }
 
         return post.id.lt(postId);
-    }
-
-    private BooleanExpression gtPostId(Long postId) {
-        if(postId == null) {
-            return null;
-        }
-
-        return post.id.gt(postId);
     }
 }

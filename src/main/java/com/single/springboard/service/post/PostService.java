@@ -124,30 +124,24 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public RealPaginationDt findAllPostAndCommentsCountDesc(int currentPage, int pageSize, boolean isLessThen) {
-        Long postId = currentPage == 1 ? postTotalCount.get() : postTotalCount.get() - ((long) currentPage *  pageSize);
-        List<PostsResponse> postsResponse = postRepository.findAllPostWithCommentsNoOffset(postId, pageSize, isLessThen);
+    public RealPaginationDt findAllPostAndCommentsCountDesc(int currentPage, int pageSize) {
+        Long postId = currentPage == 1 ? null : postTotalCount.get() - ((long) (currentPage - 1) * pageSize);
+
+        List<PostsResponse> postsResponse = postRepository.findAllPostWithCommentsNoOffset(postId, pageSize);
 
         PostPaginationDto postPaginationDto;
 
         if(postsResponse.size() > 0) {
-            if(!isLessThen) {
-                Collections.reverse(postsResponse);
-            }
             postPaginationDto = PostPaginationDto.builder()
                     .currentPage(currentPage)
-                    .firstPostId(postsResponse.get(0).id())
-                    .lastPostId(postsResponse.get(postsResponse.size() - 1).id())
                     .size(pageSize)
-                    .totalPage((postTotalCount.get() / 20) >= 1 ? (postTotalCount.get() / 20) + 1 : 0)
+                    .totalPage((postTotalCount.get() / pageSize) >= 1 ? (postTotalCount.get() / pageSize) + 1 : 0)
                     .build();
         } else {
             postPaginationDto = PostPaginationDto.builder()
                     .currentPage(currentPage)
-                    .firstPostId(null)
-                    .lastPostId(null)
                     .size(pageSize)
-                    .totalPage((postTotalCount.get() / 20) >= 1 ? (postTotalCount.get() / 20) + 1 : 0)
+                    .totalPage((postTotalCount.get() / pageSize) >= 1 ? (postTotalCount.get() / pageSize) + 1 : 0)
                     .build();
         }
 
