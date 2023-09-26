@@ -19,4 +19,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostCustomRep
 
     @Query("SELECT COUNT(p.user.name) from Post p where p.user.name = :username")
     Long countPostByUser(@Param("username") String username);
+
+    @Query("SELECT COUNT(p) from Post p")
+    Long countAllPost();
+
+    @Query("SELECT p.id from Post p ORDER BY p.id desc limit 1")
+    Long findMaxPostId();
 }

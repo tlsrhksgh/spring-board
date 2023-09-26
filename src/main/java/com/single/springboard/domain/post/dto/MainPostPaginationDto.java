@@ -5,12 +5,14 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PostPaginationDto {
+public class MainPostPaginationDto {
     private int currentPage;
     private long totalPage;
     private int size;
     private boolean first;
     private boolean last;
+    private Long firstPostId;
+    private Long lastPostId;
 
     public int getPreviousPage() {
         return currentPage > 1 ? currentPage - 1 : 1;
@@ -30,5 +32,13 @@ public class PostPaginationDto {
 
     public int getSize() {
         return size;
+    }
+
+    public Long getFirstPostId() {
+        return this.firstPostId;
+    }
+
+    public Long getLastPostId() {
+        return this.lastPostId;
     }
 }
