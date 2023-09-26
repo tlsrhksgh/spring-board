@@ -52,9 +52,9 @@
 ![spring-board_infra drawio](https://github.com/tlsrhksgh/spring-board/assets/12388299/695c737b-216b-43de-843d-bda0ed0052e0)
 
 ```
-현재는 비용 관계로 서버가 중단되어 있는 상태이므로 시연 영상을 업로드 하였습니다.
+현재는 비용 관계로 서버가 중단되어 있으므로 시연 영상을 업로드 하였습니다.
 ```
-# 배포 시연 영상
+### 배포 영상 링크
 https://spring-board-file.s3.ap-northeast-2.amazonaws.com/tlsrhksgh_spring-board+-+Chrome+2023-08-29+01-12-56.mp4
 
 # 프로젝트 구조
