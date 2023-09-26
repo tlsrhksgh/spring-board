@@ -109,4 +109,12 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         return post.id.lt(postId);
     }
+
+    private BooleanExpression gtPostId(Long postId) {
+        if(postId == null) {
+            return null;
+        }
+
+        return post.id.gt(postId);
+    }
 }

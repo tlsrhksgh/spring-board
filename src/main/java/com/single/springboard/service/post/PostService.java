@@ -5,10 +5,10 @@ import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
-import com.single.springboard.domain.post.dto.PostListPaginationDto;
-import com.single.springboard.domain.post.dto.MainPostPaginationDto;
-import com.single.springboard.domain.post.dto.PostsResponse;
 import com.single.springboard.domain.post.dao.PostsInfoNoOffsetDao;
+import com.single.springboard.domain.post.dto.MainPostPaginationDto;
+import com.single.springboard.domain.post.dto.PostListPaginationDto;
+import com.single.springboard.domain.post.dto.PostsResponse;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -21,12 +21,16 @@ import com.single.springboard.util.CommentUtils;
 import com.single.springboard.util.DateUtils;
 import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
-import com.single.springboard.web.dto.post.*;
+import com.single.springboard.web.dto.post.PostElementsResponse;
+import com.single.springboard.web.dto.post.PostResponse;
+import com.single.springboard.web.dto.post.PostSaveRequest;
+import com.single.springboard.web.dto.post.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.*;
+import static com.single.springboard.service.post.constants.PostKeys.*;
 
 @Service
 @RequiredArgsConstructor
@@ -47,9 +52,8 @@ public class PostService {
     private final PostUtils postUtils;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String RANKING_KEY = "ranking";
-    private static final String USER_VIEW_KEY = "post:view:user:";
     private static AtomicLong postTotalCount = new AtomicLong();
+    private static AtomicLong latestPostId = new AtomicLong();
 
     @Transactional
     public void savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
@@ -62,14 +66,32 @@ public class PostService {
 
         Post post = postRepository.save(requestDto.toEntity(user));
         postTotalCount.incrementAndGet();
+        latestPostId.incrementAndGet();
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 200; i++) {
             postRepository.save(requestDto.toEntity(user));
             postTotalCount.incrementAndGet();
+            latestPostId.incrementAndGet();
         }
 
         if (requestDto.files() != null) {
             fileService.postFilesSave(post, requestDto.files());
+        }
+
+        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get(POST_TOTAL_COUNT.getKey()))) {
+            redisTemplate.opsForValue().set(POST_TOTAL_COUNT.getKey(), String.valueOf(postTotalCount.incrementAndGet()));
+        } else {
+            long getTotalCount = Long.parseLong(redisTemplate.opsForValue().get(POST_TOTAL_COUNT.getKey()).toString());
+
+            if(getTotalCount != postTotalCount.get()) {
+                Long totalCount = postRepository.countAllPost();
+                postTotalCount.set(totalCount);
+                redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
+                        String.valueOf(totalCount));
+                return;
+            }
+            redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
+                    String.valueOf(postTotalCount.incrementAndGet()));
         }
     }
 
@@ -125,14 +147,28 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostsResponse findAllPostAndCommentsCountDesc(int currentPage, int pageSize) {
-        Long postId = currentPage == 1 ? null : postTotalCount.get() - ((long) (currentPage - 1) * pageSize);
+        Long postId;
 
-        List<PostsInfoNoOffsetDao> postsInfoNoOffsetDao = postRepository.findAllPostWithCommentsNoOffset(postId, pageSize);
+        if (currentPage == 1) {
+            postId = null;
+        } else {
+            long term = Math.abs(latestPostId.get() - postTotalCount.get()) -
+                    (postTotalCount.get() - ((long) (currentPage - 1) * pageSize));
+            postId = term > 0 ? term : Math.abs(latestPostId.get() - postTotalCount.get()) +
+                    (postTotalCount.get() - ((long) (currentPage - 1) * pageSize));
+        }
+
+
+        List<PostsInfoNoOffsetDao> postsInfoNoOffsetDao = postRepository
+                .findAllPostWithCommentsNoOffset(postId, pageSize);
 
         MainPostPaginationDto mainPostPaginationDto = MainPostPaginationDto.builder()
                 .currentPage(currentPage)
                 .size(pageSize)
-                .totalPage((postTotalCount.get() / pageSize) >= 1 ? (postTotalCount.get() / pageSize) + 1 : 0)
+                .totalPage((postTotalCount.get() / pageSize) +
+                        (postTotalCount.get() % pageSize == 0 ?
+                                postTotalCount.get() % pageSize / pageSize :
+                                postTotalCount.get() % pageSize / pageSize + 1))
                 .build();
 
         return new PostsResponse(postsInfoNoOffsetDao, mainPostPaginationDto);
@@ -164,15 +200,17 @@ public class PostService {
             fileService.deletePostChildFiles(post);
         }
 
-        postTotalCount.decrementAndGet();
+        redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
+                String.valueOf(postTotalCount.decrementAndGet()));
         postRepository.deleteById(post.getId());
-        redisTemplate.opsForZSet().remove(RANKING_KEY, post.getTitle() + ":" + post.getId());
+        latestPostId.set(postRepository.findMaxPostId());
+        redisTemplate.opsForZSet().remove(RANKING.getKey(), post.getTitle() + ":" + post.getId());
     }
 
     public List<PostRankResponse> getPostsRanking() {
         ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
         Set<ZSetOperations.TypedTuple<Object>> typedTuples =
-                zSetOperations.reverseRangeWithScores(RANKING_KEY, 0, 4);
+                zSetOperations.reverseRangeWithScores(RANKING.getKey(), 0, 4);
 
         List<PostRankResponse> responses = new ArrayList<>();
         if (typedTuples != null) {
@@ -194,12 +232,12 @@ public class PostService {
     }
 
     public void increasePostViewCount(String postId, String userId, Post post) {
-        String userViewKey = USER_VIEW_KEY + userId;
+        String userViewKey = USER_VIEW.getKey() + userId;
 
         boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
 
         if (!hasViewed) {
-            redisTemplate.opsForZSet().incrementScore(RANKING_KEY, post.getTitle() + ":" + postId, 1);
+            redisTemplate.opsForZSet().incrementScore(RANKING.getKey(), post.getTitle() + ":" + postId, 1);
             redisTemplate.opsForSet().add(userViewKey, postId);
             post.increaseViewCount();
         }
