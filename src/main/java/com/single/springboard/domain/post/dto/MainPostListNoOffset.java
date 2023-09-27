@@ -1,10 +1,10 @@
-package com.single.springboard.domain.post.dao;
+package com.single.springboard.domain.post.dto;
 
 
 import lombok.Builder;
 
 @Builder
-public record PostsInfoNoOffsetDao(
+public record MainPostListNoOffset(
         Long id,
         String title,
         String author,

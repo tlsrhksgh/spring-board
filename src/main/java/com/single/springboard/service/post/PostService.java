@@ -5,9 +5,9 @@ import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
-import com.single.springboard.domain.post.dao.PostsInfoNoOffsetDao;
-import com.single.springboard.domain.post.dto.MainPostPaginationDto;
-import com.single.springboard.domain.post.dto.PostListPaginationDto;
+import com.single.springboard.domain.post.dto.MainPostListNoOffset;
+import com.single.springboard.domain.post.dto.MainPostPagination;
+import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
 import com.single.springboard.domain.post.dto.PostsResponse;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
@@ -18,7 +18,6 @@ import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.CommentUtils;
-import com.single.springboard.util.DateUtils;
 import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
 import com.single.springboard.web.dto.post.PostElementsResponse;
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -109,7 +109,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostElementsResponse findPostAndElements(Long id, @LoginUser SessionUser user) {
+    public PostElementsResponse findPostDetail(Long id, @LoginUser SessionUser user) {
         Post post = postRepository.findPostWithCommentsAndUser(id);
 
         if (user != null) {
@@ -129,7 +129,9 @@ public class PostService {
                                         user.getName(), comment.getUser().getName()) ?
                                         comment.getContent() : "비밀 댓글 입니다.") : comment.getContent())
                         .author(comment.getUser().getName())
-                        .createdDate(DateUtils.formatDate(comment.getCreatedDate()))
+                        .createdDate(comment.getCreatedDate().format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                        ))
                         .build())
                 .collect(Collectors.toList());
 
@@ -159,19 +161,16 @@ public class PostService {
         }
 
 
-        List<PostsInfoNoOffsetDao> postsInfoNoOffsetDao = postRepository
+        List<MainPostListNoOffset> mainPostListNoOffset = postRepository
                 .findAllPostWithCommentsNoOffset(postId, pageSize);
 
-        MainPostPaginationDto mainPostPaginationDto = MainPostPaginationDto.builder()
+        MainPostPagination mainPostPagination = MainPostPagination.builder()
                 .currentPage(currentPage)
                 .size(pageSize)
-                .totalPage((postTotalCount.get() / pageSize) +
-                        (postTotalCount.get() % pageSize == 0 ?
-                                postTotalCount.get() % pageSize / pageSize :
-                                postTotalCount.get() % pageSize / pageSize + 1))
+                .totalPage((long) Math.ceil((double) postTotalCount.get() / pageSize))
                 .build();
 
-        return new PostsResponse(postsInfoNoOffsetDao, mainPostPaginationDto);
+        return new PostsResponse(mainPostListNoOffset, mainPostPagination);
     }
 
     @Transactional
@@ -205,6 +204,13 @@ public class PostService {
         postRepository.deleteById(post.getId());
         latestPostId.set(postRepository.findMaxPostId());
         redisTemplate.opsForZSet().remove(RANKING.getKey(), post.getTitle() + ":" + post.getId());
+    }
+
+    @Transactional
+    public void deleteAllPost(List<Long> ids) {
+        postRepository.deleteAllPostByIds(ids);
+        redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
+                String.valueOf(postTotalCount.decrementAndGet()));
     }
 
     public List<PostRankResponse> getPostsRanking() {
@@ -250,7 +256,7 @@ public class PostService {
         return new CountResponse(postCount, commentCount);
     }
 
-    public List<PostListPaginationDto> findWrittenPostByUsername(SessionUser user, Long postId) {
+    public List<PostListPaginationNoOffset> findWrittenPostByUsername(SessionUser user, Long postId) {
         return postRepository.postListPaginationNoOffset(postId, user.getName(), 10);
     }
 }
