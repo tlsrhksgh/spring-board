@@ -16,16 +16,18 @@
 </div>
 <div id="post-list_container">
   <h4>게시글 작성 내역</h4>
+  <button class="post-list-del_btn btn btn-danger" style="cursor: pointer">삭제</button>
   <table style="margin-top: 20px" class="table table-horizontal table-bordered">
     <thead class="thead-strong">
       <tr>
+        <th><input id="select-all", type="checkbox"></th>
         <th>게시글 번호</th>
         <th>제목</th>
         <th>조회수</th>
         <th>등록일</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="post-list">
     </tbody>
   </table>
   <p id="more-view" style="text-decoration-line: underline; cursor: pointer">더보기</p>

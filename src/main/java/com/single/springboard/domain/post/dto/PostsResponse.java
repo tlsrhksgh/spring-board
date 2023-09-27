@@ -1,17 +1,16 @@
 package com.single.springboard.domain.post.dto;
 
-import com.single.springboard.domain.post.dao.PostsInfoNoOffsetDao;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
 public class PostsResponse {
-    private List<PostsInfoNoOffsetDao> postResponses;
+    private List<MainPostListNoOffset> postResponses;
 
-    private MainPostPaginationDto pagination;
+    private MainPostPagination pagination;
 
-    public PostsResponse(List<PostsInfoNoOffsetDao> postResponses, MainPostPaginationDto paginationDto) {
+    public PostsResponse(List<MainPostListNoOffset> postResponses, MainPostPagination paginationDto) {
         this.postResponses = postResponses;
         this.pagination = paginationDto;
     }

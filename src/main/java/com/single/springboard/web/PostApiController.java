@@ -1,6 +1,6 @@
 package com.single.springboard.web;
 
-import com.single.springboard.domain.post.dto.PostListPaginationDto;
+import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.post.dto.CountResponse;
 import com.single.springboard.service.user.LoginUser;
@@ -43,13 +43,19 @@ public class PostApiController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllPost(@RequestBody List<Long> postIds) {
+        postService.deleteAllPost(postIds);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @GetMapping("/count")
     public ResponseEntity<CountResponse> CountPostAndComment(@LoginUser SessionUser user) {
         return ResponseEntity.ok(postService.countPostAndComment(user));
     }
 
     @GetMapping("/post-list")
-    public ResponseEntity<List<PostListPaginationDto>> findPostList(
+    public ResponseEntity<List<PostListPaginationNoOffset>> findPostList(
             @LoginUser SessionUser user,
             @RequestParam(value = "postId", required = false) Long postId) {
         return ResponseEntity.ok(postService.findWrittenPostByUsername(user, postId));

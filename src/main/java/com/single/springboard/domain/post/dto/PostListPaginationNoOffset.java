@@ -1,6 +1,6 @@
 package com.single.springboard.domain.post.dto;
 
-public record PostListPaginationDto(
+public record PostListPaginationNoOffset(
         Long id,
         String title,
         long viewCount,

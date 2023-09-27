@@ -57,7 +57,7 @@ public class IndexController {
     @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        PostElementsResponse post = postService.findPostAndElements(id, user);
+        PostElementsResponse post = postService.findPostDetail(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
