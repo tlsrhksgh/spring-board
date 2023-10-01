@@ -1,25 +1,28 @@
 package com.single.springboard.web;
 
+import com.single.springboard.domain.post.PostRepository;
+import com.single.springboard.domain.post.dto.MainPostListNoOffset;
+import com.single.springboard.domain.post.dto.MainPostPagination;
+import com.single.springboard.domain.post.dto.PostsResponse;
 import com.single.springboard.domain.user.Role;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.service.post.PostService;
-import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.post.PostsResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.internal.session.DefaultMockitoSessionBuilder;
+import org.mockito.session.MockitoSessionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
@@ -43,19 +46,43 @@ class IndexControllerTest {
 
     @Test
     @WithMockUser(username = "guestUser", roles = "GUEST")
-    void index_unAuthorizedUser_loadSuccess() throws Exception {
+    void index_unAuthorizedUser_mainPage_loadSuccess() throws Exception {
         //given
-        List<PostsResponse> postsResponses = Collections.emptyList();
-        Pageable pageable = PageRequest.of(0, 20);
-        Page<PostsResponse> page = new PageImpl<>(postsResponses, pageable, 0);
-        List<PostRankResponse> postRankResponses = Collections.emptyList();
+        List<MainPostListNoOffset> postListNoOffsets = Arrays.asList(
+                MainPostListNoOffset
+                        .builder()
+                        .author("testuser1")
+                        .commentCount(0L)
+                        .title("test")
+                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                        .viewCount(1L)
+                        .id(1L)
+                        .build(),
+                MainPostListNoOffset
+                        .builder()
+                        .author("testuser2")
+                        .commentCount(0L)
+                        .title("test")
+                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                        .viewCount(1L)
+                        .id(2L)
+                        .build());
 
-        given(postService.findAllPostAndCommentsCountDesc(pageable))
-                .willReturn(page);
-        given(rankingScheduler.getPostsRanking())
-                .willReturn(postRankResponses);
+        MainPostPagination mainPostPagination = MainPostPagination
+                .builder()
+                .currentPage(1)
+                .first(true)
+                .totalPage(20)
+                .size(20)
+                .last(false)
+                .build();
 
-        //when then
+        PostsResponse postsResponse = new PostsResponse(postListNoOffsets, mainPostPagination);
+        given(postService.findAllPostAndCommentsCountDesc(1, 20))
+                .willReturn(postsResponse);
+
+        //when
+        //then
         mockMvc.perform(get("/")
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -63,44 +90,78 @@ class IndexControllerTest {
                 .andExpect(model().attributeExists("posts", "ranking"))
                 .andExpect(model().attributeDoesNotExist( "user"));
 
-        verify(postService, times(1)).findAllPostAndCommentsCountDesc(pageable);
-        verify(rankingScheduler, times(1)).getPostsRanking();
+        verify(postService, times(1)).findAllPostAndCommentsCountDesc(1, 20);
     }
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
-    void index_authorizedUser_loadSuccess() throws Exception {
+    void index_authorizedUser_mainPage_loadSuccess() throws Exception {
         //given
-        List<PostsResponse> postsResponses = Collections.emptyList();
-        Pageable pageable = PageRequest.of(0, 20);
-        Page<PostsResponse> page = new PageImpl<>(postsResponses, pageable, 0);
-        List<PostRankResponse> postRankResponses = Collections.emptyList();
+        List<MainPostListNoOffset> postListNoOffsets = Arrays.asList(
+                MainPostListNoOffset
+                        .builder()
+                        .author("testuser1")
+                        .commentCount(0L)
+                        .title("test")
+                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                        .viewCount(1L)
+                        .id(1L)
+                        .build(),
+                MainPostListNoOffset
+                        .builder()
+                        .author("testuser2")
+                        .commentCount(0L)
+                        .title("test")
+                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                        .viewCount(1L)
+                        .id(2L)
+                        .build());
 
-        User user = User.builder()
-                .email("test@naver.com")
-                .role(Role.USER)
-                .id(1L)
-                .picture(null)
-                .name("testUser")
+        MainPostPagination mainPostPagination = MainPostPagination
+                .builder()
+                .currentPage(1)
+                .first(true)
+                .totalPage(20)
+                .size(20)
+                .last(false)
                 .build();
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute("user", new SessionUser(user));
+        PostsResponse postsResponse = new PostsResponse(postListNoOffsets, mainPostPagination);
+        given(postService.findAllPostAndCommentsCountDesc(1, 20))
+                .willReturn(postsResponse);
 
-        given(postService.findAllPostAndCommentsCountDesc(pageable))
-                .willReturn(page);
-        given(rankingScheduler.getPostsRanking())
-                .willReturn(postRankResponses);
-
-        //when then
+        //when
+        //then
         mockMvc.perform(get("/")
-                        .session(session)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"))
-                .andExpect(model().attributeExists("posts", "ranking", "user"));
+                .andExpect(model().attributeExists("posts", "ranking"))
+                .andExpect(model().attributeDoesNotExist( "user"));
 
-        verify(postService, times(1)).findAllPostAndCommentsCountDesc(pageable);
-        verify(rankingScheduler, times(1)).getPostsRanking();
+        verify(postService, times(1)).findAllPostAndCommentsCountDesc(1, 20);
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void postSave_authorizedUser_loadSuccess() throws Exception {
+        // given
+        User user = User.builder()
+                .email("test@naver.com")
+                .role(Role.USER)
+                .name("testuser")
+                .id(1L)
+                .sameName(false)
+                .picture(null)
+                .build();
+        SessionUser sessionUser = new SessionUser(user);
+
+        // when
+        // then
+        mockMvc.perform(get("/posts/save")
+                        .flashAttr("user", sessionUser))
+                .andExpect(status().isOk())
+                .andExpect(view().name("post-save"))
+                .andExpect(model().attribute("user", sessionUser));
     }
 }
