@@ -77,9 +77,7 @@
             </li>
             <li class="page-item" th:classappend="${posts.getPagination().isFirst() ? 'disabled' : ''}">
                 <a class="page-link" th:href="@{/(
-                page=${posts.getPagination().getPreviousPage()}, size=${posts.getPagination().size},
-                first-post-id=${posts.getPagination().getFirstPostId}, last-post-id=${
-                posts.getPagination().getLastPostId}, previous=true)}" aria-label="Previous">
+                page=${posts.getPagination().getPreviousPage()}, size=${posts.getPagination().size})}" aria-label="Previous">
                     <span aria-hidden="true"><</span>
                     <span class="sr-only">이전</span>
                 </a>
@@ -94,10 +92,8 @@
                    th:text="${pageNumber}"></a>
             </li>
             <li class="page-item" th:classappend="${posts.getPagination().isLast() ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(
-                page=${posts.getPagination().getNextPage()},size=${posts.getPagination().size},
-                first-post-id=${posts.getPagination().getFirstPostId()}, last-post-id=${
-                posts.getPagination().getLastPostId()}, previous=false)}" aria-label="Next">
+                <a class="page-link" th:href="@{/(page=${posts.getPagination().getNextPage()},
+                size=${posts.getPagination().size})}" aria-label="Next">
                     <span class="sr-only">다음</span>
                     <span aria-hidden="true">></span>
                 </a>
