@@ -32,7 +32,6 @@ $('#more-view').on('click', () => {
 
     const tbodyLastChild = container.find("tbody").children()[tbodyChildLength - 1];
     const lastCommentId = tbodyLastChild.querySelectorAll("td")[1].id;
-    console.log(lastCommentId);
 
     $.ajax({
         type: 'GET',

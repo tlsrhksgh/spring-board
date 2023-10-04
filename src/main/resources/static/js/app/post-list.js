@@ -75,7 +75,7 @@ $('#more-view').on('click', () => {
     const tbodyChildLength = container.find("tbody").children().length;
 
     const tbodyLastChild = container.find("tbody").children()[tbodyChildLength - 1];
-    const lastPostId = tbodyLastChild.querySelectorAll("td")[0].textContent;
+    const lastPostId = tbodyLastChild.querySelectorAll("td")[1].textContent;
 
     $.ajax({
         type: 'GET',

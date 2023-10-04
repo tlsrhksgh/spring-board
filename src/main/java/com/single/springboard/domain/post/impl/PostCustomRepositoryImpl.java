@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -97,16 +96,11 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .fetch();
     }
 
-    @Transactional
     @Override
-    public void deleteAllPostByIds(List<Long> postIds) {
-        String commentDelJpql = "DELETE FROM Comment c WHERE c.post.id IN :postIds";
-        em.createQuery(commentDelJpql)
-                .setParameter("postIds", postIds)
-                .executeUpdate();
+    public void deleteAllPostByIds(List<Long> postIds, String username) {
 
-        String postDelJpql = "DELETE FROM Post p WHERE p.id IN :postIds";
-        em.createQuery(postDelJpql)
+        String jpql = "DELETE FROM Post p WHERE p.id IN :postIds AND p.id IN (SELECT c.post.id FROM Comment c)";
+        em.createQuery(jpql)
                 .setParameter("postIds", postIds)
                 .executeUpdate();
     }

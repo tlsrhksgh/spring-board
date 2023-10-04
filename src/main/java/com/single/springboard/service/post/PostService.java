@@ -1,5 +1,6 @@
 package com.single.springboard.service.post;
 
+import com.single.springboard.aop.annotation.UserVerify;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
@@ -95,9 +96,12 @@ public class PostService {
         }
     }
 
-    public PostResponse findPostById(Long postId) {
+    @UserVerify
+    public PostResponse findPostById(Long postId, SessionUser user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+        postUtils.checkPostAuthor(post, user);
 
         return PostResponse.builder()
                 .id(postId)
@@ -174,12 +178,10 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(Long id, PostUpdateRequest updateDto) {
+    public void updatePost(Long id, PostUpdateRequest updateDto, SessionUser user) {
         Post post = postRepository.findPostWithFiles(id);
 
-        if (post == null) {
-            throw new CustomException(NOT_FOUND_POST);
-        }
+        postUtils.checkPostAuthor(post, user);
 
         List<File> existFiles = post.getFiles();
 
@@ -191,11 +193,13 @@ public class PostService {
 
 
     @Transactional
-    public void deletePost(Long id) {
+    public void deletePost(Long id, SessionUser user) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
-        if (post.getFiles().size() > 0) {
+        postUtils.checkPostAuthor(post, user);
+
+        if (!post.getFiles().isEmpty()) {
             fileService.deletePostChildFiles(post);
         }
 
@@ -207,8 +211,8 @@ public class PostService {
     }
 
     @Transactional
-    public void deleteAllPost(List<Long> ids) {
-        postRepository.deleteAllPostByIds(ids);
+    public void deleteAllPost(List<Long> ids, SessionUser user) {
+        postRepository.deleteAllPostByIds(ids, user.getName());
         redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
                 String.valueOf(postTotalCount.decrementAndGet()));
     }

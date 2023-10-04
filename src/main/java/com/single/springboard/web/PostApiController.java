@@ -9,6 +9,7 @@ import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,20 +33,23 @@ public class PostApiController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updatePost(@PathVariable Long id, @ModelAttribute @Valid PostUpdateRequest updateDto) {
-        postService.updatePost(id, updateDto);
+    public ResponseEntity<Void> updatePost(
+            @PathVariable Long id,
+            @ModelAttribute @Valid PostUpdateRequest updateDto,
+            @LoginUser SessionUser user) {
+        postService.updatePost(id, updateDto, user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser SessionUser user) {
+        postService.deletePost(id, user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteAllPost(@RequestBody List<Long> postIds) {
-        postService.deleteAllPost(postIds);
+    public ResponseEntity<Void> deleteAllPost(@RequestBody List<Long> postIds, @LoginUser SessionUser user) {
+        postService.deleteAllPost(postIds, user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
