@@ -5,6 +5,7 @@ import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
 import com.single.springboard.web.dto.post.SearchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 
 import java.util.List;
 
@@ -16,5 +17,6 @@ public interface PostCustomRepository {
 
     List<PostListPaginationNoOffset> postListPaginationNoOffset(Long postId, String username, int pageSize);
 
-    void deleteAllPostByIds(List<Long> postIds);
+    @Modifying
+    void deleteAllPostByIds(List<Long> postIds, String username);
 }

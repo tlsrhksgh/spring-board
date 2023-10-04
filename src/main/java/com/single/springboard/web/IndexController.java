@@ -48,7 +48,7 @@ public class IndexController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/update/{id}")
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        model.addAttribute("post", postService.findPostById(id));
+        model.addAttribute("post", postService.findPostById(id, user));
         model.addAttribute("user", user);
 
         return "post-update";
