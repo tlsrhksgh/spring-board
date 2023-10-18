@@ -23,6 +23,15 @@ public class Comment extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String content;
+
+    @Column(nullable = false, updatable = false)
+    private String author;
+
+    private boolean secret;
+
+    private int commentLevel;
+
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
@@ -37,9 +46,4 @@ public class Comment extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
-
-    private String content;
-    private boolean secret;
-
-    private int commentLevel;
 }

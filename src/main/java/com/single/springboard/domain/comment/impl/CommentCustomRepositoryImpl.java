@@ -3,9 +3,9 @@ package com.single.springboard.domain.comment.impl;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.single.springboard.domain.DateFormatUtils;
 import com.single.springboard.domain.comment.CommentCustomRepository;
 import com.single.springboard.domain.comment.dto.CommentPaginationDto;
-import com.single.springboard.util.JpaCommonUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class CommentCustomRepositoryImpl implements CommentCustomRepository {
                         comment.post.id.as("postId"),
                         comment.post.title,
                         comment.content,
-                        JpaCommonUtils.formattedModifiedDate(comment.createdDate),
+                        DateFormatUtils.formatDateTime(comment.createdDate),
                         comment.children.size().as("childrenCount")))
                 .from(comment)
                 .where(

@@ -1,6 +1,7 @@
 package com.single.springboard.util;
 
 import com.single.springboard.domain.comment.Comment;
+import com.single.springboard.service.user.dto.SessionUser;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

@@ -9,7 +9,6 @@ import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

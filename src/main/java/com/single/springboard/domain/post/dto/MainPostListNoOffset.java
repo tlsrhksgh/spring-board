@@ -3,6 +3,8 @@ package com.single.springboard.domain.post.dto;
 
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record MainPostListNoOffset(
         Long id,
