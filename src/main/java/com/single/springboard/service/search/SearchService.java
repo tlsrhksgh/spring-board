@@ -1,23 +1,74 @@
 package com.single.springboard.service.search;
 
-import com.single.springboard.domain.post.PostRepository;
-import com.single.springboard.web.dto.post.SearchResponse;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import com.single.springboard.domain.post.dto.PostDocumentResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders.match;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SearchService {
-    private final PostRepository postRepository;
+    private final ElasticsearchTemplate elasticsearchTemplate;
 
-    @Transactional(readOnly = true)
-    public Page<SearchResponse> findAllPostsByKeyword(String keyword, Pageable pageable) {
-        Page<SearchResponse> postsPage = postRepository.findAllByKeyword(keyword, pageable);
+    private List<Object> searchAfter;
 
-        return new PageImpl<>(postsPage.getContent(), pageable, postsPage.getTotalElements());
+    public List<PostDocumentResponse> findAllPostsByKeyword(String keyword) {
+        long startTime = System.currentTimeMillis();
+
+        NativeQuery searchQuery = new NativeQueryBuilder()
+                .withQuery(q ->
+                        q.bool(builder -> builder.should(
+                                match(m -> m.field("title").query(keyword)),
+                                match(m -> m.field("content").query(keyword)),
+                                match(m -> m.field("author").query(keyword))
+                        )))
+                .withSort(builder -> builder.field(sort -> sort
+                                .field("_score")
+                                .order(SortOrder.Desc)))
+                .withSort(builder -> builder.field(sort -> sort
+                        .field("modified_date")
+                        .order(SortOrder.Desc)))
+                .build();
+
+        if (!ObjectUtils.isEmpty(searchAfter)) {
+            searchQuery.setSearchAfter(searchAfter);
+        }
+
+        SearchHits<PostDocumentResponse> searchHits = elasticsearchTemplate
+                .search(searchQuery, PostDocumentResponse.class);
+
+        if (searchHits.hasSearchHits()) {
+            searchAfter = searchHits.getSearchHits().get(searchHits.getSearchHits().size() - 1).getSortValues();
+        }
+
+        long endTime = System.currentTimeMillis();
+        log.info("조회까지 걸린 시간: " + (endTime - startTime) + "ms");
+
+        return searchHits.get()
+                .map(searchHit -> {
+                    PostDocumentResponse document = searchHit.getContent();
+                    String documentId = searchHit.getId();
+
+                    return PostDocumentResponse.builder()
+                            .id(documentId)
+                            .author(document.getAuthor())
+                            .title(document.getTitle())
+                            .content(document.getContent())
+                            .modifiedDate(document.getModifiedDate())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

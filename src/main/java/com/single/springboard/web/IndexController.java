@@ -1,13 +1,13 @@
 package com.single.springboard.web;
 
+import com.single.springboard.domain.post.dto.PostDocumentResponse;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.post.PostElementsResponse;
+import com.single.springboard.web.dto.post.PostWithElementsResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,14 +16,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Validated
+import java.util.List;
+
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
     private final PostService postService;
     private final SearchService searchService;
 
-    @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
@@ -54,10 +55,10 @@ public class IndexController {
         return "post-update";
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        PostElementsResponse post = postService.findPostDetail(id, user);
+        PostWithElementsResponse post = postService.findPostDetail(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
@@ -66,18 +67,18 @@ public class IndexController {
         return "post-find";
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/search")
     public String search(
-            @RequestParam("query") @NotBlank(message = "검색은 한 글자 이상 입력되어야 합니다.") String keyword,
-                         Pageable pageable,
-                         @LoginUser SessionUser user,
-                         Model model) {
-        model.addAttribute("posts", searchService.findAllPostsByKeyword(keyword, pageable));
+            @RequestParam("query") String keyword,
+            @LoginUser SessionUser user,
+            Model model) {
+        List<PostDocumentResponse> searchResponses = searchService.findAllPostsByKeyword(keyword);
+        model.addAttribute("posts", searchResponses);
         model.addAttribute("keyword", keyword);
         model.addAttribute("user", user);
 
-        return "search";
+        return "search-result";
     }
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")

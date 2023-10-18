@@ -36,7 +36,7 @@ function displayPostTable(data) {
 
         row.appendTo(container.find("tbody"));
     });
-};
+}
 
 $('.post-list-del_btn').on('click', function () {
     let checked = $('#post-list input[type=checkbox]:checked');
@@ -68,7 +68,7 @@ $('.post-list-del_btn').on('click', function () {
         return false;
     });
 
-});
+})
 
 $('#more-view').on('click', () => {
     const container = $("#post-list_container");

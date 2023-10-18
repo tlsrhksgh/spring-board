@@ -17,6 +17,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(indexes = @Index(name = "idx_post_title", columnList = "title"))
 @Entity
 public class Post extends BaseTimeEntity {
 
@@ -26,6 +27,9 @@ public class Post extends BaseTimeEntity {
 
     @Column(length = 500, nullable = false)
     private String title;
+
+    @Column(updatable = false, nullable = false)
+    private String author;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;

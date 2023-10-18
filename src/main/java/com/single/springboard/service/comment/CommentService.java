@@ -39,6 +39,7 @@ public class CommentService {
         if(requestDto.parentId() == null) {
             comment = Comment.builder()
                     .user(user)
+                    .author(requestDto.nickname())
                     .content(requestDto.content())
                     .secret(requestDto.secret())
                     .post(post)
@@ -48,10 +49,12 @@ public class CommentService {
         } else {
             Comment parent = post.getComments().stream()
                     .filter(c -> Objects.equals(c.getId(), requestDto.parentId()))
-                    .findFirst().get();
+                    .findFirst()
+                    .get();
 
             comment = Comment.builder()
                     .user(user)
+                    .author(requestDto.nickname())
                     .content(requestDto.content())
                     .secret(requestDto.secret())
                     .post(post)

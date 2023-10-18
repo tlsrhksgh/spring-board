@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "USERS", indexes = @Index(name = "i_users_name", columnList = "name"))
+@Table(name = "USERS", indexes = @Index(name = "idx_user_name", columnList = "name"))
 @Entity
 public class User extends BaseTimeEntity {
     @Id

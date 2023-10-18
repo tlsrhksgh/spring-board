@@ -21,19 +21,21 @@ import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.CommentUtils;
 import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
-import com.single.springboard.web.dto.post.PostElementsResponse;
 import com.single.springboard.web.dto.post.PostResponse;
 import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
+import com.single.springboard.web.dto.post.PostWithElementsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -53,12 +55,12 @@ public class PostService {
     private final PostUtils postUtils;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static AtomicLong postTotalCount = new AtomicLong();
-    private static AtomicLong latestPostId = new AtomicLong();
+    private static final AtomicLong postTotalCount = new AtomicLong();
+    private static final AtomicLong latestPostId = new AtomicLong();
 
     @Transactional
     public void savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
-        if (currentUser == null) {
+        if (ObjectUtils.isEmpty(currentUser)) {
             throw new CustomException(UNAUTHORIZED_USER_REQUIRED_LOGIN);
         }
 
@@ -69,13 +71,13 @@ public class PostService {
         postTotalCount.incrementAndGet();
         latestPostId.incrementAndGet();
 
-        for (int i = 0; i < 200; i++) {
-            postRepository.save(requestDto.toEntity(user));
-            postTotalCount.incrementAndGet();
-            latestPostId.incrementAndGet();
-        }
+//        for (int i = 0; i < 1; i++) {
+//            postRepository.save(requestDto.toEntity(user));
+//            postTotalCount.incrementAndGet();
+//            latestPostId.incrementAndGet();
+//        }
 
-        if (requestDto.files() != null) {
+        if (!ObjectUtils.isEmpty(requestDto.files())) {
             fileService.postFilesSave(post, requestDto.files());
         }
 
@@ -96,7 +98,6 @@ public class PostService {
         }
     }
 
-    @UserVerify
     public PostResponse findPostById(Long postId, SessionUser user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
@@ -108,12 +109,12 @@ public class PostService {
                 .files(post.getFiles())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .author(post.getUser().getName())
+                .author(post.getAuthor())
                 .build();
     }
 
     @Transactional(readOnly = true)
-    public PostElementsResponse findPostDetail(Long id, @LoginUser SessionUser user) {
+    public PostWithElementsResponse findPostDetail(Long id, @LoginUser SessionUser user) {
         Post post = postRepository.findPostWithCommentsAndUser(id);
 
         if (user != null) {
@@ -130,16 +131,16 @@ public class PostService {
                         .parentId(comment.getParentComment())
                         .content(comment.isSecret() ?
                                 (user != null && commentUtils.enableSecretCommentView(post.getUser().getName(),
-                                        user.getName(), comment.getUser().getName()) ?
+                                        user.getName(), comment.getAuthor()) ?
                                         comment.getContent() : "비밀 댓글 입니다.") : comment.getContent())
-                        .author(comment.getUser().getName())
+                        .author(comment.getAuthor())
                         .createdDate(comment.getCreatedDate().format(
                                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                         ))
                         .build())
                 .collect(Collectors.toList());
 
-        return PostElementsResponse.builder()
+        return PostWithElementsResponse.builder()
                 .id(post.getId())
                 .author(post.getUser().getName())
                 .title(post.getTitle())
@@ -261,6 +262,10 @@ public class PostService {
     }
 
     public List<PostListPaginationNoOffset> findWrittenPostByUsername(SessionUser user, Long postId) {
-        return postRepository.postListPaginationNoOffset(postId, user.getName(), 10);
+        long startTime = System.currentTimeMillis();
+        List<PostListPaginationNoOffset> result = postRepository.postListPaginationNoOffset(postId, user.getName(), 10);
+        long endTime = System.currentTimeMillis();
+        System.out.println("total time: " + (endTime - startTime) + "ms");
+        return result;
     }
 }

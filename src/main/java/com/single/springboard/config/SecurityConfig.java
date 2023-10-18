@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
                         .permitAll()
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**",
-                                "/posts/find/**", "/search/**", "/actuator/health")
+                                "/posts/find/**", "/search/**", "/actuator/health", "/posts/search")
                         .permitAll()
                         .requestMatchers("/api/v1/**")
                         .hasRole(Role.USER.name())

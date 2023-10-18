@@ -24,6 +24,7 @@ public record PostSaveRequest(
                 return Post.builder()
                         .title(title)
                         .content(content)
+                        .author(author)
                         .user(user)
                         .build();
         }
