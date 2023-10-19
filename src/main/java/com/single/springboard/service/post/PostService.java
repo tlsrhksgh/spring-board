@@ -36,11 +36,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.*;
-import static com.single.springboard.service.post.constants.PostKeys.*;
+import static com.single.springboard.service.post.constants.PostKeys.RANKING;
+import static com.single.springboard.service.post.constants.PostKeys.USER_VIEW;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +53,6 @@ public class PostService {
     private final PostUtils postUtils;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final AtomicLong postTotalCount = new AtomicLong();
-
     @Transactional
     public void savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
         if (ObjectUtils.isEmpty(currentUser)) {
@@ -65,31 +63,13 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
         Post post = postRepository.save(requestDto.toEntity(user));
-        postTotalCount.incrementAndGet();
 
         for (int i = 0; i < 1000; i++) {
             postRepository.save(requestDto.toEntity(user));
-            postTotalCount.incrementAndGet();
         }
 
         if (!ObjectUtils.isEmpty(requestDto.files())) {
             fileService.postFilesSave(post, requestDto.files());
-        }
-
-        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get(POST_TOTAL_COUNT.getKey()))) {
-            redisTemplate.opsForValue().set(POST_TOTAL_COUNT.getKey(), String.valueOf(postTotalCount.incrementAndGet()));
-        } else {
-            long getTotalCount = Long.parseLong(redisTemplate.opsForValue().get(POST_TOTAL_COUNT.getKey()).toString());
-
-            if(getTotalCount != postTotalCount.get()) {
-                Long totalCount = postRepository.countAllPost();
-                postTotalCount.set(totalCount);
-                redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
-                        String.valueOf(totalCount));
-                return;
-            }
-            redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
-                    String.valueOf(postTotalCount.incrementAndGet()));
         }
     }
 
@@ -110,7 +90,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostWithElementsResponse findPostDetail(Long id, @LoginUser SessionUser user) {
-        Post post = postRepository.findPostWithCommentsAndUser(id);
+        Post post = postRepository.findPostDetail(id);
 
         if (user != null) {
             increasePostViewCount(String.valueOf(id), user.getEmail(), post);
@@ -179,8 +159,6 @@ public class PostService {
             fileService.deletePostChildFiles(post);
         }
 
-        redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
-                String.valueOf(postTotalCount.decrementAndGet()));
         postRepository.deleteById(post.getId());
         redisTemplate.opsForZSet().remove(RANKING.getKey(), post.getTitle() + ":" + post.getId());
     }
@@ -188,8 +166,6 @@ public class PostService {
     @Transactional
     public void deleteAllPost(List<Long> ids, SessionUser user) {
         postRepository.deleteAllPostByIds(ids, user.getName());
-        redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
-                String.valueOf(postTotalCount.decrementAndGet()));
     }
 
     public List<PostRankResponse> getPostsRanking() {
