@@ -1,15 +1,13 @@
 package com.single.springboard.service.post;
 
-import com.single.springboard.aop.annotation.UserVerify;
+import com.single.springboard.aop.MeasureExecutionTime;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
-import com.single.springboard.domain.post.dto.MainPostListNoOffset;
-import com.single.springboard.domain.post.dto.MainPostPagination;
+import com.single.springboard.domain.post.dto.MainPostList;
 import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
-import com.single.springboard.domain.post.dto.PostsResponse;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -26,16 +24,16 @@ import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
 import com.single.springboard.web.dto.post.PostWithElementsResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -56,7 +54,6 @@ public class PostService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final AtomicLong postTotalCount = new AtomicLong();
-    private static final AtomicLong latestPostId = new AtomicLong();
 
     @Transactional
     public void savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
@@ -69,13 +66,11 @@ public class PostService {
 
         Post post = postRepository.save(requestDto.toEntity(user));
         postTotalCount.incrementAndGet();
-        latestPostId.incrementAndGet();
 
-//        for (int i = 0; i < 1; i++) {
-//            postRepository.save(requestDto.toEntity(user));
-//            postTotalCount.incrementAndGet();
-//            latestPostId.incrementAndGet();
-//        }
+        for (int i = 0; i < 1000; i++) {
+            postRepository.save(requestDto.toEntity(user));
+            postTotalCount.incrementAndGet();
+        }
 
         if (!ObjectUtils.isEmpty(requestDto.files())) {
             fileService.postFilesSave(post, requestDto.files());
@@ -152,30 +147,10 @@ public class PostService {
                 .build();
     }
 
+    @MeasureExecutionTime
     @Transactional(readOnly = true)
-    public PostsResponse findAllPostAndCommentsCountDesc(int currentPage, int pageSize) {
-        Long postId;
-
-        if (currentPage == 1) {
-            postId = null;
-        } else {
-            long term = Math.abs(latestPostId.get() - postTotalCount.get()) -
-                    (postTotalCount.get() - ((long) (currentPage - 1) * pageSize));
-            postId = term > 0 ? term : Math.abs(latestPostId.get() - postTotalCount.get()) +
-                    (postTotalCount.get() - ((long) (currentPage - 1) * pageSize));
-        }
-
-
-        List<MainPostListNoOffset> mainPostListNoOffset = postRepository
-                .findAllPostWithCommentsNoOffset(postId, pageSize);
-
-        MainPostPagination mainPostPagination = MainPostPagination.builder()
-                .currentPage(currentPage)
-                .size(pageSize)
-                .totalPage((long) Math.ceil((double) postTotalCount.get() / pageSize))
-                .build();
-
-        return new PostsResponse(mainPostListNoOffset, mainPostPagination);
+    public Page<MainPostList> findAllPostAndCommentsCountDesc(Pageable pageable) {
+        return postRepository.findAllPostWithCommentsCount(pageable);
     }
 
     @Transactional
@@ -207,7 +182,6 @@ public class PostService {
         redisTemplate.opsForValue().setIfPresent(POST_TOTAL_COUNT.getKey(),
                 String.valueOf(postTotalCount.decrementAndGet()));
         postRepository.deleteById(post.getId());
-        latestPostId.set(postRepository.findMaxPostId());
         redisTemplate.opsForZSet().remove(RANKING.getKey(), post.getTitle() + ":" + post.getId());
     }
 
@@ -261,11 +235,8 @@ public class PostService {
         return new CountResponse(postCount, commentCount);
     }
 
+    @MeasureExecutionTime
     public List<PostListPaginationNoOffset> findWrittenPostByUsername(SessionUser user, Long postId) {
-        long startTime = System.currentTimeMillis();
-        List<PostListPaginationNoOffset> result = postRepository.postListPaginationNoOffset(postId, user.getName(), 10);
-        long endTime = System.currentTimeMillis();
-        System.out.println("total time: " + (endTime - startTime) + "ms");
-        return result;
+        return postRepository.postListPaginationNoOffset(postId, user.getName(), 10);
     }
 }

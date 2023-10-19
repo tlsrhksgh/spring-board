@@ -46,7 +46,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="p : ${posts.getPostResponses()}">
+        <tr th:each="p : ${posts}">
             <td th:text="${p.id()}"></td>
             <td>
                 <a th:href="${'/posts/find/' + p.id()}" th:text="${p.title()}"></a>
@@ -65,49 +65,40 @@
     </table>
 </div>
 
-<div th:if="${posts != null && posts.getPagination().getTotalPage() > 1}"
-     style="display: flex; justify-content: center">
+<div th:if="${posts != null && posts.getTotalPages() > 1}" style="display: flex; justify-content: center">
     <nav aria-label="Page navigation">
         <ul class="pagination">
-            <li class="page-item" th:classappend="${posts.getPagination().isFirst() ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=1, size=${posts.getPagination().size})}" aria-label="First">
+            <li class="page-item" th:classappend="${posts.first ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/(page=${posts.first}, size=${posts.size})}" aria-label="First">
                     <span aria-hidden="true">&laquo;</span>
                     <span class="sr-only">처음으로</span>
                 </a>
             </li>
-            <li class="page-item" th:classappend="${posts.getPagination().isFirst() ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(
-                page=${posts.getPagination().getPreviousPage()}, size=${posts.getPagination().size})}" aria-label="Previous">
+            <li class="page-item" th:classappend="${posts.hasPrevious() ? '' : 'disabled'}">
+                <a class="page-link" th:href="@{/(page=${posts.number - 1}, size=${posts.size})}" aria-label="Previous">
                     <span aria-hidden="true"><</span>
                     <span class="sr-only">이전</span>
                 </a>
             </li>
-            <li th:each="pageNumber : ${#numbers.sequence((
-                (posts.getPagination().currentPage - 1) / 10 * 10 + 1),
-                ((posts.getPagination().currentPage - 1) / 10 * 10 + 10 > posts.getPagination().totalPage ?
-                posts.getPagination().totalPage : (posts.getPagination().currentPage - 1) / 10 * 10 + 10)
-                )}"
-                th:classappend="${posts.getPagination().currentPage == pageNumber ? 'active' : ''}">
-                <a class="page-link" th:href="@{/(page=${pageNumber}, size=${posts.getPagination().size})}"
-                   th:text="${pageNumber}"></a>
+            <li th:each="pageNumber : ${#numbers.sequence((posts.number / 10) * 10, (posts.number / 10 == posts.totalPages / 10 ? posts.totalPages - 1 : ((posts.number / 10) * 10) + 9))}" th:classappend="${posts.number == pageNumber ? 'active' : ''}">
+                <a class="page-link" th:href="@{/(page=${pageNumber}, size=${posts.size})}" th:text="${pageNumber + 1}"></a>
             </li>
-            <li class="page-item" th:classappend="${posts.getPagination().isLast() ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=${posts.getPagination().getNextPage()},
-                size=${posts.getPagination().size})}" aria-label="Next">
+            <li class="page-item" th:classappend="${posts.hasNext() ? '' : 'disabled'}">
+                <a class="page-link" th:href="@{/(page=${posts.number + 1}, size=${posts.size})}" aria-label="Next">
                     <span class="sr-only">다음</span>
                     <span aria-hidden="true">></span>
                 </a>
             </li>
-            <li class="page-item" th:classappend="${posts.getPagination().isLast() ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=${posts.getPagination().getTotalPage()},
-                size=${posts.getPagination().size})}" aria-label="Last">
-                    <span class="sr-only">마지막으로</span>
+            <li class="page-item" th:classappend="${posts.last ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/(page=${posts.totalPages - 1}, size=${posts.size})}" aria-label="Last">
                     <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">마지막으로</span>
                 </a>
             </li>
         </ul>
     </nav>
 </div>
+
 
 <script
         src="https://code.jquery.com/jquery-3.6.3.min.js"

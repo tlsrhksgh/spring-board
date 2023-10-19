@@ -20,7 +20,7 @@ public class SearchApiController {
     @GetMapping("/posts/search")
     public ResponseEntity<List<PostDocumentResponse>> search(
             @RequestParam("query") String keyword) {
-        List<PostDocumentResponse> searchResponses = searchService.findAllPostsByKeyword(keyword);
+        List<PostDocumentResponse> searchResponses = searchService.findPostsByKeyword(keyword);
         return ResponseEntity.ok(searchResponses);
     }
 }

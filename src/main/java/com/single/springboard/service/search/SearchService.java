@@ -1,6 +1,7 @@
 package com.single.springboard.service.search;
 
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import com.single.springboard.aop.MeasureExecutionTime;
 import com.single.springboard.domain.post.dto.PostDocumentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,9 +25,8 @@ public class SearchService {
 
     private List<Object> searchAfter;
 
-    public List<PostDocumentResponse> findAllPostsByKeyword(String keyword) {
-        long startTime = System.currentTimeMillis();
-
+    @MeasureExecutionTime
+    public List<PostDocumentResponse> findPostsByKeyword(String keyword) {
         NativeQuery searchQuery = new NativeQueryBuilder()
                 .withQuery(q ->
                         q.bool(builder -> builder.should(
@@ -52,9 +52,6 @@ public class SearchService {
         if (searchHits.hasSearchHits()) {
             searchAfter = searchHits.getSearchHits().get(searchHits.getSearchHits().size() - 1).getSortValues();
         }
-
-        long endTime = System.currentTimeMillis();
-        log.info("조회까지 걸린 시간: " + (endTime - startTime) + "ms");
 
         return searchHits.get()
                 .map(searchHit -> {

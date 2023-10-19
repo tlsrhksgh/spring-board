@@ -5,9 +5,12 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.DateFormatUtils;
 import com.single.springboard.domain.post.PostCustomRepository;
-import com.single.springboard.domain.post.dto.MainPostListNoOffset;
+import com.single.springboard.domain.post.dto.MainPostList;
 import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -19,9 +22,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<MainPostListNoOffset> findAllPostWithCommentsNoOffset(Long postId, int pageSize) {
-        return query
-                .select(Projections.constructor(MainPostListNoOffset.class,
+    public Page<MainPostList> findAllPostWithCommentsCount(Pageable pageable) {
+        List<MainPostList> posts = query
+                .select(Projections.constructor(MainPostList.class,
                         post.id.as("postId"),
                         post.title,
                         post.user.name.as("author"),
@@ -32,11 +35,18 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .from(post)
                 .leftJoin(comment)
                 .on(comment.post.id.eq(post.id))
-                .where(loePostId(postId))
                 .groupBy(post.id)
                 .orderBy(post.id.desc())
-                .limit(pageSize)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        Long totalCount = query
+                .select(post.count())
+                .from(post)
+                .fetchOne();
+
+        return new PageImpl<>(posts, pageable, totalCount);
     }
 
     @Override
@@ -65,14 +75,6 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                         post.id.in(postIds),
                         post.user.name.eq(username))
                 .execute();
-    }
-
-    private BooleanExpression loePostId(Long postId) {
-        if (postId == null) {
-            return null;
-        }
-
-        return post.id.loe(postId);
     }
 
     private BooleanExpression ltPostId(Long postId) {

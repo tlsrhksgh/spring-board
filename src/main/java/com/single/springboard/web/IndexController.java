@@ -6,12 +6,11 @@ import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.post.PostWithElementsResponse;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,10 +27,8 @@ public class IndexController {
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
-                        @RequestParam(value = "page", defaultValue = "1") Integer currentPage,
-                        @RequestParam(value = "size", defaultValue = "20") Integer pageSize) {
-        model.addAttribute("posts", postService.
-                findAllPostAndCommentsCountDesc(currentPage, pageSize));
+                        Pageable pageable) {
+        model.addAttribute("posts", postService.findAllPostAndCommentsCountDesc(pageable));
         model.addAttribute("ranking", postService.getPostsRanking());
         model.addAttribute("user", user);
 
@@ -73,7 +70,7 @@ public class IndexController {
             @RequestParam("query") String keyword,
             @LoginUser SessionUser user,
             Model model) {
-        List<PostDocumentResponse> searchResponses = searchService.findAllPostsByKeyword(keyword);
+        List<PostDocumentResponse> searchResponses = searchService.findPostsByKeyword(keyword);
         model.addAttribute("posts", searchResponses);
         model.addAttribute("keyword", keyword);
         model.addAttribute("user", user);
