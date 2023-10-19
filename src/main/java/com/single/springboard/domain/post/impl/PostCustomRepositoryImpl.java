@@ -70,10 +70,14 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
     @Override
     public void deleteAllPostByIds(List<Long> postIds, String username) {
+        query.delete(comment)
+                .where(comment.post.id.in(postIds))
+                .execute();
+
         query.delete(post)
                 .where(
                         post.id.in(postIds),
-                        post.user.name.eq(username))
+                        post.author.eq(username))
                 .execute();
     }
 
