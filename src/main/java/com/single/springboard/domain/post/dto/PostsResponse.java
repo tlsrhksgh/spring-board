@@ -6,11 +6,11 @@ import java.util.List;
 
 @Getter
 public class PostsResponse {
-    private List<MainPostListNoOffset> postResponses;
+    private List<MainPostList> postResponses;
 
     private MainPostPagination pagination;
 
-    public PostsResponse(List<MainPostListNoOffset> postResponses, MainPostPagination paginationDto) {
+    public PostsResponse(List<MainPostList> postResponses, MainPostPagination paginationDto) {
         this.postResponses = postResponses;
         this.pagination = paginationDto;
     }

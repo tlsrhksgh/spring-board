@@ -6,17 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.exception.ErrorCode;
 import com.single.springboard.service.user.dto.SessionUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
-import static com.single.springboard.exception.ErrorCode.*;
+import static com.single.springboard.exception.ErrorCode.IS_WRONG_ACCESS;
 
 @RequiredArgsConstructor
 @Component
@@ -45,9 +44,8 @@ public class PostUtils {
     }
 
     public void checkPostAuthor(Post post, SessionUser user) {
-        User postAuthor = post.getUser();
-        if(!ObjectUtils.isEmpty(user) || !postAuthor.getName().equals(user.getName()) ||
-                !postAuthor.getEmail().equals(user.getEmail())) {
+        User author = post.getUser();
+        if(!Objects.equals(author.getName(), user.getName()) || !Objects.equals(author.getEmail(), user.getEmail())) {
             throw new CustomException(IS_WRONG_ACCESS);
         }
     }
