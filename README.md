@@ -6,13 +6,13 @@
 
 # 사용 기술
 ## Backend
-- ```JAVA17``` ```SpringBoot``` ```Spring Data JPA``` ```Spring Data Redis``` ```QueryDsl``` ```H2 Database``` 
+- ```JAVA17``` ```SpringBoot``` ```Spring Data JPA``` ```Spring Data Redis``` ```QueryDsl``` ```Spring Data Elasticsearch``` ```Spring Session Jdbc``` 
 
 ## DevOps
-- ```AWS EC2``` ```AWS RDS``` ```AWS S3``` ```Jenkins``` ```Nginx```
+- ```AWS EC2``` ```MariaDB``` ```AWS S3``` ```Jenkins``` ```Nginx``` ```Docker``` ```Elasticsearch``` ```Redis```
 
 ## Frontend
-- ```Thymeleaf``` ```JQuery```
+- ```Thymeleaf``` ```JQuery``` ```Javascript```
 
 # 프로젝트 구조
 ```
