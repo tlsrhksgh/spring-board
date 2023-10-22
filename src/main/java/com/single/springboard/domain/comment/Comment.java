@@ -1,5 +1,6 @@
 package com.single.springboard.domain.comment;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.user.User;
@@ -33,10 +34,12 @@ public class Comment extends BaseTimeEntity {
     private int commentLevel;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "user_id")
     private User user;
 

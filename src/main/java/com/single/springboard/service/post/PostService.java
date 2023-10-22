@@ -1,6 +1,7 @@
 package com.single.springboard.service.post;
 
 import com.single.springboard.aop.MeasureExecutionTime;
+import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
@@ -13,34 +14,27 @@ import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.post.dto.CountResponse;
-import com.single.springboard.service.post.dto.PostRankResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.CommentUtils;
 import com.single.springboard.util.PostUtils;
 import com.single.springboard.web.dto.comment.CommentsResponse;
+import com.single.springboard.web.dto.post.PostDetailResponse;
 import com.single.springboard.web.dto.post.PostResponse;
 import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
-import com.single.springboard.web.dto.post.PostWithElementsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.single.springboard.exception.ErrorCode.*;
-import static com.single.springboard.service.post.constants.PostKeys.RANKING;
-import static com.single.springboard.service.post.constants.PostKeys.USER_VIEW;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +45,7 @@ public class PostService {
     private final FileService fileService;
     private final CommentUtils commentUtils;
     private final PostUtils postUtils;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisClient redisClient;
 
     @Transactional
     public void savePostAndFiles(PostSaveRequest requestDto, SessionUser currentUser) {
@@ -64,18 +58,19 @@ public class PostService {
 
         Post post = postRepository.save(requestDto.toEntity(user));
 
-        for (int i = 0; i < 1000; i++) {
-            postRepository.save(requestDto.toEntity(user));
-        }
-
         if (!ObjectUtils.isEmpty(requestDto.files())) {
             fileService.postFilesSave(post, requestDto.files());
         }
     }
 
     public PostResponse findPostById(Long postId, SessionUser user) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+        Post post = redisClient.get(postId, Post.class);
+
+        if(ObjectUtils.isEmpty(post)) {
+            post = postRepository.findById(postId)
+                    .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+            redisClient.put(postId, post);
+        }
 
         postUtils.checkPostAuthor(post, user);
 
@@ -88,26 +83,33 @@ public class PostService {
                 .build();
     }
 
+    @MeasureExecutionTime
     @Transactional(readOnly = true)
-    public PostWithElementsResponse findPostDetail(Long id, @LoginUser SessionUser user) {
-        Post post = postRepository.findPostDetail(id);
+    public PostDetailResponse findPostDetail(Long postId, @LoginUser SessionUser user) {
+        Post post = redisClient.get(postId, Post.class);
 
-        if (user != null) {
-            increasePostViewCount(String.valueOf(id), user.getEmail(), post);
+        if(ObjectUtils.isEmpty(post)) {
+            post = postRepository.findById(postId)
+                    .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+            redisClient.put(postId, post);
+        }
+
+        if (!ObjectUtils.isEmpty(user)) {
+            redisClient.increasePostViewCount(user.getEmail(), post);
         }
 
         List<Comment> comments = post.getComments();
         List<Comment> sortedComments = commentUtils.commentsSort(comments);
 
+        Post finalPost = post;
         List<CommentsResponse> commentsResponses = sortedComments.stream()
                 .map(comment -> CommentsResponse.builder()
                         .id(comment.getId())
                         .commentLevel(comment.getCommentLevel())
                         .parentId(comment.getParentComment())
-                        .content(comment.isSecret() ?
-                                (user != null && commentUtils.enableSecretCommentView(post.getUser().getName(),
+                        .content(comment.isSecret() ? commentUtils.enableSecretCommentView(finalPost.getAuthor(),
                                         user.getName(), comment.getAuthor()) ?
-                                        comment.getContent() : "비밀 댓글 입니다.") : comment.getContent())
+                                        comment.getContent() : "비밀 댓글 입니다." : comment.getContent())
                         .author(comment.getAuthor())
                         .createdDate(comment.getCreatedDate().format(
                                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -115,7 +117,7 @@ public class PostService {
                         .build())
                 .collect(Collectors.toList());
 
-        return PostWithElementsResponse.builder()
+        return PostDetailResponse.builder()
                 .id(post.getId())
                 .author(post.getUser().getName())
                 .title(post.getTitle())
@@ -145,6 +147,7 @@ public class PostService {
                 postUtils.parseJsonStringToMap(updateDto.oldFileNames()));
 
         post.updatePost(updateDto);
+        redisClient.put(id, post);
     }
 
 
@@ -160,48 +163,13 @@ public class PostService {
         }
 
         postRepository.deleteById(post.getId());
-        redisTemplate.opsForZSet().remove(RANKING.getKey(), post.getTitle() + ":" + post.getId());
+        redisClient.delete(id);
     }
 
     @Transactional
     public void deleteAllPost(List<Long> ids, SessionUser user) {
         postRepository.deleteAllPostByIds(ids, user.getName());
-    }
-
-    public List<PostRankResponse> getPostsRanking() {
-        ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
-        Set<ZSetOperations.TypedTuple<Object>> typedTuples =
-                zSetOperations.reverseRangeWithScores(RANKING.getKey(), 0, 4);
-
-        List<PostRankResponse> responses = new ArrayList<>();
-        if (typedTuples != null) {
-            List<PostRankResponse> list = typedTuples.stream()
-                    .map(tuple -> {
-                        String[] splitValue = String.valueOf(tuple.getValue()).split(":");
-                        return PostRankResponse.builder()
-                                .id(Long.parseLong(splitValue[splitValue.length - 1]))
-                                .title(splitValue[0])
-                                .score(tuple.getScore().longValue())
-                                .build();
-                    })
-                    .toList();
-
-            responses.addAll(list);
-        }
-
-        return responses;
-    }
-
-    public void increasePostViewCount(String postId, String userId, Post post) {
-        String userViewKey = USER_VIEW.getKey() + userId;
-
-        boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userViewKey, postId));
-
-        if (!hasViewed) {
-            redisTemplate.opsForZSet().incrementScore(RANKING.getKey(), post.getTitle() + ":" + postId, 1);
-            redisTemplate.opsForSet().add(userViewKey, postId);
-            post.increaseViewCount();
-        }
+        redisClient.delete(ids);
     }
 
     public CountResponse countPostAndComment(SessionUser user) {
