@@ -1,5 +1,7 @@
 package com.single.springboard.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.post.Post;
@@ -39,9 +41,11 @@ public class User extends BaseTimeEntity {
     private Role role;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE,orphanRemoval = true)
+    @JsonBackReference
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
     private List<Post> posts;
 
     public User update(String name, String picture) {

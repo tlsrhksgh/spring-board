@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record PostWithElementsResponse(
+public record PostDetailResponse(
         Long id,
         String author,
         String content,

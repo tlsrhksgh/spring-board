@@ -1,5 +1,6 @@
 package com.single.springboard.domain.file;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.single.springboard.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class File {
     private Long id;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "post_id")
     private Post post;
 

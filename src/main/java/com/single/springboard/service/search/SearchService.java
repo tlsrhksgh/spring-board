@@ -29,7 +29,7 @@ public class SearchService {
     public List<PostDocumentResponse> findPostsByKeyword(String keyword) {
         NativeQuery searchQuery = new NativeQueryBuilder()
                 .withQuery(q ->
-                        q.bool(builder -> builder.should(
+                        q.bool(b -> b.should(
                                 match(m -> m.field("title").query(keyword)),
                                 match(m -> m.field("content").query(keyword)),
                                 match(m -> m.field("author").query(keyword))

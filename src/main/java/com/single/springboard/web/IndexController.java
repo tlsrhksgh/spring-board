@@ -1,11 +1,12 @@
 package com.single.springboard.web;
 
+import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.post.dto.PostDocumentResponse;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.post.PostWithElementsResponse;
+import com.single.springboard.web.dto.post.PostDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import java.util.List;
 public class IndexController {
     private final PostService postService;
     private final SearchService searchService;
+    private final RedisClient redisClient;
 
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/")
@@ -29,7 +31,7 @@ public class IndexController {
                         @LoginUser SessionUser user,
                         Pageable pageable) {
         model.addAttribute("posts", postService.findAllPostAndCommentsCountDesc(pageable));
-        model.addAttribute("ranking", postService.getPostsRanking());
+        model.addAttribute("ranking", redisClient.getPostsRanking());
         model.addAttribute("user", user);
 
         return "index";
@@ -55,7 +57,7 @@ public class IndexController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
-        PostWithElementsResponse post = postService.findPostDetail(id, user);
+        PostDetailResponse post = postService.findPostDetail(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
         model.addAttribute("comments", post.comments());
