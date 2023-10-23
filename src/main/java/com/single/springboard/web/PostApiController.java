@@ -1,8 +1,10 @@
 package com.single.springboard.web;
 
+import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.post.dto.CountResponse;
+import com.single.springboard.service.post.dto.PostRankingResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.post.PostSaveRequest;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestController
 public class PostApiController {
     private final PostService postService;
+    private final RedisClient redisClient;
 
     @PostMapping
     public ResponseEntity<Void> savePost(
@@ -62,5 +65,10 @@ public class PostApiController {
             @LoginUser SessionUser user,
             @RequestParam(value = "postId", required = false) Long postId) {
         return ResponseEntity.ok(postService.findWrittenPostByUsername(user, postId));
+    }
+
+    @GetMapping("/ranking")
+    public ResponseEntity<List<PostRankingResponse>> postRanking() {
+        return ResponseEntity.ok(redisClient.getPostsRanking());
     }
 }

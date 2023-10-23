@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.exception.CustomException;
-import com.single.springboard.service.post.dto.PostRankResponse;
+import com.single.springboard.service.post.dto.PostRankingResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -80,20 +80,19 @@ public class RedisClient {
         }
     }
 
-    public List<PostRankResponse> getPostsRanking() {
+    public List<PostRankingResponse> getPostsRanking() {
         ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
         Set<ZSetOperations.TypedTuple<Object>> typedTuples =
                 zSetOperations.reverseRangeWithScores(RANKING.getKey(), 0, 4);
 
-        List<PostRankResponse> responses = new ArrayList<>();
+        List<PostRankingResponse> responses = new ArrayList<>();
         if (typedTuples != null) {
-            List<PostRankResponse> list = typedTuples.stream()
+            List<PostRankingResponse> list = typedTuples.stream()
                     .map(tuple -> {
                         String[] splitValue = String.valueOf(tuple.getValue()).split(":");
-                        return PostRankResponse.builder()
+                        return PostRankingResponse.builder()
                                 .id(Long.parseLong(splitValue[splitValue.length - 1]))
                                 .title(splitValue[0])
-                                .score(tuple.getScore().longValue())
                                 .build();
                     })
                     .toList();

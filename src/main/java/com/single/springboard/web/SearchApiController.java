@@ -16,7 +16,6 @@ import java.util.List;
 public class SearchApiController {
     private final SearchService searchService;
 
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/posts/search")
     public ResponseEntity<List<PostDocumentResponse>> search(
             @RequestParam("query") String keyword) {

@@ -9,6 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import org.springframework.security.core.AuthenticationException;
+
 @Slf4j
 @ControllerAdvice
 public class ExceptionController {
@@ -35,5 +37,12 @@ public class ExceptionController {
         return ResponseEntity.badRequest().body(
                 new ExceptionForm(ex.getMessage(), HttpStatus.BAD_REQUEST.value())
         );
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ExceptionForm> handleAuthenticationException(AuthenticationException ex) {
+        log.warn("authentication exception: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ExceptionForm(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()));
     }
 }

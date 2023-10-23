@@ -8,13 +8,7 @@
 <body>
 <div class="top-container" style="display: flex; justify-content: space-between; margin-bottom: 50px">
     <div id="ranking-container" style="margin-bottom: 15px">
-        <div style="display: inline-block">
-            <h4>인기 게시글 순위 Top5</h4>
-            <span th:if="${ranking.size() == 0}" style="opacity: 0.6">존재하는 게시물이 없습니다.</span>
-            <div th:if="${ranking.size > 0}" th:each="post : ${ranking}">
-                <a th:href="${'/posts/find/' + post.id()}" th:text="${post.title()}"></a>
-            </div>
-        </div>
+        <h4>인기 게시글 순위 Top5</h4>
     </div>
     <div th:if="${user == null}">
         <header th:replace="~{fragments/header :: logout-menu}"></header>
