@@ -2,10 +2,9 @@ package com.single.springboard.config;
 
 import com.single.springboard.config.handler.OAuthLoginSuccessHandler;
 import com.single.springboard.domain.user.Role;
-import com.single.springboard.exception.handler.CustomAccessDeniedHandler;
-import com.single.springboard.exception.handler.CustomAuthEntryPointException;
 import com.single.springboard.service.user.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -23,8 +23,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomAuthEntryPointException customAuthEntryPointException;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    @Qualifier("CustomAuthEntryPointException")
+    private final AuthenticationEntryPoint authenticationEntryPoint;
     private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
 
     @Bean
@@ -39,9 +39,11 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
                         .permitAll()
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**",
-                                "/posts/find/**", "/search/**", "/actuator/health", "/posts/search")
+                                "/posts/find/**", "/search/**", "/actuator/health", "/posts/search",
+                                "/api/v1/posts/ranking")
                         .permitAll()
-                        .requestMatchers("/api/v1/**")
+                        .requestMatchers("/api/v1/**", "/comment-list/**", "/post-list/**",
+                                "/user/info", "/posts/update/**", "/posts/save")
                         .hasRole(Role.USER.name())
                         .anyRequest().authenticated())
                 .anonymous(anonymous -> {
@@ -62,16 +64,8 @@ public class SecurityConfig {
                 })
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer
-                                .accessDeniedHandler(customAccessDeniedHandler)
-                                .authenticationEntryPoint(customAuthEntryPointException)
+                                .authenticationEntryPoint(authenticationEntryPoint)
                 );
-
-        http.sessionManagement(sessionManagement -> {
-            sessionManagement
-                    .maximumSessions(1)
-                    .maxSessionsPreventsLogin(false)
-                    .expiredUrl("/");
-        });
 
         return http.build();
     }

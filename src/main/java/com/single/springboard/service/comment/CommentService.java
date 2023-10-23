@@ -13,6 +13,7 @@ import com.single.springboard.web.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +37,7 @@ public class CommentService {
 
         Comment comment;
 
-        if(requestDto.parentId() == null) {
+        if(ObjectUtils.isEmpty(requestDto.parentId())) {
             comment = Comment.builder()
                     .user(user)
                     .author(requestDto.nickname())

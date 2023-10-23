@@ -2,6 +2,8 @@ let post = {
     init: function () {
         let _this = this;
 
+        _this.fetchPostRanking();
+
         $('.post-save_btn').on('click', () => {
             _this.save();
         });
@@ -36,7 +38,7 @@ let post = {
 
     update: function () {
         const formData = this.createForm();
-        if(oldFileNameArr.length > 0) {
+        if (oldFileNameArr.length > 0) {
             let dtoObj = {};
             for (let i = 0; i < oldFileNameArr.length; i++) {
                 dtoObj[oldFileNameArr[i].id] = oldFileNameArr[i].originalName;
@@ -103,7 +105,7 @@ let post = {
             delBtn.className = "del-image_btn btn btn-danger";
             delBtn.innerText = "삭제";
             delBtn.addEventListener('click', (e) => {
-               deleteFile(e);
+                deleteFile(e);
             })
             div.appendChild(fileNameSpan);
             div.appendChild(fileSizeSpan);
@@ -122,6 +124,45 @@ let post = {
             formData.append('files', file);
         });
         return formData;
+    },
+
+    fetchPostRanking: function () {
+        $.ajax({
+            method: 'GET',
+            url: '/api/v1/posts/ranking',
+            dataType: 'json',
+            context: this
+        }).done((data) => {
+            post.displayPostRanking(data)
+        }).fail((error) => {
+            alert(error.responseJSON.message);
+            return false;
+        });
+    },
+
+    displayPostRanking: function (data) {
+        const rankingContainer = $("#ranking-container");
+        const existPostList = $('#ranking-container__list');
+        if (!existPostList.is(':empty')) {
+            existPostList.remove();
+        }
+
+        const postList = $("<div>").attr({
+            id: "ranking-container__list"
+        }).appendTo(rankingContainer);
+
+        if(data.length === 0) {
+            $("<span>").attr({
+                style: "opacity: 0.6"
+            }).text("존재하는 게시물이 없습니다.").appendTo(postList);
+        }
+
+        $.each(data, function (index, post) {
+            const link = $("<a>").attr({
+                href: "/posts/find/" + post.id,
+                style: "display: block"
+            }).text(post.title).appendTo(postList);
+        });
     }
 };
 

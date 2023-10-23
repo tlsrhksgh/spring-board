@@ -1,6 +1,5 @@
 package com.single.springboard.web;
 
-import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.post.dto.PostDocumentResponse;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
@@ -8,8 +7,9 @@ import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.web.dto.post.PostDetailResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,34 +18,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
     private final PostService postService;
     private final SearchService searchService;
-    private final RedisClient redisClient;
 
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/")
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
+        log.info("Authentication 정보: " +  SecurityContextHolder.getContext().getAuthentication());
         model.addAttribute("posts", postService.findAllPostAndCommentsCountDesc(pageable));
-        model.addAttribute("ranking", redisClient.getPostsRanking());
         model.addAttribute("user", user);
 
         return "index";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/save")
     public String postSave(Model model, @LoginUser SessionUser user) {
+        log.info("Authentication 정보: " +  SecurityContextHolder.getContext().getAuthentication());
+        log.info("user : " + user);
         model.addAttribute("user", user);
 
         return "post-save";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/posts/update/{id}")
     public String postUpdate(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         model.addAttribute("post", postService.findPostById(id, user));
@@ -54,7 +53,6 @@ public class IndexController {
         return "post-update";
     }
 
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/posts/find/{id}")
     public String postFind(@PathVariable Long id, Model model, @LoginUser SessionUser user) {
         PostDetailResponse post = postService.findPostDetail(id, user);
@@ -66,7 +64,6 @@ public class IndexController {
         return "post-find";
     }
 
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_GUEST')")
     @GetMapping("/search")
     public String search(
             @RequestParam("query") String keyword,
@@ -80,7 +77,6 @@ public class IndexController {
         return "search-result";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/user/info")
     public String userInfo(
             @LoginUser SessionUser user,
@@ -90,7 +86,6 @@ public class IndexController {
         return "user-info";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/post-list")
     public String postList(
             @LoginUser SessionUser user,
@@ -100,7 +95,6 @@ public class IndexController {
         return "post-list";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/comment-list")
     public String commentList(
             @LoginUser SessionUser user,
