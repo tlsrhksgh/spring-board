@@ -27,9 +27,6 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         SessionUser currentUser = (SessionUser)httpSession.getAttribute("user");
 
-        WebAuthenticationDetails web = (WebAuthenticationDetails) authentication.getDetails();
-        log.info("Session ID: " + web.getSessionId());
-
         String redirectUrl = currentUser.isSameName() ? "/user/info" : "/";
         response.sendRedirect(redirectUrl);
     }

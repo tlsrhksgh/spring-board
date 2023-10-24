@@ -28,7 +28,7 @@ import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 
 @RequiredArgsConstructor
 @Service
-public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+    public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private static final String UPLOAD_URL = "https://spring-board-file.s3.ap-northeast-2.amazonaws.com/";
     private static final String TEMP_USER_NAME = "사용자";
     private final UserRepository userRepository;

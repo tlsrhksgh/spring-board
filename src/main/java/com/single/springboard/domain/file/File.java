@@ -1,6 +1,10 @@
 package com.single.springboard.domain.file;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.single.springboard.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -35,6 +39,8 @@ public class File {
     @Column(nullable = false, updatable = false)
     private long size;
 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @CreatedDate
     private LocalDateTime createdDate;
 

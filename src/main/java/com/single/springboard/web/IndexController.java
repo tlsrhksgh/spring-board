@@ -29,7 +29,6 @@ public class IndexController {
     public String index(Model model,
                         @LoginUser SessionUser user,
                         Pageable pageable) {
-        log.info("Authentication 정보: " +  SecurityContextHolder.getContext().getAuthentication());
         model.addAttribute("posts", postService.findAllPostAndCommentsCountDesc(pageable));
         model.addAttribute("user", user);
 
@@ -38,8 +37,6 @@ public class IndexController {
 
     @GetMapping("/posts/save")
     public String postSave(Model model, @LoginUser SessionUser user) {
-        log.info("Authentication 정보: " +  SecurityContextHolder.getContext().getAuthentication());
-        log.info("user : " + user);
         model.addAttribute("user", user);
 
         return "post-save";

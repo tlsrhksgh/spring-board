@@ -1,5 +1,5 @@
 <div xmlns:th="http://www.thymeleaf.org">
-    <div th:fragment="login-menu(user)" style="margin-top: 20px; min-width: 230px; position: relative">
+    <div th:fragment="login-menu(user)" style="min-width: 230px; position: relative">
         <div style="position: absolute; right: 0px; margin-bottom: 15px;">
             <a th:href="${'/user/info'}">
                 <img th:src="${user.getPicture()}" width="30px" height="30px" style="border-radius: 15px" />
