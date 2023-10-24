@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -66,6 +67,12 @@ public class SecurityConfig {
                         exceptionHandlingConfigurer
                                 .authenticationEntryPoint(authenticationEntryPoint)
                 );
+
+        http.sessionManagement(session -> {
+            session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+            session.invalidSessionUrl("/");
+            session.sessionFixation().migrateSession();
+        });
 
         return http.build();
     }

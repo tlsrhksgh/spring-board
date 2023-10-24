@@ -1,0 +1,43 @@
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "tokenizer": {
+          "post_tokenizer": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed",
+            "discard_punctuation": "false"
+          }
+        },
+        "filter": {
+          "stopwords": {
+            "type": "stop",
+            "stopwords": [" "]
+          }
+        },
+        "analyzer": {
+          "post_analyzer": {
+            "type": "custom",
+            "tokenizer": "post_tokenizer",
+            "filter": ["lowercase", "stop", "stopwords", "nori_part_of_speech"],
+            "char_filter": ["html_strip"]
+          }
+        }
+      }
+    }
+  },
+  "mappings" : {
+    "properties" : {
+      "title": {
+        "type" : "text",
+        "analyzer": "post_analyzer",
+        "search_analyzer": "post_analyzer"
+      },
+      "content": {
+        "type" : "text",
+        "analyzer": "post_analyzer",
+        "search_analyzer": "post_analyzer"
+      }
+    }
+  }
+}
