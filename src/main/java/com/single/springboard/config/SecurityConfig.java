@@ -71,7 +71,7 @@ public class SecurityConfig {
         http.sessionManagement(session -> {
             session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
             session.invalidSessionUrl("/");
-            session.sessionFixation().migrateSession();
+            session.sessionFixation().changeSessionId();
         });
 
         return http.build();

@@ -40,12 +40,12 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, updatable = false)
     private Role role;
 
+    @JsonManagedReference("user-comments")
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE,orphanRemoval = true)
-    @JsonBackReference
     private List<Comment> comments;
 
+    @JsonManagedReference("post-user")
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JsonManagedReference
     private List<Post> posts;
 
     public User update(String name, String picture) {

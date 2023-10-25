@@ -30,7 +30,8 @@ let comment = {
             url: '/api/v1/comments',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(data)
+            data: JSON.stringify(data),
+            async: false
         }).done(function () {
             alert("댓글이 등록되었습니다.");
             window.location.href = '/posts/find/' + data.postId;
@@ -61,7 +62,8 @@ let comment = {
             url: '/api/v1/comments',
             dataType: 'json',
             contentType:'application/json; charset=utf-8',
-            data: JSON.stringify(data)
+            data: JSON.stringify(data),
+            async: false
         }).done(function () {
             alert("댓글이 등록 되었습니다.");
             window.location.href = '/posts/find/' + data.postId;

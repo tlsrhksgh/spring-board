@@ -26,7 +26,7 @@ public class File {
     private Long id;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference(value = "post-files")
     @JoinColumn(name = "post_id")
     private Post post;
 
