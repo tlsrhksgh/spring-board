@@ -1,8 +1,8 @@
-package com.single.springboard.service.post.constants;
+package com.single.springboard.client.constants;
 
 public enum PostKeys {
     RANKING("ranking"),
-    POST_ID_KEY("post:post_id:");
+    POSTS_KEY("posts");
 
     private final String key;
 

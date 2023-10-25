@@ -1,6 +1,7 @@
 package com.single.springboard.domain.comment;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.user.User;
@@ -33,20 +34,22 @@ public class Comment extends BaseTimeEntity {
 
     private int commentLevel;
 
+    @JsonBackReference(value = "post-comments")
     @ManyToOne
-    @JsonBackReference
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @JsonBackReference(value = "user-comments")
     @ManyToOne
-    @JsonBackReference
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonBackReference(value = "parent-child_comment")
     @ManyToOne
-    @JoinColumn(name = "parent_comment_id", referencedColumnName = "id", updatable = false)
+    @JoinColumn(name = "parent_comment_id", referencedColumnName = "id")
     private Comment parentComment;
 
+    @JsonManagedReference(value = "parent-child_comment")
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
 }

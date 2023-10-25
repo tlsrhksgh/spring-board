@@ -1,5 +1,6 @@
 package com.single.springboard.service.comment;
 
+import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.comment.dto.CommentPaginationDto;
@@ -13,11 +14,11 @@ import com.single.springboard.web.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Objects;
 
+import static com.single.springboard.client.constants.PostKeys.POSTS_KEY;
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
 import static com.single.springboard.exception.ErrorCode.NOT_FOUND_USER;
 
@@ -27,17 +28,18 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final RedisClient redisClient;
 
     @Transactional
-    public Long commentSave(CommentSaveRequest requestDto, String email) {
+    public void commentSave(CommentSaveRequest requestDto, SessionUser currentUser) {
         Post post = postRepository.findById(requestDto.postId())
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(currentUser.getEmail())
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
         Comment comment;
 
-        if(ObjectUtils.isEmpty(requestDto.parentId())) {
+        if (Objects.isNull(requestDto.parentId())) {
             comment = Comment.builder()
                     .user(user)
                     .author(requestDto.nickname())
@@ -64,7 +66,8 @@ public class CommentService {
                     .build();
         }
 
-        return commentRepository.save(comment).getId();
+        commentRepository.save(comment);
+        redisClient.delete(POSTS_KEY.getKey(), List.of(requestDto.postId()));
     }
 
     public Long deleteOneComment(Long commentId) {

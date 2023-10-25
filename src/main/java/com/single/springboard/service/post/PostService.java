@@ -24,16 +24,18 @@ import com.single.springboard.web.dto.post.PostResponse;
 import com.single.springboard.web.dto.post.PostSaveRequest;
 import com.single.springboard.web.dto.post.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.single.springboard.client.constants.PostKeys.POSTS_KEY;
 import static com.single.springboard.exception.ErrorCode.*;
 
 @Service
@@ -64,13 +66,8 @@ public class PostService {
     }
 
     public PostResponse findPostById(Long postId, SessionUser user) {
-        Post post = redisClient.get(postId, Post.class);
-
-        if(ObjectUtils.isEmpty(post)) {
-            post = postRepository.findById(postId)
-                    .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
-            redisClient.put(postId, post);
-        }
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
         postUtils.checkPostAuthor(post, user);
 
@@ -84,49 +81,44 @@ public class PostService {
     }
 
     @MeasureExecutionTime
-    @Transactional(readOnly = true)
+    @Transactional
     public PostDetailResponse findPostDetail(Long postId, @LoginUser SessionUser user) {
-        Post post = redisClient.get(postId, Post.class);
+        PostDetailResponse cachePost = redisClient.get(postId, PostDetailResponse.class);
 
-        if(ObjectUtils.isEmpty(post)) {
-            post = postRepository.findById(postId)
-                    .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
-            redisClient.put(postId, post);
+        if (!ObjectUtils.isEmpty(cachePost)) {
+            return cachePost;
         }
 
-        if (!ObjectUtils.isEmpty(user)) {
-            redisClient.increasePostViewCount(user.getEmail(), post);
+        Post post = postRepository.findPostDetail(postId);
+        if (Objects.nonNull(user)) {
+            this.increasePostViewCount(user.getEmail(), post);
         }
 
         List<Comment> comments = post.getComments();
-        List<Comment> sortedComments = commentUtils.commentsSort(comments);
+        List<CommentsResponse> sortedComments = commentUtils.createCommentsResponses(comments, post, user);
 
-        Post finalPost = post;
-        List<CommentsResponse> commentsResponses = sortedComments.stream()
-                .map(comment -> CommentsResponse.builder()
-                        .id(comment.getId())
-                        .commentLevel(comment.getCommentLevel())
-                        .parentId(comment.getParentComment())
-                        .content(comment.isSecret() ? commentUtils.enableSecretCommentView(finalPost.getAuthor(),
-                                        user.getName(), comment.getAuthor()) ?
-                                        comment.getContent() : "비밀 댓글 입니다." : comment.getContent())
-                        .author(comment.getAuthor())
-                        .createdDate(comment.getCreatedDate().format(
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                        ))
-                        .build())
-                .collect(Collectors.toList());
-
-        return PostDetailResponse.builder()
+        PostDetailResponse postDetail = PostDetailResponse.builder()
                 .id(post.getId())
-                .author(post.getUser().getName())
+                .author(post.getAuthor())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .comments(commentsResponses)
+                .comments(sortedComments)
                 .fileName(post.getFiles().stream().
                         map(File::getTranslateName)
                         .collect(Collectors.toList()))
                 .build();
+
+        redisClient.put(postId, postDetail);
+        return postDetail;
+    }
+
+    @Transactional
+    public void increasePostViewCount(String userId, Post post) {
+        Long viewCount = redisClient.checkReadAndIncreaseView(userId, post);
+
+        if (Objects.nonNull(viewCount)) {
+            post.increaseViewCount();
+        }
     }
 
     @MeasureExecutionTime
@@ -147,7 +139,7 @@ public class PostService {
                 postUtils.parseJsonStringToMap(updateDto.oldFileNames()));
 
         post.updatePost(updateDto);
-        redisClient.put(id, post);
+        redisClient.delete(POSTS_KEY.getKey(), List.of(id));
     }
 
 
@@ -158,18 +150,18 @@ public class PostService {
 
         postUtils.checkPostAuthor(post, user);
 
-        if (!post.getFiles().isEmpty()) {
+        if (!ObjectUtils.isEmpty(post.getFiles())) {
             fileService.deletePostChildFiles(post);
         }
 
         postRepository.deleteById(post.getId());
-        redisClient.delete(id);
+        redisClient.delete(POSTS_KEY.getKey(), List.of(id));
     }
 
     @Transactional
     public void deleteAllPost(List<Long> ids, SessionUser user) {
         postRepository.deleteAllPostByIds(ids, user.getName());
-        redisClient.delete(ids);
+        redisClient.delete(POSTS_KEY.getKey(), ids);
     }
 
     public CountResponse countPostAndComment(SessionUser user) {

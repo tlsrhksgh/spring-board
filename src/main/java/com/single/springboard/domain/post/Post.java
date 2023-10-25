@@ -34,16 +34,16 @@ public class Post extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @JsonManagedReference
+    @JsonManagedReference(value = "post-files")
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<File> files;
 
-    @JsonManagedReference
+    @JsonManagedReference(value = "post-comments")
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference(value = "post-user")
     @JoinColumn(name = "user_id")
     private User user;
 
