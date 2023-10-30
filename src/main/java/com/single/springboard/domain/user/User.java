@@ -1,6 +1,5 @@
 package com.single.springboard.domain.user;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.comment.Comment;

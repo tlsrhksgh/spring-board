@@ -1,6 +1,7 @@
 package com.single.springboard.domain.post;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,4 +20,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostCustomRep
 
     @Query("SELECT COUNT(p.user.name) from Post p where p.user.name = :username")
     Long countPostByUser(@Param("username") String username);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 where p.id = :postId")
+    void increaseViewCount(@Param("postId") Long postId);
 }

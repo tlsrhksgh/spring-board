@@ -10,6 +10,7 @@ import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.user.dto.SessionUser;
+import com.single.springboard.util.CommonUtils;
 import com.single.springboard.web.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final RedisClient redisClient;
+    private final CommonUtils commonUtils;
 
     @Transactional
     public void commentSave(CommentSaveRequest requestDto, SessionUser currentUser) {
@@ -70,10 +72,12 @@ public class CommentService {
         redisClient.delete(POSTS_KEY.getKey(), List.of(requestDto.postId()));
     }
 
-    public Long deleteOneComment(Long commentId) {
+    @Transactional
+    public void deleteComment(Long commentId, SessionUser user) {
+        Comment commentWithPost = commentRepository.getComment(commentId);
+        commonUtils.authorVerification(commentWithPost, user);
         commentRepository.deleteById(commentId);
-
-        return commentId;
+        redisClient.delete(POSTS_KEY.getKey(), List.of(commentWithPost.getPost().getId()));
     }
 
     public List<CommentPaginationDto> findWrittenCommentByUsername(SessionUser user, Long commentId) {

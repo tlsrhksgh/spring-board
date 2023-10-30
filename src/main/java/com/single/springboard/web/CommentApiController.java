@@ -27,8 +27,10 @@ public class CommentApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> commentDelete(@PathVariable Long id) {
-        return ResponseEntity.ok(commentService.deleteOneComment(id));
+    public ResponseEntity<Void> commentDelete(@PathVariable Long id,
+                                              @LoginUser SessionUser user) {
+        commentService.deleteComment(id, user);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/comment-list")

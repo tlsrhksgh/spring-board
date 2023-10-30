@@ -67,6 +67,10 @@ let post = {
     },
 
     delete: function (e) {
+        if(!confirm("해당 게시글을 정말 삭제 하시겠습니까?")) {
+            return false;
+        }
+
         const postId = e.target.parentNode.parentNode.childNodes.item(1).textContent;
 
         $.ajax({

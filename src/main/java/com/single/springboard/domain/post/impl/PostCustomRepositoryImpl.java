@@ -2,6 +2,7 @@ package com.single.springboard.domain.post.impl;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.DateFormatUtils;
 import com.single.springboard.domain.post.PostCustomRepository;
@@ -22,7 +23,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public Page<MainPostList> findAllPostWithCommentsCount(Pageable pageable) {
+    public Page<MainPostList> findAllPosts(Pageable pageable) {
         List<MainPostList> posts = query
                 .select(Projections.constructor(MainPostList.class,
                         post.id.as("postId"),
