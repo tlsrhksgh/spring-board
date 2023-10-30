@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import org.springframework.security.core.AuthenticationException;
 
+import static com.single.springboard.exception.ErrorCode.*;
+
 @Slf4j
 @ControllerAdvice
 public class ExceptionController {
@@ -43,6 +45,6 @@ public class ExceptionController {
     public ResponseEntity<ExceptionForm> handleAuthenticationException(AuthenticationException ex) {
         log.warn("authentication exception: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ExceptionForm(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()));
+                .body(new ExceptionForm(USER_REQUIRED_LOGIN.getContent(), HttpStatus.UNAUTHORIZED.value()));
     }
 }

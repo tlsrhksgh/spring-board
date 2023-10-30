@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.DateFormatUtils;
+import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentCustomRepository;
 import com.single.springboard.domain.comment.dto.CommentPaginationDto;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,21 @@ public class CommentCustomRepositoryImpl implements CommentCustomRepository {
                 .orderBy(comment.id.desc())
                 .limit(pageSize)
                 .fetch();
+    }
+
+    @Override
+    public Comment getComment(Long commentId) {
+        return query
+                .select(comment)
+                .from(comment)
+                .leftJoin(comment.post)
+                .fetchJoin()
+                .leftJoin(comment.user)
+                .fetchJoin()
+                .leftJoin(comment.children)
+                .fetchJoin()
+                .where(comment.id.eq(commentId))
+                .fetchOne();
     }
 
     private BooleanExpression ltCommentId(Long commentId) {

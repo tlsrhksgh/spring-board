@@ -7,4 +7,6 @@ import java.util.List;
 public interface CommentCustomRepository {
 
     List<CommentPaginationDto> commentListPaginationNoOffset(Long commentId, String username, int pageSize);
+
+    Comment getComment(Long commentId);
 }

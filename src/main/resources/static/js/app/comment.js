@@ -100,6 +100,9 @@ let comment = {
         parent.appendChild(li);
     },
     deleteComment: function (e) {
+        if(!confirm("선택하신 댓글을 삭제 하시겠습니까?")) {
+            return false;
+        }
         let parentDiv = e.target.parentElement;
         let datasetId = $(parentDiv).attr('dataset-id');
         const postId = window.location.href.split("/").pop().substring(0, 1);

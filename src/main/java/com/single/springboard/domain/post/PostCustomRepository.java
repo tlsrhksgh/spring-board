@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PostCustomRepository {
 
-    Page<MainPostList> findAllPostWithCommentsCount(Pageable pageable);
+    Page<MainPostList> findAllPosts(Pageable pageable);
 
     List<PostListPaginationNoOffset> postListPaginationNoOffset(Long postId, String username, int pageSize);
 

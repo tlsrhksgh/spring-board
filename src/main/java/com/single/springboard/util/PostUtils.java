@@ -3,24 +3,30 @@ package com.single.springboard.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.post.Post;
-import com.single.springboard.domain.user.User;
+import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.user.dto.SessionUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 
-import static com.single.springboard.exception.ErrorCode.IS_WRONG_ACCESS;
+import static com.single.springboard.exception.ErrorCode.NOT_FOUND_POST;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class PostUtils {
     private final ObjectMapper objectMapper;
+    private final RedisClient redisClient;
+    private final PostRepository postRepository;
 
     public Map<Long, String> parseJsonStringToMap(String oldFileNameJson) {
         Map<Long, String> oldFileMap = new HashMap<>();
@@ -43,10 +49,16 @@ public class PostUtils {
         return oldFileMap;
     }
 
-    public void checkPostAuthor(Post post, SessionUser user) {
-        User author = post.getUser();
-        if(!Objects.equals(author.getName(), user.getName()) || !Objects.equals(author.getEmail(), user.getEmail())) {
-            throw new CustomException(IS_WRONG_ACCESS);
+    @Async
+    @Transactional
+    public void increasePostViewCount(SessionUser user, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+        boolean isReadPost = redisClient.checkReadAndIncreaseView(user.getEmail(), postId.toString(), post.getTitle());
+
+        if (!isReadPost) {
+            postRepository.increaseViewCount(postId);
         }
     }
 }

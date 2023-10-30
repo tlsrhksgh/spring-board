@@ -2,7 +2,6 @@ package com.single.springboard.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.single.springboard.domain.post.Post;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.post.dto.PostRankingResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,10 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import static com.single.springboard.client.constants.PostKeys.POSTS_KEY;
 import static com.single.springboard.client.constants.PostKeys.RANKING;
@@ -63,18 +65,17 @@ public class RedisClient {
         redisTemplate.opsForHash().delete(key, keysArr);
     }
 
-    public Long checkReadAndIncreaseView(String userId, Post post) {
-        String postId = post.getId().toString();
-        boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userId, postId));
+    public boolean checkReadAndIncreaseView(String userEmail, String postId, String postTitle) {
+        boolean hasViewed = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(userEmail, postId));
 
         if(!hasViewed) {
-            Double score = redisTemplate.opsForZSet().incrementScore(
-                    RANKING.getKey(), post.getTitle() + ":" + postId, 1);
-            redisTemplate.opsForSet().add(userId, postId);
-            return Objects.nonNull(score) ? score.longValue() : null;
+            String mergeTitle = postTitle + ":" + postId;
+            redisTemplate.opsForZSet().incrementScore(RANKING.getKey(), mergeTitle, 1);
+            redisTemplate.opsForSet().add(userEmail, postId);
+            return false;
         }
 
-        return null;
+        return true;
     }
 
     public List<PostRankingResponse> getPostsRanking() {
@@ -82,21 +83,24 @@ public class RedisClient {
         Set<ZSetOperations.TypedTuple<Object>> typedTuples =
                 zSetOperations.reverseRangeWithScores(RANKING.getKey(), 0, 4);
 
-        List<PostRankingResponse> responses = new ArrayList<>();
-        if (typedTuples != null) {
+        List<PostRankingResponse> rankingList = new ArrayList<>();
+        if (!ObjectUtils.isEmpty(typedTuples)) {
             List<PostRankingResponse> list = typedTuples.stream()
                     .map(tuple -> {
-                        String[] splitValue = String.valueOf(tuple.getValue()).split(":");
+                        String convertToString = String.valueOf(tuple.getValue());
+                        String[] splitTitle = convertToString.split(":");
+                        int idLength = splitTitle[splitTitle.length - 1].length();
+
                         return PostRankingResponse.builder()
-                                .id(Long.parseLong(splitValue[splitValue.length - 1]))
-                                .title(splitValue[0])
+                                .id(Long.parseLong(splitTitle[splitTitle.length - 1]))
+                                .title(convertToString.substring(0, (convertToString.length() - idLength - 1)))
                                 .build();
                     })
                     .toList();
 
-            responses.addAll(list);
+            rankingList.addAll(list);
         }
 
-        return responses;
+        return rankingList;
     }
 }

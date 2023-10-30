@@ -53,8 +53,4 @@ public class Post extends BaseTimeEntity {
         this.title = updateRequest.title();
         this.content = updateRequest.content();
     }
-
-    public void increaseViewCount() {
-        this.viewCount += 1;
-    }
 }
