@@ -1,27 +1,27 @@
 package com.single.springboard.web;
 
+import com.single.springboard.domain.dto.post.MainPostList;
 import com.single.springboard.domain.post.Post;
-import com.single.springboard.domain.post.dto.MainPostListNoOffset;
-import com.single.springboard.domain.post.dto.MainPostPagination;
-import com.single.springboard.domain.post.dto.PostsResponse;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.exception.CustomException;
+import com.single.springboard.service.dto.post.PostDetailResponse;
+import com.single.springboard.service.dto.post.PostResponse;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.post.PostResponse;
-import com.single.springboard.web.dto.post.PostWithElementsResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.single.springboard.domain.user.Role.USER;
@@ -29,7 +29,6 @@ import static com.single.springboard.exception.ErrorCode.IS_WRONG_ACCESS;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -50,98 +49,60 @@ class IndexControllerTest {
     @WithMockUser(username = "guestUser", roles = "GUEST")
     void index_unAuthorizedUser_mainPage_loadSuccess() throws Exception {
         //given
-        List<MainPostListNoOffset> postListNoOffsets = Arrays.asList(
-                MainPostListNoOffset
-                        .builder()
-                        .author("testuser1")
-                        .commentCount(0L)
-                        .title("test")
-                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                        .viewCount(1L)
-                        .id(1L)
-                        .build(),
-                MainPostListNoOffset
-                        .builder()
-                        .author("testuser2")
-                        .commentCount(0L)
-                        .title("test")
-                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                        .viewCount(1L)
-                        .id(2L)
-                        .build());
-
-        MainPostPagination mainPostPagination = MainPostPagination
-                .builder()
-                .currentPage(1)
-                .first(true)
-                .totalPage(20)
-                .size(20)
-                .last(false)
-                .build();
-
-        PostsResponse postsResponse = new PostsResponse(postListNoOffsets, mainPostPagination);
-        given(postService.findAllPostAndCommentsCountDesc(1, 20))
-                .willReturn(postsResponse);
+        Pageable pageable =  PageRequest.of(0, 20);
+        Page<MainPostList> posts = createDummyPage();
+        given(postService.findAllPostAndCommentsCountDesc(pageable))
+                .willReturn(posts);
 
         //when
         //then
-        mockMvc.perform(get("/")
-                        .with(csrf()))
+        mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"))
-                .andExpect(model().attributeExists("posts", "ranking"))
-                .andExpect(model().attributeDoesNotExist( "user"));
+                .andExpect(model().attributeExists("posts"))
+                .andExpect(model().attributeDoesNotExist( "user", "ranking"));
 
-        verify(postService, times(1)).findAllPostAndCommentsCountDesc(1, 20);
+        verify(postService, times(1)).findAllPostAndCommentsCountDesc(pageable);
     }
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void index_authorizedUser_mainPage_loadSuccess() throws Exception {
         //given
-        List<MainPostListNoOffset> postListNoOffsets = Arrays.asList(
-                MainPostListNoOffset
-                        .builder()
-                        .author("testuser1")
-                        .commentCount(0L)
-                        .title("test")
-                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                        .viewCount(1L)
-                        .id(1L)
-                        .build(),
-                MainPostListNoOffset
-                        .builder()
-                        .author("testuser2")
-                        .commentCount(0L)
-                        .title("test")
-                        .modifiedDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                        .viewCount(1L)
-                        .id(2L)
-                        .build());
+        Pageable pageable =  PageRequest.of(0, 20);
+        Page<MainPostList> posts = createDummyPage();
 
-        MainPostPagination mainPostPagination = MainPostPagination
-                .builder()
-                .currentPage(1)
-                .first(true)
-                .totalPage(20)
-                .size(20)
-                .last(false)
+        User user = User.builder()
+                .id(1L)
+                .role(USER)
+                .name("testuser")
+                .email("testuser@naver.com")
+                .picture(null)
+                .sameName(false)
                 .build();
 
-        PostsResponse postsResponse = new PostsResponse(postListNoOffsets, mainPostPagination);
-        given(postService.findAllPostAndCommentsCountDesc(1, 20))
-                .willReturn(postsResponse);
+        SessionUser sessionUser = new SessionUser(user);
+        MockHttpSession mockSession = new MockHttpSession();
+        mockSession.setAttribute("user", sessionUser);
+
+        given(postService.findAllPostAndCommentsCountDesc(pageable))
+                .willReturn(posts);
 
         //when
         //then
         mockMvc.perform(get("/")
-                        .with(csrf()))
+                        .session(mockSession))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"))
-                .andExpect(model().attributeExists("posts", "ranking"))
-                .andExpect(model().attributeDoesNotExist( "user"));
+                .andExpect(model().attributeExists("user","posts"))
+                .andExpect(model().attributeDoesNotExist(  "ranking"));
 
-        verify(postService, times(1)).findAllPostAndCommentsCountDesc(1, 20);
+        verify(postService, times(1)).findAllPostAndCommentsCountDesc(pageable);
+    }
+
+    private Page<MainPostList> createDummyPage() {
+        List<MainPostList> postList = new ArrayList<>();
+        return new PageImpl<>(postList);
     }
 
     @Test
@@ -332,12 +293,12 @@ class IndexControllerTest {
         MockHttpSession mockSession = new MockHttpSession();
         mockSession.setAttribute("user", sessionUser);
 
-        PostWithElementsResponse postResponse = PostWithElementsResponse
+        PostDetailResponse postResponse = PostDetailResponse
                 .builder()
                 .author(sessionUser.getName())
                 .comments(null)
                 .content(post.getContent())
-                .fileName(null)
+                .fileNames(null)
                 .id(post.getId())
                 .title(post.getTitle())
                 .build();
@@ -355,7 +316,7 @@ class IndexControllerTest {
                 .andExpect(content().string(containsString("testuser")))
                 .andExpect(content().string(containsString("안녕하세요")))
                 .andExpect(content().string(containsString("반갑습니다!!")))
-                .andExpect(view().name("post-find"))
+                .andExpect(view().name("post-detail"))
                 .andExpect(model().attributeExists("user", "post"));
 
         verify(postService, times(1)).findPostDetail(post.getId(), sessionUser);
@@ -381,12 +342,12 @@ class IndexControllerTest {
                 .id(1L)
                 .build();
 
-        PostWithElementsResponse postResponse = PostWithElementsResponse
+        PostDetailResponse postResponse = PostDetailResponse
                 .builder()
                 .author(post.getUser().getName())
                 .comments(null)
                 .content(post.getContent())
-                .fileName(null)
+                .fileNames(null)
                 .id(post.getId())
                 .title(post.getTitle())
                 .build();
@@ -402,7 +363,7 @@ class IndexControllerTest {
                 .andExpect(content().string(containsString("testuser")))
                 .andExpect(content().string(containsString("안녕하세요")))
                 .andExpect(content().string(containsString("반갑습니다!!")))
-                .andExpect(view().name("post-find"))
+                .andExpect(view().name("post-detail"))
                 .andExpect(model().attributeExists("post"));
 
         verify(postService, times(1)).findPostDetail(post.getId(), null);

@@ -2,17 +2,16 @@ package com.single.springboard.web;
 
 import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.dto.post.PostListPaginationNoOffset;
+import com.single.springboard.service.dto.post.PostSaveRequest;
+import com.single.springboard.service.dto.post.PostUpdateRequest;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.post.dto.CountResponse;
 import com.single.springboard.service.post.dto.PostRankingResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.service.dto.post.PostSaveRequest;
-import com.single.springboard.service.dto.post.PostUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +30,7 @@ public class PostApiController {
             @ModelAttribute @Valid PostSaveRequest requestDto,
             @LoginUser SessionUser user) {
         postService.savePostAndFiles(requestDto, user);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}")
@@ -40,19 +39,19 @@ public class PostApiController {
             @ModelAttribute @Valid PostUpdateRequest updateDto,
             @LoginUser SessionUser user) {
         postService.updatePost(id, updateDto, user);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser SessionUser user) {
         postService.deletePost(id, user);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteAllPost(@RequestBody List<Long> postIds, @LoginUser SessionUser user) {
         postService.deleteAllPost(postIds, user);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/count")
