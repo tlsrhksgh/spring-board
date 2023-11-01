@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
-    <title th:text="${post.title}"></title>
+    <title th:text="${post.getTitle()}"></title>
     <meta http-equiv="content-type" content="text/html" charset="UTF-8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 </head>
@@ -11,17 +11,17 @@
     <div class="col-md-4">
         <div class="form-group">
             <label for="title">제목</label>
-            <p id="title" th:text="${post.title}"></p>
+            <p id="title" th:text="${post.getTitle()}"></p>
         </div>
         <div class="form-group">
             <label for="author">작성자</label>
-            <p id="author" th:text="${post.author()}"></p>
+            <p id="author" th:text="${post.getAuthor()}"></p>
         </div>
         <div class="form-group">
             <label for="content">내용</label>
-            <p id="content" th:text="${post.content()}"></p>
-            <div th:each="file : ${files}">
-                <img th:src="'https://spring-board-file.s3.ap-northeast-2.amazonaws.com/' + ${file}" />
+            <p id="content" th:text="${post.getContent()}"></p>
+            <div th:each="fileName : ${files}">
+                <img th:src="'https://spring-board-file.s3.ap-northeast-2.amazonaws.com/' + ${fileName}" />
             </div>
         </div>
     </div>
@@ -45,29 +45,29 @@
     <div class="col-md-4" id="post-comments">
         <ul>
             <li th:each="comment : ${comments}">
-                <div th:if="${comment.commentLevel() == 1}" th:attr="dataset-id=${comment.id()}, parent-id=0">
-                    <span th:text="${comment.author()}"></span>
-                    <p th:text="${comment.content()}"></p>
-                    <p th:text="${comment.createdDate()}" style="opacity: 0.6"></p>
+                <div th:if="${comment.commentLevel == 1}" th:attr="dataset-id=${comment.id}, parent-id=0">
+                    <span th:text="${comment.getAuthor()}"></span>
+                    <p th:text="${comment.getContent()}"></p>
+                    <p th:text="${comment.getCreatedDate()}" style="opacity: 0.6"></p>
                     <button type="button" class="create-comment_form" th:if="${user != null}">답글</button>
-                    <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.getName())}">❌</button>
+                    <button type="button" class="del-comment" th:if="${user != null && #strings.equals(comment.author, user.getName())}">❌</button>
                 </div>
 
-                <div th:if="${comment.commentLevel() > 1}" th:attr="dataset-id=${comment.id()}, parent-id=${comment.parentId().getId()}, style='margin-left: ' + (${comment.commentLevel()} * 15) + 'px'">
-                    <span th:utext="|${'└ '}|" th:if="${comment.commentLevel() > 1}"></span>
-                    <span th:text="${comment.author()}"></span>
-                    <p th:text="${comment.content()}"></p>
-                    <p th:text="${comment.createdDate()}" style="opacity: 0.6"></p>
+                <div th:if="${comment.commentLevel > 1}" th:attr="dataset-id=${comment.id}, parent-id=${comment.parentId.getId()}, style='margin-left: ' + (${comment.commentLevel()} * 15) + 'px'">
+                    <span th:utext="|${'└ '}|" th:if="${comment.commentLevel > 1}"></span>
+                    <span th:text="${comment.author}"></span>
+                    <p th:text="${comment.content}"></p>
+                    <p th:text="${comment.createdDate}" style="opacity: 0.6"></p>
                     <button type="button" class="create-comment_form" th:if="${user != null}">답글</button>
-                    <button type="button" class="del-comment" th:if="${user != null && comment.author().equals(user.getName())}">❌</button>
+                    <button type="button" class="del-comment" th:if="${user != null && #strings.equals(comment.author, user.getName())}">❌</button>
                 </div>
             </li>
         </ul>
     </div>
 
-    <div th:if="${user != null && user.getName().equals(post.author())}" id="post-status_container">
+    <div th:if="${user != null && #strings.equals(user.getName(), post.getAuthor())}" id="post-status_container">
         <a href="/" role="button" class="btn btn-secondary">취소</a>
-        <a role="button" class="btn btn-warning" th:href="${'/posts/update/' + post.id()}", style="color: white">
+        <a role="button" class="btn btn-warning" th:href="${'/posts/update/' + post.id}", style="color: white">
             수정
         </a>
     </div>

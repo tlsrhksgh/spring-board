@@ -7,8 +7,8 @@ import com.single.springboard.domain.comment.CommentRepository;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
-import com.single.springboard.domain.post.dto.MainPostList;
-import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
+import com.single.springboard.domain.dto.post.MainPostList;
+import com.single.springboard.domain.dto.post.PostListPaginationNoOffset;
 import com.single.springboard.domain.user.User;
 import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
@@ -19,11 +19,11 @@ import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.CommentUtils;
 import com.single.springboard.util.CommonUtils;
 import com.single.springboard.util.PostUtils;
-import com.single.springboard.web.dto.comment.CommentsResponse;
-import com.single.springboard.web.dto.post.PostDetailResponse;
-import com.single.springboard.web.dto.post.PostResponse;
-import com.single.springboard.web.dto.post.PostSaveRequest;
-import com.single.springboard.web.dto.post.PostUpdateRequest;
+import com.single.springboard.service.dto.comment.CommentsResponse;
+import com.single.springboard.service.dto.post.PostDetailResponse;
+import com.single.springboard.service.dto.post.PostResponse;
+import com.single.springboard.service.dto.post.PostSaveRequest;
+import com.single.springboard.service.dto.post.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -109,7 +109,7 @@ public class PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .comments(sortedComments)
-                .fileName(post.getFiles().stream().
+                .fileNames(post.getFiles().stream().
                         map(File::getTranslateName)
                         .collect(Collectors.toList()))
                 .build();

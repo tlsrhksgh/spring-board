@@ -1,14 +1,14 @@
 package com.single.springboard.web;
 
 import com.single.springboard.client.RedisClient;
-import com.single.springboard.domain.post.dto.PostListPaginationNoOffset;
+import com.single.springboard.domain.dto.post.PostListPaginationNoOffset;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.post.dto.CountResponse;
 import com.single.springboard.service.post.dto.PostRankingResponse;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.post.PostSaveRequest;
-import com.single.springboard.web.dto.post.PostUpdateRequest;
+import com.single.springboard.service.dto.post.PostSaveRequest;
+import com.single.springboard.service.dto.post.PostUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

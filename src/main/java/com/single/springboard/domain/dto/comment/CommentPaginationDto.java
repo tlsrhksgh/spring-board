@@ -1,4 +1,4 @@
-package com.single.springboard.domain.comment.dto;
+package com.single.springboard.domain.dto.comment;
 
 public record CommentPaginationDto(
         Long commentId,

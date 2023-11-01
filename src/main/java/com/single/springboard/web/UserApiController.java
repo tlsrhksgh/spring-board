@@ -3,7 +3,7 @@ package com.single.springboard.web;
 import com.single.springboard.service.user.CustomOAuth2UserService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.user.UserUpdateRequest;
+import com.single.springboard.service.dto.user.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

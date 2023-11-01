@@ -2,7 +2,7 @@ package com.single.springboard.service.search;
 
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import com.single.springboard.aop.MeasureExecutionTime;
-import com.single.springboard.domain.post.dto.PostDocumentResponse;
+import com.single.springboard.domain.dto.post.PostDocumentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;

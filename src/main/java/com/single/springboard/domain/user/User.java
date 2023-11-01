@@ -5,17 +5,14 @@ import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.post.Post;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "USERS", indexes = @Index(name = "idx_user_name", columnList = "name"))
 @Entity
 public class User extends BaseTimeEntity {

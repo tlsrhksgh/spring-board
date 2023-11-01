@@ -6,17 +6,16 @@ import com.single.springboard.domain.BaseTimeEntity;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.file.File;
 import com.single.springboard.domain.user.User;
-import com.single.springboard.web.dto.post.PostUpdateRequest;
+import com.single.springboard.service.dto.post.PostUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
 
-@ToString
 @Builder
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = @Index(name = "idx_post_title", columnList = "title"))
 @Entity
 public class Post extends BaseTimeEntity {

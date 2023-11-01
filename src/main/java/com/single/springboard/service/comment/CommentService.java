@@ -3,7 +3,7 @@ package com.single.springboard.service.comment;
 import com.single.springboard.client.RedisClient;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentRepository;
-import com.single.springboard.domain.comment.dto.CommentPaginationDto;
+import com.single.springboard.domain.dto.comment.CommentPaginationDto;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.post.PostRepository;
 import com.single.springboard.domain.user.User;
@@ -11,7 +11,7 @@ import com.single.springboard.domain.user.UserRepository;
 import com.single.springboard.exception.CustomException;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.CommonUtils;
-import com.single.springboard.web.dto.comment.CommentSaveRequest;
+import com.single.springboard.service.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,35 +33,35 @@ public class CommentService {
     private final CommonUtils commonUtils;
 
     @Transactional
-    public void commentSave(CommentSaveRequest requestDto, SessionUser currentUser) {
-        Post post = postRepository.findById(requestDto.postId())
+    public void commentSave(CommentSaveRequest commentSaveRequest, SessionUser currentUser) {
+        Post post = postRepository.findById(commentSaveRequest.postId())
                 .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
         User user = userRepository.findByEmail(currentUser.getEmail())
                 .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
         Comment comment;
 
-        if (Objects.isNull(requestDto.parentId())) {
+        if (Objects.isNull(commentSaveRequest.parentId())) {
             comment = Comment.builder()
                     .user(user)
-                    .author(requestDto.nickname())
-                    .content(requestDto.content())
-                    .secret(requestDto.secret())
+                    .author(commentSaveRequest.author())
+                    .content(commentSaveRequest.content())
+                    .secret(commentSaveRequest.secret())
                     .post(post)
                     .parentComment(null)
                     .commentLevel(1)
                     .build();
         } else {
             Comment parent = post.getComments().stream()
-                    .filter(c -> Objects.equals(c.getId(), requestDto.parentId()))
+                    .filter(c -> Objects.equals(c.getId(), commentSaveRequest.parentId()))
                     .findFirst()
                     .get();
 
             comment = Comment.builder()
                     .user(user)
-                    .author(requestDto.nickname())
-                    .content(requestDto.content())
-                    .secret(requestDto.secret())
+                    .author(commentSaveRequest.author())
+                    .content(commentSaveRequest.content())
+                    .secret(commentSaveRequest.secret())
                     .post(post)
                     .parentComment(parent)
                     .commentLevel(parent.getCommentLevel() + 1)
@@ -69,7 +69,7 @@ public class CommentService {
         }
 
         commentRepository.save(comment);
-        redisClient.delete(POSTS_KEY.getKey(), List.of(requestDto.postId()));
+        redisClient.delete(POSTS_KEY.getKey(), List.of(commentSaveRequest.postId()));
     }
 
     @Transactional

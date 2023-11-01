@@ -1,4 +1,4 @@
-package com.single.springboard.web.dto.post;
+package com.single.springboard.service.dto.post;
 
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.domain.user.User;

@@ -6,7 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.single.springboard.domain.DateFormatUtils;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.comment.CommentCustomRepository;
-import com.single.springboard.domain.comment.dto.CommentPaginationDto;
+import com.single.springboard.domain.dto.comment.CommentPaginationDto;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
