@@ -1,11 +1,11 @@
 package com.single.springboard.web;
 
-import com.single.springboard.domain.post.dto.PostDocumentResponse;
+import com.single.springboard.domain.dto.post.PostDocumentResponse;
 import com.single.springboard.service.post.PostService;
 import com.single.springboard.service.search.SearchService;
 import com.single.springboard.service.user.LoginUser;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.post.PostDetailResponse;
+import com.single.springboard.service.dto.post.PostDetailResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -54,10 +54,10 @@ public class IndexController {
         PostDetailResponse post = postService.findPostDetail(id, user);
         model.addAttribute("post", post);
         model.addAttribute("user", user);
-        model.addAttribute("comments", post.comments());
-        model.addAttribute("files", post.fileName());
+        model.addAttribute("comments", post.getComments());
+        model.addAttribute("files", post.getFileNames());
 
-        return "post-find";
+        return "post-detail";
     }
 
     @GetMapping("/search")

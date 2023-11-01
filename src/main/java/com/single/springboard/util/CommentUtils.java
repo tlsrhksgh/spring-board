@@ -3,7 +3,7 @@ package com.single.springboard.util;
 import com.single.springboard.domain.comment.Comment;
 import com.single.springboard.domain.post.Post;
 import com.single.springboard.service.user.dto.SessionUser;
-import com.single.springboard.web.dto.comment.CommentsResponse;
+import com.single.springboard.service.dto.comment.CommentsResponse;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;

@@ -1,9 +1,5 @@
-package com.single.springboard.domain.post.dto;
+package com.single.springboard.domain.dto.post;
 
-
-import lombok.Builder;
-
-@Builder
 public record MainPostList(
         Long id,
         String title,

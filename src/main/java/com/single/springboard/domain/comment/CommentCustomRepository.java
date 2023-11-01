@@ -1,6 +1,6 @@
 package com.single.springboard.domain.comment;
 
-import com.single.springboard.domain.comment.dto.CommentPaginationDto;
+import com.single.springboard.domain.dto.comment.CommentPaginationDto;
 
 import java.util.List;
 

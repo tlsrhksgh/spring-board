@@ -12,7 +12,7 @@ public class KakaoOAuthAttribute implements OAuthInterface {
         Map<String, Object> kakaoProfile = (Map<String, Object>)kakaoAccount.get("profile");
 
         return OAuthAttributes.builder()
-                .name((String) kakaoProfile.get("nickname"))
+                .name((String) kakaoProfile.get("author"))
                 .email((String) kakaoAccount.get("email"))
                 .picture((String) kakaoProfile.get("profile_image_url"))
                 .attributes(attributes)

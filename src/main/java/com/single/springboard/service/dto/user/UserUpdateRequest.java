@@ -1,4 +1,4 @@
-package com.single.springboard.web.dto.user;
+package com.single.springboard.service.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;

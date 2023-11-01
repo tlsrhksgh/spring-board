@@ -1,4 +1,4 @@
-package com.single.springboard.domain.post.dto;
+package com.single.springboard.domain.dto.post;
 
 public record PostListPaginationNoOffset(
         Long id,

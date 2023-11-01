@@ -20,7 +20,7 @@ let comment = {
         let data = {
             postId: match[1],
             cache: false,
-            nickname: $('#comment-author').text(),
+            author: $('#comment-author').text(),
             content: $('#comment-content').val(),
             secret: checked
         };

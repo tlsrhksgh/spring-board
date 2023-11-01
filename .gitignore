@@ -36,6 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-### oauth ###
 application-oauth.properties
 application-aws.properties
+application-db.properties

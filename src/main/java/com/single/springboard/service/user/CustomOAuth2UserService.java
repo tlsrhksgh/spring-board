@@ -7,7 +7,7 @@ import com.single.springboard.service.file.FileService;
 import com.single.springboard.service.user.dto.OAuthAttributes;
 import com.single.springboard.service.user.dto.SessionUser;
 import com.single.springboard.util.UserUtils;
-import com.single.springboard.web.dto.user.UserUpdateRequest;
+import com.single.springboard.service.dto.user.UserUpdateRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
